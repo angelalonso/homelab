@@ -19,3 +19,4 @@ sudo ufw default allow outgoing
 
 sudo ufw allow ${SSH_PORT}
 
+sudo ufw enable
