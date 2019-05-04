@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-APPS="frontend"
+APPS="frontend backend"
 
 uptodate() {
   echo up to date
@@ -9,8 +9,19 @@ uptodate() {
 
 build() {
   echo new build needed
-  for i in ${APPS}; do
-    echo $i
+  for APP in ${APPS}; do
+    echo ${APP}
+    git fetch origin master
+    DIFF=$(git diff origin/master -- ${APP}/VERSION)
+    if [ $DIFF != "" ]; then
+      PWD=$(pwd)
+      cd ${APP}
+      git pull
+      VERSION=$(cat VERSION)
+      echo $VERSION
+      cd $PWD
+    fi
+
   done
 }
 
