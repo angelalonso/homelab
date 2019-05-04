@@ -14,7 +14,8 @@ Locally:
 
 On the compiler machine:
 - Check for changes on the git repo
-git remote update && git status -uno
+[ $(git rev-parse HEAD) = $(git ls-remote $(git rev-parse --abbrev-ref @{u} | \
+sed 's/\// /g') | cut -f1) ] && echo up to date || echo not up to date
 - Test the code
 - Build image, add new tag, push to docker hub
 docker build . -t <account>/<repo>:<version>
