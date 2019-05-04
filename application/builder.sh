@@ -16,7 +16,7 @@ build() {
     if [ "$DIFF" != "" ]; then
       echo "-_- There was a version change on ${APP}"
       PWD=$(pwd)
-      cd ${APP}
+      cd ./${APP}
       git pull > /dev/null 2>&1
       VERSION=$(cat VERSION)
       echo "-_- New version for ${APP} is $VERSION"
