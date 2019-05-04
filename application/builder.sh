@@ -11,7 +11,7 @@ build() {
   echo "-_- Checking if new build needed"
   for APP in ${APPS}; do
     echo "-_- Checking ${APP}..."
-    git fetch origin master
+    git fetch origin master > /dev/null 2>&1
     DIFF=$(git diff origin/master -- ${APP}/VERSION)
     if [ "$DIFF" != "" ]; then
       echo "-_- There was a version change on ${APP}"
