@@ -13,7 +13,7 @@ build() {
     echo ${APP}
     git fetch origin master
     DIFF=$(git diff origin/master -- ${APP}/VERSION)
-    if [ $DIFF != "" ]; then
+    if [ "$DIFF" != "" ]; then
       PWD=$(pwd)
       cd ${APP}
       git pull
