@@ -8,18 +8,21 @@ uptodate() {
 }
 
 build() {
-  echo new build needed
+  echo "-_- Checking if new build needed"
   for APP in ${APPS}; do
-    echo ${APP}
+    echo "-_- Checking ${APP}..."
     git fetch origin master
     DIFF=$(git diff origin/master -- ${APP}/VERSION)
     if [ "$DIFF" != "" ]; then
+      echo "-_- There was a version change on ${APP}"
       PWD=$(pwd)
       cd ${APP}
-      git pull
+      git pull > /dev/null 2>&1
       VERSION=$(cat VERSION)
-      echo $VERSION
+      echo "-_- New version for ${APP} is $VERSION"
       cd $PWD
+    else
+      echo "-_- There was NO version change on ${APP}"
     fi
 
   done
