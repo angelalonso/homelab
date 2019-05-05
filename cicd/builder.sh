@@ -20,6 +20,8 @@ build() {
       git pull > /dev/null 2>&1
       VERSION=$(cat VERSION)
       echo "-_- New version for ${APP} is $VERSION"
+      #docker build . -t <account>/<repo>:<version>
+      #docker push <account>/<repo>:<version>
       cd $PWD
     else
       echo "-_- There was NO version change on ${APP}"
