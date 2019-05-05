@@ -11,5 +11,4 @@ Pin: version 18.06.*
 Pin-Priority: 1000
 - sudo apt-get update
 - sudo apt-get install docker-ce
-- sudo init 6
 
