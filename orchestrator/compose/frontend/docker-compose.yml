@@ -1,0 +1,7 @@
+version: '1'
+
+services:
+  frontend:
+    image: angelalonso/frontend:v0.03
+    ports:
+      - "8000:8000"

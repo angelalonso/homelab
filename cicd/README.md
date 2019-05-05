@@ -12,3 +12,8 @@ Pin-Priority: 1000
 - sudo apt-get update
 - sudo apt-get install docker-ce
 
+## Installing docker-compose
+
+sudo apt-get install build-essential libssl-dev libffi-dev python-dev python-pip
+pip install -U docker-compose
+
