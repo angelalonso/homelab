@@ -19,3 +19,10 @@ Pin-Priority: 1000
 ### Docker Swarm WORKER
 - Paste the command from the master
 
+### install Docker compose
+sudo apt-get install python-pip
+pip install -U docker-compose
+
+### deploy a stack
+docker stack deploy --compose-file docker-compose.yml stackdemo
+
