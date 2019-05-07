@@ -1,10 +1,9 @@
-FROM angelalonso/arm32v6_reactjs:0.01 AS builder
+FROM angelalonso/arm32v6_reactjs:v0.02 AS builder
 WORKDIR /app
-COPY . .
-RUN yarn run build
+RUN npm run build
 
-FROM angelalonso/arm32v6_reactjs:0.01
-RUN yarn global add serve
+FROM angelalonso/arm32v6_reactjs:v0.02
 WORKDIR /app
 COPY --from=builder /app/build .
+RUN npm install -g serve
 CMD ["serve", "-p", "80", "-s", "."]
