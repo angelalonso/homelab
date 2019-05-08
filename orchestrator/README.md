@@ -29,12 +29,27 @@ wget https://github.com/docker/machine/releases/download/v0.16.1/docker-machine-
 sudo install docker-machine-Linux-armhf /usr/local/bin/docker-machine
 
 
-services:
-  frontend:
-    image: angelalonso/frontend:v0.03
-    ports:
-      - "8000:8000"
+## create a services network
+docker network create \
+--driver overlay \
+--subnet 10.10.1.0/24 \
+--opt encrypted \
+services
 
 ### deploy a stack
+on docker-compose.yml:
+
+services:
+  frontend:
+    image: angelalonso/frontend:v0.04
+    ports:
+      - "80:80"
+networks:
+  default:
+    external:
+      name: services
+
+
 docker stack deploy --compose-file docker-compose.yml stackdemo
+
 
