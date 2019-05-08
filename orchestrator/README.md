@@ -19,9 +19,21 @@ Pin-Priority: 1000
 ### Docker Swarm WORKER
 - Paste the command from the master
 
-### install Docker compose
+### Install Docker compose
 sudo apt-get install python-pip
 pip install -U docker-compose
+
+### Install Docker machine
+- get to https://github.com/docker/machine/releases to check latest release (here v0.16.1)
+wget https://github.com/docker/machine/releases/download/v0.16.1/docker-machine-Linux-armhf
+sudo install docker-machine-Linux-armhf /usr/local/bin/docker-machine
+
+
+services:
+  frontend:
+    image: angelalonso/frontend:v0.03
+    ports:
+      - "8000:8000"
 
 ### deploy a stack
 docker stack deploy --compose-file docker-compose.yml stackdemo
