@@ -1,7 +1,7 @@
 
 
 var json = {
-    "completedHtml": "<h3>Thank you for your feedback.</h3> <h5>Your thoughts and ideas will help us to create a great product!</h5>",
+    "completedHtml": "<h3>Thank you for your feedback.</h3> <h5>We now will find the perfect joke for you!</h5>",
     "completedHtmlOnCondition": [
         {
             "expression": "{nps_score} > 8",
