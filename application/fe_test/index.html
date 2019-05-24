@@ -1,19 +1,42 @@
-<!DOCTYPE html>
 <html>
-    <head>
-        <title>NPS survey with follow-up questions, jQuery Survey Library Example</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src="https://unpkg.com/jquery"></script>
-        <script src="https://surveyjs.azureedge.net/1.0.84/survey.jquery.js"></script>
-        <link href="https://surveyjs.azureedge.net/1.0.84/survey.css" type="text/css" rel="stylesheet"/>
-        <link rel="stylesheet" href="./index.css">
+<head>
+<script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+    
+      class Hello extends React.Component {
+          constructor(){
+                  super();
+                  this.state = {
+                      message: "my state friend"
+                  };
+                  this.updateMessage = this.updateMessage.bind(this);
+              }
+          updateMessage() {
+              this.setState({
+                  message: "my changed state friend"
+              });
+          } 
+          render() {
+              return  (
+                 <div>
+                   <h1>Hello {this.props.message}!</h1>
+                   <h1>Hello {this.state.message}!</h1>
+                   <button onClick={this.updateMessage}>Click me!</button>
+                 </div>   
+              )
+          }
+      }
+    
+      ReactDOM.render(
+          <Hello message="my props friend" />,
+          document.getElementById("root")
+      );
 
-    </head>
-    <body>
-        <div id="surveyElement"></div>
-        <div id="surveyResult"></div>
-
-        <script type="text/javascript" src="./index.js"></script>
-
-    </body>
+    </script>
+</body>
 </html>
