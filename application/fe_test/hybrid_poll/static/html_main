@@ -5,41 +5,67 @@
   <!-- One "tab" for each step in the form: -->
   <div class="tab"><h2>Age:</h2>
       <label class="container">0-14
-        <input type="radio" name="radio_age" value="0">
+        <input type="radio" name="age" value="0">
         <span class="checkmark"></span>
       </label>
       <label class="container">15-20
-        <input type="radio" name="radio_age" value="15">
+        <input type="radio" name="age" value="15">
         <span class="checkmark"></span>
       </label>
       <label class="container">21-30
-        <input type="radio" checked="checked" name="radio_age" value="21">
+        <input type="radio" checked="checked" name="age" value="21">
         <span class="checkmark"></span>
       </label>
       <label class="container">31-45
-        <input type="radio" name="radio_age" value="31">
+        <input type="radio" name="age" value="31">
         <span class="checkmark"></span>
       </label>
       <label class="container">46-65
-        <input type="radio" name="radio_age" value="46">
+        <input type="radio" name="age" value="46">
         <span class="checkmark"></span>
       </label>
       <label class="container">65-...
-        <input type="radio" name="radio_age" value="65">
+        <input type="radio" name="age" value="65">
         <span class="checkmark"></span>
       </label>
   </div>
   <div class="tab"><h2>Sex:</h2>
       <label class="container">Male
-        <input type="radio" name="radio_sex" value="male">
+        <input type="radio" name="sex" value="male">
         <span class="checkmark"></span>
       </label>
       <label class="container">Female
-        <input type="radio" name="radio_sex" value="female">
+        <input type="radio" name="sex" value="female">
         <span class="checkmark"></span>
       </label>
       <label class="container">Other
-        <input type="radio" checked="checked" name="radio_sex" value="other">
+        <input type="radio" checked="checked" name="sex" value="other">
+        <span class="checkmark"></span>
+      </label>
+  </div>
+  <div class="tab"><h2>Religion:</h2>
+      <label class="container">None
+        <input type="radio" checked="checked" name="religion" value="none">
+        <span class="checkmark"></span>
+      </label>
+      <label class="container">Christian
+        <input type="radio" name="religion" value="christian">
+        <span class="checkmark"></span>
+      </label>
+      <label class="container">Muslim
+        <input type="radio" name="religion" value="muslim">
+        <span class="checkmark"></span>
+      </label>
+      <label class="container">Jew
+        <input type="radio" name="religion" value="jew">
+        <span class="checkmark"></span>
+      </label>
+      <label class="container">Buddhist
+        <input type="radio" name="religion" value="buddhist">
+        <span class="checkmark"></span>
+      </label>
+      <label class="container">Other
+        <input type="radio" name="religion" value="other">
         <span class="checkmark"></span>
       </label>
   </div>
@@ -51,7 +77,6 @@
   </div>
   <!-- Circles which indicates the steps of the form: -->
   <div style="text-align:center;margin-top:40px;">
-    <span class="step"></span>
     <span class="step"></span>
     <span class="step"></span>
     <span class="step"></span>
