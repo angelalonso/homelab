@@ -34,5 +34,9 @@ func TestCreateContent(t *testing.T) {
 	// the page must have a title
 	titleStartIndex := strings.Index(pageContent, "<!DOCTYPE html>")
 	assert.NotEqual(t, -1, titleStartIndex, "There should be a DOCTYPE tag")
+}
 
+func TestParseResult(t *testing.T) {
+	classifiers := parseResult("")
+	assert.Equal(t, "", classifiers, "The classifiers should contain something else")
 }

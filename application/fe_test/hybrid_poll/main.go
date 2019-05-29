@@ -10,6 +10,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type Classifier struct {
+	name  string
+	value string
+}
+
 func Router() *mux.Router {
 	router := mux.NewRouter()
 	router.HandleFunc("/", CreateEndpoint).Methods("GET")
@@ -17,14 +22,15 @@ func Router() *mux.Router {
 	return router
 }
 
-func GetResult(w http.ResponseWriter, req *http.Request) {
-	fmt.Println(req.URL)
-
-}
-
 func CreateEndpoint(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(200)
 	w.Write([]byte(CreateContent()))
+}
+
+func GetResult(w http.ResponseWriter, req *http.Request) {
+	fmt.Println(parseResult(string(req.URL.RequestURI())))
+	w.WriteHeader(200)
+	w.Write([]byte("All good"))
 }
 
 func CreateContent() string {
@@ -62,7 +68,12 @@ func CreateContent() string {
 	content = append(content, html_footer...)
 
 	return string(content)
+}
 
+func parseResult(result string) []Classifier {
+	var c []Classifier
+
+	return c
 }
 
 func main() {
