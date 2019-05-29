@@ -5,89 +5,89 @@
   <!-- One "tab" for each step in the form: -->
   <div class="tab"><h2>Age:</h2>
       <label class="container">0-14
-        <input type="radio" name="radio_age">
+        <input type="radio" name="radio_age" value="0">
         <span class="checkmark"></span>
       </label>
       <label class="container">15-20
-        <input type="radio" name="radio_age">
+        <input type="radio" name="radio_age" value="15">
         <span class="checkmark"></span>
       </label>
       <label class="container">21-30
-        <input type="radio" checked="checked" name="radio_age">
+        <input type="radio" checked="checked" name="radio_age" value="21">
         <span class="checkmark"></span>
       </label>
       <label class="container">31-45
-        <input type="radio" name="radio_age">
+        <input type="radio" name="radio_age" value="31">
         <span class="checkmark"></span>
       </label>
       <label class="container">46-65
-        <input type="radio" name="radio_age">
+        <input type="radio" name="radio_age" value="46">
         <span class="checkmark"></span>
       </label>
       <label class="container">65-...
-        <input type="radio" name="radio_age">
+        <input type="radio" name="radio_age" value="65">
         <span class="checkmark"></span>
       </label>
   </div>
   <div class="tab"><h2>Sex:</h2>
       <label class="container">Male
-        <input type="radio" name="radio_sex">
+        <input type="radio" name="radio_sex" value="male">
         <span class="checkmark"></span>
       </label>
       <label class="container">Female
-        <input type="radio" name="radio_sex">
+        <input type="radio" name="radio_sex" value="female">
         <span class="checkmark"></span>
       </label>
       <label class="container">Other
-        <input type="radio" checked="checked" name="radio_sex">
+        <input type="radio" checked="checked" name="radio_sex" value="other">
         <span class="checkmark"></span>
       </label>
   </div>
   <div class="tab"><h2>Religion:</h2>
       <label class="container">None
-        <input type="radio" name="radio_religion">
+        <input type="radio" name="radio_religion" value="none">
         <span class="checkmark"></span>
       </label>
       <label class="container">Christian
-        <input type="radio" name="radio_religion">
+        <input type="radio" name="radio_religion" value="christian">
         <span class="checkmark"></span>
       </label>
       <label class="container">Muslim
-        <input type="radio" name="radio_religion">
+        <input type="radio" name="radio_religion" value="muslim">
         <span class="checkmark"></span>
       </label>
       <label class="container">Jew
-        <input type="radio" name="radio_religion">
+        <input type="radio" name="radio_religion" value="jew">
         <span class="checkmark"></span>
       </label>
       <label class="container">Other
-        <input type="radio" checked="checked" name="radio_religion">
+        <input type="radio" checked="checked" name="radio_religion" value="other">
         <span class="checkmark"></span>
       </label>
   </div>
   <div class="tab"><h2>Politics:</h2>
       <label class="container">Center Right
-        <input type="radio" name="radio_politics">
+        <input type="radio" name="radio_politics" value="centerright">
         <span class="checkmark"></span>
       </label>
       <label class="container">Center Left
-        <input type="radio" name="radio_politics">
+        <input type="radio" name="radio_politics" value="centerleft">
         <span class="checkmark"></span>
       </label>
       <label class="container">Far Right
-        <input type="radio" name="radio_politics">
+        <input type="radio" name="radio_politics" value="farright">
         <span class="checkmark"></span>
       </label>
       <label class="container">Far Left
-        <input type="radio" name="radio_politics">
+        <input type="radio" name="radio_politics" value="farleft">
         <span class="checkmark"></span>
       </label>
       <label class="container">None
-        <input type="radio" name="radio_politics">
+        <input type="radio" name="radio_politics" value="none">
         <span class="checkmark"></span>
       </label>
       <label class="container">Other
-        <input type="radio" checked="checked" name="radio_politics">
+        <input type="radio" checked="checked" name="radio_politics" value="other">
         <span class="checkmark"></span>
       </label>
   </div>
