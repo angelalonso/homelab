@@ -2,10 +2,10 @@
 
 ## Requisites
 go get github.com/stretchr/testify/assert
-npm install -g mocha
+npm install -g jest
 
 ## Testing
 ###Golang
 go test -v -cover
-### JS (mocha)
-mocha
+### JS (jest)
+jest
