@@ -52,7 +52,9 @@ func CreateContent() string {
 	content = append(content, html_header...)
 	content = append(content, css...)
 	content = append(content, html_main...)
+	content = append(content, "<script>"...)
 	content = append(content, js...)
+	content = append(content, "</script>"...)
 	content = append(content, html_footer...)
 
 	return string(content)
