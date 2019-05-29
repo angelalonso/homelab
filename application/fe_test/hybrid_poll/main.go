@@ -6,12 +6,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
 
 type Classifier struct {
-	name  string
+	key   string
 	value string
 }
 
@@ -28,6 +29,7 @@ func CreateEndpoint(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetResult(w http.ResponseWriter, req *http.Request) {
+	fmt.Println(req.URL)
 	fmt.Println(parseResult(string(req.URL.RequestURI())))
 	w.WriteHeader(200)
 	w.Write([]byte("All good"))
@@ -72,6 +74,17 @@ func CreateContent() string {
 
 func parseResult(result string) []Classifier {
 	var c []Classifier
+
+	splittedResult := strings.Split(strings.Replace(result, "/post/?", "", 1), "&")
+	if len(splittedResult[0]) > 0 {
+		for _, each := range splittedResult {
+			newClassifier := Classifier{
+				key:   strings.Split(each, "=")[0],
+				value: strings.Split(each, "=")[1],
+			}
+			c = append(c, newClassifier)
+		}
+	}
 
 	return c
 }

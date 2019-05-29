@@ -36,7 +36,14 @@ func TestCreateContent(t *testing.T) {
 	assert.NotEqual(t, -1, titleStartIndex, "There should be a DOCTYPE tag")
 }
 
-func TestParseResult(t *testing.T) {
-	classifiers := parseResult("")
-	assert.Equal(t, "", classifiers, "The classifiers should contain something else")
+func TestParseResultEmpty(t *testing.T) {
+	var expectedEmpty []Classifier
+	classifiersEmpty := parseResult("")
+	assert.Equal(t, expectedEmpty, classifiersEmpty, "The classifiers should contain something else")
+	expected := []Classifier{
+		Classifier{key: "radio_age", value: "21"},
+		Classifier{key: "radio_sex", value: "other"},
+	}
+	classifiersFilled := parseResult("/post/?radio_age=21&radio_sex=other")
+	assert.Equal(t, expected, classifiersFilled, "The classifiers should contain something else")
 }
