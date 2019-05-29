@@ -13,7 +13,13 @@ import (
 func Router() *mux.Router {
 	router := mux.NewRouter()
 	router.HandleFunc("/", CreateEndpoint).Methods("GET")
+	router.HandleFunc("/post/", GetResult).Methods("GET")
 	return router
+}
+
+func GetResult(w http.ResponseWriter, req *http.Request) {
+	fmt.Println(req.URL)
+
 }
 
 func CreateEndpoint(w http.ResponseWriter, req *http.Request) {
@@ -52,9 +58,7 @@ func CreateContent() string {
 	content = append(content, html_header...)
 	content = append(content, css...)
 	content = append(content, html_main...)
-	content = append(content, "<script>"...)
 	content = append(content, js...)
-	content = append(content, "</script>"...)
 	content = append(content, html_footer...)
 
 	return string(content)

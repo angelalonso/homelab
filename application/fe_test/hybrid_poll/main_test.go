@@ -6,9 +6,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-  "os/exec"
-  "log"
-  "os"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -39,15 +36,3 @@ func TestCreateContent(t *testing.T) {
 	assert.NotEqual(t, -1, titleStartIndex, "There should be a DOCTYPE tag")
 
 }
-
-func TestJavascript(t *testing.T) {
-  cmd := exec.Command("mocha")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err := cmd.Run()
-	if err != nil {
-		log.Fatalf("cmd.Run() failed with %s\n", err)
-	  assert.Equal(t, nil, err, "OK response is expected")
-	}
-}
-
