@@ -10,6 +10,8 @@
 
 """
 import json
+import subprocess
+from git import Repo
 
 def getConfig(filename):
     """- Builds a list of git folders to check,
@@ -18,29 +20,48 @@ def getConfig(filename):
         data = json.load(json_file)
     return data
 
-def GetMasterChanges():
+def getMasterChanges():
     """- Checks for changes in master,
     - Pulls if needed,
     """
-    pass
+    working_tree_dir = '/home/aaf/Software/Dev/homelab'
+    repo = Repo(working_tree_dir)
+    current_hash = repo.head.object.hexsha
+    o = repo.remotes.origin
+    o.pull()
+    pull_hash = repo.head.object.hexsha
+    if current_hash != pull_hash:
+        print("files have changed")
+    else:
+        print("no changes")
+    #git pull > /dev/null 2>&1
 
-def CheckVersion():
+def checkVersion():
     """- Checks for changes in the 'VERSION' file,
     """
     pass
 
-def RunTest():
+def runTest():
     """- If it changed, it runs 'test.sh',
     """
     pass
 
-def BuildImage():
+def buildImage():
     """- Builds the image,
     """
     pass
 
-def PushImage():
+def pushImage():
     """- Pushes to Dockerhub.
     """
     pass
 
+def main():
+    configfile = 'apps.json'
+    apps = getConfig(configfile)
+    for app in apps:
+        print(app)
+    getMasterChanges()
+
+if __name__ == '__main__':
+    main()

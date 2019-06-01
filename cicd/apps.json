@@ -1,0 +1,10 @@
+{
+  "frontend": {
+    "dir": "applications/frontend",
+    "version": "0.1"
+  },
+  "backend": {
+    "dir": "applications/backend",
+    "version": "0.1"
+  }
+}

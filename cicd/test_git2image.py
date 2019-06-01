@@ -14,7 +14,7 @@ def test_getConfig():
         'version': '0.1'
     }
     json = g2i.getConfig(filename)
-    assert data == json
+    assert json == data
 
 def test_getMasterChanges():
     pass
