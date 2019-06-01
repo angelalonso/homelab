@@ -9,11 +9,14 @@
 - Pushes to Dockerhub.
 
 """
+import json
 
-def getConfig():
+def getConfig(filename):
     """- Builds a list of git folders to check,
     """
-    pass
+    with open(filename) as json_file:  
+        data = json.load(json_file)
+    return data
 
 def GetMasterChanges():
     """- Checks for changes in master,
