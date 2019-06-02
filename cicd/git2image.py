@@ -20,21 +20,22 @@ def getConfig(filename):
         data = json.load(json_file)
     return data
 
+# TODO: instead, let's just pull latest and check change of version somewhere else
 def getMasterChanges():
     """- Checks for changes in master,
     - Pulls if needed,
     """
     working_tree_dir = '/home/aaf/Software/Dev/homelab'
     repo = Repo(working_tree_dir)
-    current_hash = repo.head.object.hexsha
-    o = repo.remotes.origin
-    o.pull()
-    pull_hash = repo.head.object.hexsha
-    if current_hash != pull_hash:
-        print("files have changed")
-    else:
-        print("no changes")
-    #git pull > /dev/null 2>&1
+    commit_dev = repo.commit("master")
+    commit_origin_dev = repo.commit("origin/master")
+    diff_index = commit_origin_dev.diff(commit_dev)
+
+    #TODO: Check only VERSION on the folder we want 
+    for diff_item in diff_index.iter_change_type('M'):
+        print(diff_item.a_path)
+        print("{}".format(diff_item.a_blob.data_stream.read().decode('utf-8')))
+        print("{}".format(diff_item.b_blob.data_stream.read().decode('utf-8')))
 
 def checkVersion():
     """- Checks for changes in the 'VERSION' file,
