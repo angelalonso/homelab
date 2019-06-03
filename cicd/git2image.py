@@ -1,17 +1,19 @@
 """Get new code into a docker image
 
 - Builds a list of git folders to check,
-- Checks for changes in master,
-- Pulls if needed,
+- Pulls master, throws possible errors,
 - Checks for changes in the 'VERSION' file,
 - If it changed, it runs 'test.sh',
 - Builds the image,
 - Pushes to Dockerhub.
 
 """
+import argparse
+import git
 import json
+import os
 import subprocess
-from git import Repo
+import sys
 
 def getConfig(filename):
     """- Builds a list of git folders to check,
@@ -20,22 +22,14 @@ def getConfig(filename):
         data = json.load(json_file)
     return data
 
-# TODO: instead, let's just pull latest and check change of version somewhere else
-def getMasterChanges():
-    """- Checks for changes in master,
-    - Pulls if needed,
+def getMasterChanges(git_dir):
+    """- Pulls master, throws possible errors,
     """
-    working_tree_dir = '/home/aaf/Software/Dev/homelab'
-    repo = Repo(working_tree_dir)
-    commit_dev = repo.commit("master")
-    commit_origin_dev = repo.commit("origin/master")
-    diff_index = commit_origin_dev.diff(commit_dev)
-
-    #TODO: Check only VERSION on the folder we want 
-    for diff_item in diff_index.iter_change_type('M'):
-        print(diff_item.a_path)
-        print("{}".format(diff_item.a_blob.data_stream.read().decode('utf-8')))
-        print("{}".format(diff_item.b_blob.data_stream.read().decode('utf-8')))
+    repo = git.Repo(git_dir)
+    try:
+        repo.remotes.origin.pull()
+    except git.exc.GitCommandError as gitErr: 
+        return gitErr
 
 def checkVersion():
     """- Checks for changes in the 'VERSION' file,
@@ -57,12 +51,31 @@ def pushImage():
     """
     pass
 
-def main():
+def createParser():
+    # TODO: add a helper function
+    parser = argparse.ArgumentParser()  
+    parser.add_argument("-D", "--directory", help="full path of the main git directory")
+    return parser
+
+def checkArgs(args):
+    # https://stackabuse.com/command-line-arguments-in-python/
+    if args.directory:  
+        main_git_dir = args.directory
+    else:
+        # NOTE: I assume the current structure of this repo
+        main_git_dir = os.getcwd() + "/.."
+    return main_git_dir
+
+def mainLogic(main_git_dir):
     configfile = 'apps.json'
     apps = getConfig(configfile)
+    gitErr = getMasterChanges(main_git_dir)
+    if gitErr != None:
+        sys.exit(2)
     for app in apps:
-        print(app)
-    getMasterChanges()
+        pass
+        #TODO: check VERSION, continue testing and building
 
 if __name__ == '__main__':
-    main()
+    args = createParser().parse_args()
+    mainLogic(checkArgs(args))
