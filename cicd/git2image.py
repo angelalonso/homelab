@@ -48,8 +48,8 @@ def checkVersionsMatch(version_filename, version):
     else:
         return True
 
-def runTest():
-    """- If it changed, it runs 'test.sh',
+def runTest(app_dir):
+    """- If it changed, it runs 'run_tests.sh',
     """
     pass
 
@@ -86,8 +86,10 @@ def mainLogic(main_git_dir):
         print("ERROR: the provided folder, " + main_git_dir + " is not the main directory of a Git repo")
         sys.exit(2)
     for app in apps:
-        if not checkVersionsMatch(main_git_dir + "/" + apps[app]['dir'] + "/VERSION", apps[app]['version']):
+        app_dir = main_git_dir + "/" + apps[app]['dir']
+        if not checkVersionsMatch(app_dir + "/VERSION", apps[app]['version']):
             print(app + " will be rebuilt")
+            runTest(appdir)
 
 
 if __name__ == '__main__':
