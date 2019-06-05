@@ -10,7 +10,7 @@ def test_checkArgs():
     assert g2i.checkArgs(parsed_empty) == os.getcwd() + "/.."
 
 def test_getConfig():
-    filename = 'apps.json'
+    filename = './test/apps.json'
     data = {}  
     data['frontend'] = {  
         'dir': 'application/frontend',
@@ -29,8 +29,9 @@ def test_getMasterChanges():
     gitPullErr = g2i.getMasterChanges(test_git_dir)
     assert gitPullErr == None
 
-def test_checkVersion():
-    pass
+def test_checkVersionsMatch():
+    assert g2i.checkVersionsMatch("./test/VERSION", "0.01")
+    assert not g2i.checkVersionsMatch("./test/VERSION", "0.02")
 
 def test_runTest():
     pass
