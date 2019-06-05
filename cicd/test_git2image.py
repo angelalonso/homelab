@@ -34,7 +34,7 @@ def test_checkVersionsMatch():
     assert not g2i.checkVersionsMatch("./test/VERSION", "0.02")
 
 def test_runTest():
-    pass
+    assert not g2i.runTest("./test")
 
 def test_buildImage():
     pass

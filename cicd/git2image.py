@@ -51,7 +51,11 @@ def checkVersionsMatch(version_filename, version):
 def runTest(app_dir):
     """- If it changed, it runs 'run_tests.sh',
     """
-    pass
+    try:
+        print(sh.bash(app_dir + "/run_tests.sh"))
+    except sh.ErrorReturnCode:
+        return False
+    return True
 
 def buildImage():
     """- Builds the image,
@@ -89,7 +93,10 @@ def mainLogic(main_git_dir):
         app_dir = main_git_dir + "/" + apps[app]['dir']
         if not checkVersionsMatch(app_dir + "/VERSION", apps[app]['version']):
             print(app + " will be rebuilt")
-            runTest(appdir)
+            if runTest(app_dir):
+                print("- test passed")
+            else:
+                print("- test FAILED")
 
 
 if __name__ == '__main__':
