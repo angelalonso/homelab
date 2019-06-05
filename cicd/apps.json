@@ -5,6 +5,6 @@
   },
   "backend": {
     "dir": "application/backend",
-    "version": "0.01"
+    "version": "0.00"
   }
 }

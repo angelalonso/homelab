@@ -35,14 +35,21 @@ def getMasterChanges(git_dir):
     except git.exc.GitCommandError as gitErr: 
         return gitErr
 
-def doVersionsMatch(version_filename, version):
-    """- Checks for changes in the 'VERSION' file,
+def getVersionFromFile(version_filename):
+    """- Gets content of the 'VERSION' file,
     """
     try:
         with open (version_filename, "r") as myfile:
             version_file = myfile.read().replace('\n', '')
     except FileNotFoundError:
         version_file = ""
+    return version_file
+
+
+def doVersionsMatch(version_filename, version):
+    """- Checks for changes in the 'VERSION' file,
+    """
+    version_file = getVersionFromFile(version_filename)
     if version != version_file:
         return False
     else:
@@ -53,15 +60,18 @@ def runTest(app_dir):
     """
     print(" - Running tests on " + app_dir + "...")
     try:
-        print(sh.bash(app_dir + "/run_tests.sh"))
+        sh.bash(app_dir + "/run_tests.sh", _out=sys.stdout)
     except sh.ErrorReturnCode:
         return False
     return True
 
-def buildImage(app_dir):
+def buildImage(app, version, app_dir):
     """- Builds the image,
     """
-    pass
+    print(" - Building image from " + app_dir + "...")
+    #docker build -t backend:0.01 /home/aaf/Software/Dev/homelab/cicd/../application/backend/.
+    sh.docker.build("-t", app + ":" + version, app_dir + "/.", _out=sys.stdout)
+    #print(sh.docker.build("-t", app + ":" + version, app_dir + "/."))
 
 def pushImage():
     """- Pushes to Dockerhub.
@@ -97,7 +107,7 @@ def mainLogic(main_git_dir):
             print(" - " + app + " will be rebuilt")
             if runTest(app_dir):
                 print(" - test passed")
-                build(app_dir)
+                buildImage(app, getVersionFromFile(app_dir + "/VERSION"), app_dir)
             else:
                 print(" - test FAILED")
         else: 
