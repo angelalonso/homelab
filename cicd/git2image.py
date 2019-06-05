@@ -35,7 +35,7 @@ def getMasterChanges(git_dir):
     except git.exc.GitCommandError as gitErr: 
         return gitErr
 
-def checkVersionsMatch(version_filename, version):
+def doVersionsMatch(version_filename, version):
     """- Checks for changes in the 'VERSION' file,
     """
     try:
@@ -49,15 +49,16 @@ def checkVersionsMatch(version_filename, version):
         return True
 
 def runTest(app_dir):
-    """- If it changed, it runs 'run_tests.sh',
+    """- Runs 'run_tests.sh', located on the provided folder
     """
+    print(" - Running tests on " + app_dir + "...")
     try:
         print(sh.bash(app_dir + "/run_tests.sh"))
     except sh.ErrorReturnCode:
         return False
     return True
 
-def buildImage():
+def buildImage(app_dir):
     """- Builds the image,
     """
     pass
@@ -90,13 +91,17 @@ def mainLogic(main_git_dir):
         print("ERROR: the provided folder, " + main_git_dir + " is not the main directory of a Git repo")
         sys.exit(2)
     for app in apps:
+        print(app)
         app_dir = main_git_dir + "/" + apps[app]['dir']
-        if not checkVersionsMatch(app_dir + "/VERSION", apps[app]['version']):
-            print(app + " will be rebuilt")
+        if not doVersionsMatch(app_dir + "/VERSION", apps[app]['version']):
+            print(" - " + app + " will be rebuilt")
             if runTest(app_dir):
-                print("- test passed")
+                print(" - test passed")
+                build(app_dir)
             else:
-                print("- test FAILED")
+                print(" - test FAILED")
+        else: 
+            print(" - " + app + " does not need a rebuilt")
 
 
 if __name__ == '__main__':
