@@ -42,7 +42,8 @@ def test_runTest():
     assert not g2i.runTest("./test")
 
 def test_buildImage():
-    pass
+    assert not g2i.buildImage('test', '0.00', 'test/.')
+    assert g2i.buildImage('test', '0.00', 'test/docker/.')
 
 def test_pushImage():
     pass

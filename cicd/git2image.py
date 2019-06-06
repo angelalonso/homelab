@@ -69,9 +69,11 @@ def buildImage(app, version, app_dir):
     """- Builds the image,
     """
     print(" - Building image from " + app_dir + "...")
-    #docker build -t backend:0.01 /home/aaf/Software/Dev/homelab/cicd/../application/backend/.
-    sh.docker.build("-t", app + ":" + version, app_dir + "/.", _out=sys.stdout)
-    #print(sh.docker.build("-t", app + ":" + version, app_dir + "/."))
+    try:
+        sh.docker.build("-t", app + ":" + version, app_dir + "/.", _out=sys.stdout)
+    except sh.ErrorReturnCode:
+        return False
+    return True
 
 def pushImage():
     """- Pushes to Dockerhub.
