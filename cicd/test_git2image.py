@@ -29,6 +29,11 @@ def test_getMasterChanges():
     gitPullErr = g2i.getMasterChanges(test_git_dir)
     assert gitPullErr == None
 
+def test_getVersionFromFile():
+    assert g2i.getVersionFromFile("./test/VERSION") != ""
+    assert g2i.getVersionFromFile("./test/VERSION") != "0.02"
+    assert g2i.getVersionFromFile("./test/VERSION") == "0.01"
+
 def test_doVersionsMatch():
     assert g2i.doVersionsMatch("./test/VERSION", "0.01")
     assert not g2i.doVersionsMatch("./test/VERSION", "0.02")
