@@ -2,6 +2,22 @@
 
 This folder includes anything required to automatically get code deployed unto the cluster
 
+## git2image
+
+This program looks for changes in a file named VERSION inside a list of folders.
+If the version changes, it builds the related docker image and pushes it to docker hub
+
+This is supposed to run as a cronjob, every 5 minutes.
+
+### Getting the git2image program to work
+sudo apt-get remove python-pip python3-pip
+wget https://bootstrap.pypa.io/get-pip.py
+python3 get-pip.py
+/usr/local/bin/pip3 install pytest -U
+
+### Configuring the cronjob
+TBD
+
 ## Installing Docker to build Images
 
 - curl -sSL https://get.docker.com | sh
@@ -11,12 +27,6 @@ Pin: version 18.06.*
 Pin-Priority: 1000
 - sudo apt-get update
 - sudo apt-get install docker-ce
-
-## Getting the git2image program to work
-sudo apt-get remove python-pip python3-pip
-wget https://bootstrap.pypa.io/get-pip.py
-python3 get-pip.py
-/usr/local/bin/pip3 install pytest -U
 
 
 
