@@ -5,12 +5,11 @@ import git2image as g2i
 
 def test_checkArgs():
     # TODO: Change this
-    docker_test_user = "angelalonso"
     parser = g2i.createParser()
-    parsed_test = parser.parse_args(['--directory', 'test', '--dockeruser', docker_test_user])
+    parsed_test = parser.parse_args(['--directory', 'test'])
     assert g2i.checkArgs(parsed_test, parser) == 'test'
     # TODO: test also getting the error for no dockeruser
-    parsed_empty = parser.parse_args(['--dockeruser', docker_test_user])
+    parsed_empty = parser.parse_args()
     assert g2i.checkArgs(parsed_empty, parser) == os.getcwd() + "/.."
 
 def test_getConfig():
@@ -35,12 +34,15 @@ def test_getMasterChanges():
 
 def test_getVersionFromFile():
     assert g2i.getVersionFromFile("./test/VERSION") != ""
-    assert g2i.getVersionFromFile("./test/VERSION") != "0.02"
-    assert g2i.getVersionFromFile("./test/VERSION") == "0.01"
+    assert g2i.getVersionFromFile("./test/VERSION") != "blah"
+    assert g2i.getVersionFromFile("./test/VERSION") == "0.00"
+
+def test_getVersionsFromHub():
+    test_result = ['0.00']
+    assert g2i.getVersionsFromHub('angelalonso/test') == test_result
 
 def test_doVersionsMatch():
-    assert g2i.doVersionsMatch("./test/VERSION", "0.01")
-    assert not g2i.doVersionsMatch("./test/VERSION", "0.02")
+    assert g2i.isVersionOnHub("./test", "angelalonso/test")
 
 def test_runTest():
     assert not g2i.runTest("./test")

@@ -1,10 +1,10 @@
 {
   "homelab_frontend_armv6": {
     "dir": "application/frontend_poll",
-    "version": "0.01"
+    "hubuser": "angelalonso"
   },
   "homelab_backend_armv6": {
     "dir": "application/backend",
-    "version": "0.01"
+    "hubuser": "angelalonso"
   }
 }
