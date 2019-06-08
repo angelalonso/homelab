@@ -133,7 +133,7 @@ def mainLogic(main_git_dir, dockeruser):
             else:
                 print(" - Test FAILED")
         else: 
-            print(" - " + app + " does not need a rebuilt")
+            print(" - " + app + " does not need a rebuild")
 
 
 if __name__ == '__main__':
