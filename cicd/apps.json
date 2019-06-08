@@ -1,7 +1,7 @@
 {
   "homelab_frontend_armv6": {
-    "dir": "application/frontend",
-    "version": "v0.03i"
+    "dir": "application/frontend_poll",
+    "version": "0.00"
   },
   "homelab_backend_armv6": {
     "dir": "application/backend",
