@@ -75,15 +75,20 @@ def buildImage(app, version, app_dir):
         return False
     return True
 
-def pushImage():
+def pushImage(docker_registry, app, version, app_dir):
     """- Pushes to Dockerhub.
     """
+    print(" - Pushing image " + app_dir + "...")
+    sh.docker.tag(app + ":" + version, docker_registry + "/" + app + ":" + version, _out=sys.stdout)
+    sh.docker.push(docker_registry + "/" + app + ":" + version, _out=sys.stdout)
+    return True
     pass
 
 def createParser():
     # TODO: add a helper function
     parser = argparse.ArgumentParser()  
     parser.add_argument("-D", "--directory", help="full path of the main git directory")
+    parser.add_argument("-R", "--registry", help="username for dockerhub account to upload to")
     return parser
 
 def checkArgs(args):
@@ -95,7 +100,7 @@ def checkArgs(args):
         main_git_dir = os.getcwd() + "/.."
     return main_git_dir
 
-def mainLogic(main_git_dir):
+def mainLogic(main_git_dir, docker_registry):
     configfile = 'apps.json'
     apps = getConfig(configfile)
     gitErr = getMasterChanges(main_git_dir)
@@ -109,13 +114,19 @@ def mainLogic(main_git_dir):
             print(" - " + app + " will be rebuilt")
             if runTest(app_dir):
                 print(" - test passed")
-                buildImage(app, getVersionFromFile(app_dir + "/VERSION"), app_dir)
+                if buildImage(app, getVersionFromFile(app_dir + "/VERSION"), app_dir):
+                    if pushImage(docker_registry, app, getVersionFromFile(app_dir + "/VERSION"), app_dir):
+                        print(" - DONE")
+                    else:
+                        print(" - Push to dockerhub FAILED")
+                else:
+                    print(" - Build FAILED")
             else:
-                print(" - test FAILED")
+                print(" - Test FAILED")
         else: 
             print(" - " + app + " does not need a rebuilt")
 
 
 if __name__ == '__main__':
     args = createParser().parse_args()
-    mainLogic(checkArgs(args))
+    mainLogic(checkArgs(args), args.registry)
