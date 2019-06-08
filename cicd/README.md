@@ -13,7 +13,8 @@ This is supposed to run as a cronjob, every 5 minutes.
 sudo apt-get remove python-pip python3-pip
 wget https://bootstrap.pypa.io/get-pip.py
 python3 get-pip.py
-/usr/local/bin/pip3 install pytest -U
+/usr/local/bin/pip3 install -r requirements.txt --user
+sudo gpasswd -a $USER docker
 
 ### Configuring the cronjob
 TBD

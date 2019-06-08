@@ -46,4 +46,5 @@ def test_buildImage():
     assert g2i.buildImage('test', '0.00', 'test/docker/.')
 
 def test_pushImage():
-    pass
+    assert not g2i.pushImage('test', '0.00', 'test/.')
+    assert g2i.pushImage('test', '0.00', 'test/docker/.')
