@@ -109,7 +109,8 @@ def checkArgs(args, parser):
     return main_git_dir
 
 def mainLogic(main_git_dir, dockeruser):
-    configfile = 'apps.json'
+    mainfolder = os.path.dirname(__file__)
+    configfile = mainfolder + '/apps.json'
     apps = getConfig(configfile)
     gitErr = getMasterChanges(main_git_dir)
     if gitErr != None:

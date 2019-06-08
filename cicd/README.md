@@ -17,7 +17,8 @@ python3 get-pip.py
 sudo gpasswd -a $USER docker
 
 ### Configuring the cronjob
-TBD
+Add the following entry (change $VARs to your setup's ones) to run this script every 5 minutes:
+*/5 * * * * /usr/bin/python3 $HOME/homelab/cicd/git2image.py -D $HOMELABFOLDER -U $DOCKERUSER >> $HOME/homelab/cicd/git2image.log 2>&1
 
 ## Installing Docker to build Images
 
