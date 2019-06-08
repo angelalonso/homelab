@@ -61,7 +61,10 @@ def runTest(app_dir):
     print(" - Running tests on " + app_dir + "...")
     try:
         sh.bash(app_dir + "/run_tests.sh", _out=sys.stdout)
-    except sh.ErrorReturnCode:
+    #except sh.ErrorReturnCode:
+    except Exception as e:
+        print("Error!")
+        print(e)
         return False
     return True
 
@@ -71,7 +74,10 @@ def buildImage(app, version, app_dir):
     print(" - Building image from " + app_dir + "...")
     try:
         sh.docker.build("-t", app + ":" + version, app_dir + "/.", _out=sys.stdout)
-    except sh.ErrorReturnCode:
+    #except sh.ErrorReturnCode:
+    except Exception as e:
+        print("Error!")
+        print(e)
         return False
     return True
 
@@ -93,7 +99,6 @@ def createParser():
 
 def checkArgs(args, parser):
     # https://stackabuse.com/command-line-arguments-in-python/
-    
     if not (args.dockeruser):
         parser.error("No Dockerhub username was provided. Please do so by adding -U <your docker user>")
     if args.directory:  
