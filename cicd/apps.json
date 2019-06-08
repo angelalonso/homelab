@@ -1,9 +1,9 @@
 {
-  "frontend": {
+  "homelab_frontend_armv6": {
     "dir": "application/frontend",
     "version": "v0.03i"
   },
-  "backend": {
+  "homelab_backend_armv6": {
     "dir": "application/backend",
     "version": "0.00"
   }

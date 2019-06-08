@@ -75,12 +75,12 @@ def buildImage(app, version, app_dir):
         return False
     return True
 
-def pushImage(docker_registry, app, version, app_dir):
+def pushImage(dockeruser, app, version, app_dir):
     """- Pushes to Dockerhub.
     """
     print(" - Pushing image " + app_dir + "...")
-    sh.docker.tag(app + ":" + version, docker_registry + "/" + app + ":" + version, _out=sys.stdout)
-    sh.docker.push(docker_registry + "/" + app + ":" + version, _out=sys.stdout)
+    sh.docker.tag(app + ":" + version, dockeruser + "/" + app + ":" + version, _out=sys.stdout)
+    sh.docker.push(dockeruser + "/" + app + ":" + version, _out=sys.stdout)
     return True
     pass
 
@@ -88,11 +88,14 @@ def createParser():
     # TODO: add a helper function
     parser = argparse.ArgumentParser()  
     parser.add_argument("-D", "--directory", help="full path of the main git directory")
-    parser.add_argument("-R", "--registry", help="username for dockerhub account to upload to")
+    parser.add_argument("-U", "--dockeruser", help="username for dockerhub account to upload to")
     return parser
 
-def checkArgs(args):
+def checkArgs(args, parser):
     # https://stackabuse.com/command-line-arguments-in-python/
+    
+    if not (args.dockeruser):
+        parser.error("No Dockerhub username was provided. Please do so by adding -U <your docker user>")
     if args.directory:  
         main_git_dir = args.directory
     else:
@@ -100,7 +103,7 @@ def checkArgs(args):
         main_git_dir = os.getcwd() + "/.."
     return main_git_dir
 
-def mainLogic(main_git_dir, docker_registry):
+def mainLogic(main_git_dir, dockeruser):
     configfile = 'apps.json'
     apps = getConfig(configfile)
     gitErr = getMasterChanges(main_git_dir)
@@ -115,7 +118,7 @@ def mainLogic(main_git_dir, docker_registry):
             if runTest(app_dir):
                 print(" - test passed")
                 if buildImage(app, getVersionFromFile(app_dir + "/VERSION"), app_dir):
-                    if pushImage(docker_registry, app, getVersionFromFile(app_dir + "/VERSION"), app_dir):
+                    if pushImage(dockeruser, app, getVersionFromFile(app_dir + "/VERSION"), app_dir):
                         print(" - DONE")
                     else:
                         print(" - Push to dockerhub FAILED")
@@ -128,5 +131,6 @@ def mainLogic(main_git_dir, docker_registry):
 
 
 if __name__ == '__main__':
-    args = createParser().parse_args()
-    mainLogic(checkArgs(args), args.registry)
+    parser = createParser()
+    args = parser.parse_args()
+    mainLogic(checkArgs(args, parser), args.dockeruser)

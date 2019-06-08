@@ -4,10 +4,14 @@ import os
 import git2image as g2i
 
 def test_checkArgs():
-    parsed_test = g2i.createParser().parse_args(['--directory', 'test'])
-    assert g2i.checkArgs(parsed_test) == 'test'
-    parsed_empty = g2i.createParser().parse_args([])
-    assert g2i.checkArgs(parsed_empty) == os.getcwd() + "/.."
+    # TODO: Change this
+    docker_test_user = "angelalonso"
+    parser = g2i.createParser()
+    parsed_test = parser.parse_args(['--directory', 'test', '--dockeruser', docker_test_user])
+    assert g2i.checkArgs(parsed_test, parser) == 'test'
+    # TODO: test also getting the error for no dockeruser
+    parsed_empty = parser.parse_args(['--dockeruser', docker_test_user])
+    assert g2i.checkArgs(parsed_empty, parser) == os.getcwd() + "/.."
 
 def test_getConfig():
     filename = './test/apps.json'
@@ -46,5 +50,7 @@ def test_buildImage():
     assert g2i.buildImage('test', '0.00', 'test/docker/.')
 
 def test_pushImage():
-    assert not g2i.pushImage('test', '0.00', 'test/.')
-    assert g2i.pushImage('test', '0.00', 'test/docker/.')
+    # TODO: Change this
+    docker_test_user = "angelalonso"
+    #assert not g2i.pushImage(docker_test_user, 'test', '0.00', 'test/.')
+    assert g2i.pushImage(docker_test_user, 'test', '0.00', 'test/docker/.')
