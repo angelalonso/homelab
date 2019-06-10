@@ -19,6 +19,8 @@ Pin-Priority: 1000
 ### Docker Swarm WORKER
 - Paste the output command from the manager (previous step)
 
+### Deploy or update your stacks
+docker stack deploy --compose-file stacks/frontend_poll-compose.yml frontend
 
 ## HOWTOs
 
@@ -53,5 +55,14 @@ networks:
 
 
 docker stack deploy --compose-file docker-compose.yml stackdemo
+- NOTE: on a raspi1 it might take up to 10 minutes to have the container up and running (gets stuck on Preparing)
 
+### Troubleshooting docker swarm
+$ docker service ls
+$ docker service ps <service>
+$ docker service inspect <service>
+$ docker inspect <task>
+$ docker inspect <container>
+$ docker logs <container>
 
+https://success.docker.com/article/swarm-troubleshooting-methodology
