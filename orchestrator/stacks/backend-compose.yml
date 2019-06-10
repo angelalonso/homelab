@@ -5,3 +5,8 @@ services:
     image: angelalonso/homelab_backend_armv6:0.01
     ports: 
       - "90:4490"
+networks:
+  default:
+    external:
+      name: net1
+

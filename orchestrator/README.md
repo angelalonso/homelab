@@ -4,6 +4,7 @@ This folder includes anything required to install the Orchestration layer on the
 
 ## Docker Swarm
 
+### Up and running
 - curl -sSL https://get.docker.com | sh
 - sudo vi /etc/apt/preferences.d/docker-ce
 Package: docker-ce
@@ -13,35 +14,37 @@ Pin-Priority: 1000
 - sudo apt-get install docker-ce
 - sudo init 6
 
-### Docker Swarm MANAGER
+#### Docker Swarm MANAGER
 - docker swarm init --advertise-addr <manager-IP>
 
-### Docker Swarm WORKER
+#### Docker Swarm WORKER
 - Paste the output command from the manager (previous step)
 
-### Deploy or update your stacks
+#### Deploy or update your stacks
+docker network create -d overlay net1
 docker stack deploy --compose-file stacks/frontend_poll-compose.yml frontend
 docker stack deploy --compose-file stacks/backend-compose.yml backend
+...
 
-## HOWTOs
+### HOWTOs
 
-### Install Docker compose
+#### Install Docker compose
 sudo apt-get install python-pip
 pip install -U docker-compose
 
-### Install Docker machine
+#### Install Docker machine
 - get to https://github.com/docker/machine/releases to check latest release (here v0.16.1)
 wget https://github.com/docker/machine/releases/download/v0.16.1/docker-machine-Linux-armhf
 sudo install docker-machine-Linux-armhf /usr/local/bin/docker-machine
 
-### create a services network
+#### create a services network
 docker network create \
 --driver overlay \
 --subnet 10.10.1.0/24 \
 --opt encrypted \
 services
 
-### deploy a stack
+#### deploy a stack
 on docker-compose.yml:
 
 services:
@@ -58,7 +61,7 @@ networks:
 docker stack deploy --compose-file docker-compose.yml stackdemo
 - NOTE: on a raspi1 it might take up to 10 minutes to have the container up and running (gets stuck on Preparing)
 
-### Troubleshooting docker swarm
+#### Troubleshooting docker swarm
 $ docker service ls
 $ docker service ps <service>
 $ docker service inspect <service>
@@ -68,7 +71,7 @@ $ docker logs <container>
 
 https://success.docker.com/article/swarm-troubleshooting-methodology
 
-### remove a service completely
+#### remove a service completely
 - look for the proper service name:  
 docker service ls  
 - delete it:  
