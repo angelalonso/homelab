@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  frontend:
+    image: angelalonso/homelab_backend_armv6:0.01
+    ports: 
+      - "4490:80"
