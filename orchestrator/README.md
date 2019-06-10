@@ -67,3 +67,10 @@ $ docker inspect <container>
 $ docker logs <container>
 
 https://success.docker.com/article/swarm-troubleshooting-methodology
+
+### remove a service completely
+- look for the proper service name:  
+docker service ls  
+- delete it:  
+docker service rm <name_you_found>
+- delete it:  
