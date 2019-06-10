@@ -4,4 +4,4 @@ services:
   frontend:
     image: angelalonso/homelab_backend_armv6:0.01
     ports: 
-      - "4490:80"
+      - "90:4490"

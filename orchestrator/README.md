@@ -21,6 +21,7 @@ Pin-Priority: 1000
 
 ### Deploy or update your stacks
 docker stack deploy --compose-file stacks/frontend_poll-compose.yml frontend
+docker stack deploy --compose-file stacks/backend-compose.yml backend
 
 ## HOWTOs
 
