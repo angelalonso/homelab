@@ -14,10 +14,13 @@ Pin-Priority: 1000
 - sudo init 6
 
 ### Docker Swarm MANAGER
-- sudo docker swarm init --advertise-addr <manager-IP>
+- docker swarm init --advertise-addr <manager-IP>
 
 ### Docker Swarm WORKER
-- Paste the command from the master
+- Paste the output command from the manager (previous step)
+
+
+## HOWTOs
 
 ### Install Docker compose
 sudo apt-get install python-pip
@@ -28,8 +31,7 @@ pip install -U docker-compose
 wget https://github.com/docker/machine/releases/download/v0.16.1/docker-machine-Linux-armhf
 sudo install docker-machine-Linux-armhf /usr/local/bin/docker-machine
 
-
-## create a services network
+### create a services network
 docker network create \
 --driver overlay \
 --subnet 10.10.1.0/24 \
