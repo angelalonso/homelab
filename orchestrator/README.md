@@ -21,7 +21,7 @@ Pin-Priority: 1000
 - Paste the output command from the manager (previous step)
 
 #### Deploy or update your stacks
-docker network create -d overlay net1
+docker stack deploy --compose-file system/network_main-compose.yml network
 docker stack deploy --compose-file stacks/frontend_poll-compose.yml frontend
 docker stack deploy --compose-file stacks/backend-compose.yml backend
 ...
