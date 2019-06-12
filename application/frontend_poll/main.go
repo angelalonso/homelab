@@ -19,7 +19,7 @@ type Classifier struct {
 func Router() *mux.Router {
 	router := mux.NewRouter()
 	router.HandleFunc("/", CreateEndpoint).Methods("GET")
-	router.HandleFunc("/post/", GetResult).Methods("GET")
+	router.HandleFunc("/post/", GetBackendResult).Methods("GET")
 	return router
 }
 
@@ -29,10 +29,40 @@ func CreateEndpoint(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetResult(w http.ResponseWriter, req *http.Request) {
-	fmt.Println(req.URL)
-	fmt.Println(parseResult(string(req.URL.RequestURI())))
+	//fmt.Println(req.URL)
+	//fmt.Println(parseResult(string(req.URL.RequestURI())))
 	w.WriteHeader(200)
 	w.Write([]byte("All good"))
+}
+
+func GetBackendResult(w http.ResponseWriter, req *http.Request) {
+	//fmt.Println(req.URL)
+	//fmt.Println(parseResult(string(req.URL.RequestURI())))
+	backend_url := os.Getenv("BACKEND_HOST") + ":" + os.Getenv("BACKEND_PORT")
+	if len(backend_url) == 1 {
+		backend_url = "0.0.0.0:90"
+	}
+	w.WriteHeader(200)
+	w.Write([]byte(GetBackend(backend_url)))
+}
+
+func GetBackend(backend_url string) string {
+	var client http.Client
+	var result string
+	resp, err := client.Get("http://" + backend_url)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusOK {
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		result = string(bodyBytes)
+	}
+	return result
 }
 
 func CreateContent() string {
