@@ -8,4 +8,4 @@ services:
 networks:
   default:
     external:
-      name: net1
+      name: network_main
