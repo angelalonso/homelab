@@ -36,8 +36,6 @@ func GetResult(w http.ResponseWriter, req *http.Request) {
 }
 
 func GetBackendResult(w http.ResponseWriter, req *http.Request) {
-	//fmt.Println(req.URL)
-	//fmt.Println(parseResult(string(req.URL.RequestURI())))
 	backend_url := os.Getenv("BACKEND_HOST") + ":" + os.Getenv("BACKEND_PORT")
 	if len(backend_url) == 1 {
 		backend_url = "0.0.0.0:90"
@@ -51,7 +49,7 @@ func GetBackend(backend_url string) string {
 	var result string
 	resp, err := client.Get("http://" + backend_url)
 	if err != nil {
-		log.Fatal(err)
+    return "No response from Backend -> " + err.Error()
 	}
 	defer resp.Body.Close()
 
