@@ -37,9 +37,6 @@ func GetResult(w http.ResponseWriter, req *http.Request) {
 
 func GetBackendResult(w http.ResponseWriter, req *http.Request) {
 	backend_url := os.Getenv("BACKEND_HOST") + ":" + os.Getenv("BACKEND_PORT")
-	if len(backend_url) == 1 {
-		backend_url = "0.0.0.0:90"
-	}
 	w.WriteHeader(200)
 	w.Write([]byte(GetBackend(backend_url)))
 }
@@ -49,7 +46,10 @@ func GetBackend(backend_url string) string {
 	var result string
 	resp, err := client.Get("http://" + backend_url)
 	if err != nil {
-    return "No response from Backend -> " + err.Error()
+		if err.Error() == "Get http:: http: no Host in request URL" {
+			return "No Host was provided for Backend"
+		}
+		return "Something is wrong at the Backend -> " + err.Error()
 	}
 	defer resp.Body.Close()
 

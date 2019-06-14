@@ -36,17 +36,16 @@ func TestCreateContent(t *testing.T) {
 	assert.NotEqual(t, -1, titleStartIndex, "There should be a DOCTYPE tag")
 }
 
-/*
 func TestGetBackend(t *testing.T) {
-  assert.Equal(t, nil, GetBackend(""), "Error should be managed")
-  assert.Equal(t, nil, GetBackend("0.0.0.0:90"), "Http response should not be empty")
+	assert.Equal(t, GetBackend(""), "No Host was provided for Backend", "Empty URL is not being handled")
+	//Get http://0.0.0.0:90: dial tcp 0.0.0.0:90: connect: connection refused
+	assert.Contains(t, GetBackend("0.0.0.0:90"), "Something is wrong at the Backend ->", "Http error response is not being handled")
 }
-*/
 
 func TestParseResultEmpty(t *testing.T) {
 	var expectedEmpty []Classifier
 	classifiersEmpty := parseResult("")
-	assert.Equal(t, expectedEmpty, classifiersEmpty, "The classifiers should contain something else")
+	assert.Equal(t, classifiersEmpty, expectedEmpty, "The classifiers should contain something else")
 	expected := []Classifier{
 		Classifier{key: "radio_age", value: "21"},
 		Classifier{key: "radio_sex", value: "other"},
