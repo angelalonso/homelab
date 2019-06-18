@@ -1,7 +1,7 @@
 <body>
 
 <form id="regForm" action="/post/">
-  <h1>Tell me about you:</h1>
+  <h1>Tell me about yourself:</h1>
   <!-- One "tab" for each step in the form: -->
   <div class="tab"><h2>Age:</h2>
       <label class="container">0-14
