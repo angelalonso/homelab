@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	//"net/http/httptest"
+	"encoding/json"
 	"os"
 	"strings"
 
@@ -15,6 +16,17 @@ import (
 type Classifier struct {
 	key   string
 	value string
+}
+
+type Dependency struct {
+	Name   string `json:"name"`
+	Status string `json:"status"`
+}
+
+type Check struct {
+	Status       string       `json:"status"`
+	Hostname     string       `json:"hostname"`
+	Dependencies []Dependency `json:"dependencies"`
 }
 
 func Router() *mux.Router {
@@ -77,15 +89,27 @@ func CreateCheckContent() string {
 	if err != nil {
 		hostname = "unknown"
 	}
+	result := Check{
+		Status:   "ok",
+		Hostname: hostname,
+		Dependencies: []Dependency{
+			Dependency{
+				Name:   "backend",
+				Status: "ok",
+			},
+		},
+	}
 
 	/*response, httperr := http.Get("http://0.0.0.0:4490/check")
 	if httperr != nil {
 		hostname = "unknown"
 	}
 	*/
-	//TODO: use JSON library to build this instead
-	return `{"status": "ok", "hostname": "` + hostname + `"}`
-	//	return `{"status": "ok", "hostname": "` + hostname + `", "backend": "` + string(response.StatusCode) + `"}`
+	jsonresult, err := json.MarshalIndent(&result, "", "\t")
+	if err != nil {
+		return "Error generating check result"
+	}
+	return string(jsonresult)
 }
 
 func CreateResultContent(backend_url string) string {
