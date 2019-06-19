@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sync"
 	//"net/http/httptest"
 	"encoding/json"
 	"os"
@@ -84,7 +85,50 @@ func CreateMainContent() string {
 	return FormatContent(string(html_main))
 }
 
+func TestConnection(url string) (response string) {
+	urls := []string{
+		"http://" + url,
+	}
+	jsonResponses := make(chan string)
+
+	var wg sync.WaitGroup
+
+	wg.Add(len(urls))
+
+	for _, url := range urls {
+		go func(url string) {
+			defer wg.Done()
+			res, err := http.Get(url)
+			if err != nil {
+				log.Fatal(err)
+			} else {
+				defer res.Body.Close()
+				//body, err := ioutil.ReadAll(res.Body)
+				// this returns È
+				body := string(res.StatusCode)
+				if err != nil {
+					log.Fatal(err)
+				} else {
+					jsonResponses <- string(body)
+				}
+			}
+		}(url)
+	}
+
+	go func() {
+		for response := range jsonResponses {
+			fmt.Println(response)
+		}
+	}()
+
+	wg.Wait()
+
+	response = "ok"
+	return response
+}
+
 func CreateCheckContent() string {
+	backend_url := os.Getenv("BACKEND_HOST") + ":" + os.Getenv("BACKEND_PORT")
 	hostname, err := os.Hostname()
 	if err != nil {
 		hostname = "unknown"
@@ -94,8 +138,8 @@ func CreateCheckContent() string {
 		Hostname: hostname,
 		Dependencies: []Dependency{
 			Dependency{
-				Name:   "backend",
-				Status: "ok",
+				Name:   backend_url,
+				Status: TestConnection(backend_url),
 			},
 		},
 	}
