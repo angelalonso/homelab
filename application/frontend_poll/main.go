@@ -1,14 +1,13 @@
 package main
 
 import (
-  "strconv"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	//"net/http/httptest"
-	"encoding/json"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/gorilla/mux"
@@ -86,15 +85,15 @@ func CreateMainContent() string {
 }
 
 func TestConnection(url string) (response string) {
-  fullurl := "http://" + url
+	fullurl := "http://" + url
 
-  resp, err := http.Get(fullurl)
-  if err != nil {
-    response = err.Error()
-  } else {
-    //response = string(http.StatusText(resp.StatusCode))
-    response = strconv.Itoa(resp.StatusCode)
-  }
+	resp, err := http.Get(fullurl)
+	if err != nil {
+		response = err.Error()
+	} else {
+		response = strconv.Itoa(resp.StatusCode) + " " + string(http.StatusText(resp.StatusCode))
+		//response = strconv.Itoa(resp.StatusCode)
+	}
 
 	return response
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,6 +9,17 @@ import (
 
 	"github.com/gorilla/mux"
 )
+
+type Dependency struct {
+	Name   string `json:"name"`
+	Status string `json:"status"`
+}
+
+type Check struct {
+	Status       string       `json:"status"`
+	Hostname     string       `json:"hostname"`
+	Dependencies []Dependency `json:"dependencies"`
+}
 
 func Router() *mux.Router {
 	router := mux.NewRouter()
@@ -33,7 +45,23 @@ func createCheckContent() string {
 	if err != nil {
 		hostname = "unknown"
 	}
-	return "ok, " + hostname
+	result := Check{
+		Status:   "ok",
+		Hostname: hostname,
+	}
+
+	jsonresult, err := json.MarshalIndent(&result, "", "\t")
+	if err != nil {
+		return "Error generating check result"
+	}
+	return string(jsonresult)
+	/*
+		hostname, err := os.Hostname()
+		if err != nil {
+			hostname = "unknown"
+		}
+		return "ok, " + hostname
+	*/
 }
 
 func main() {
