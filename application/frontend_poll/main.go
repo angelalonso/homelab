@@ -1,11 +1,11 @@
 package main
 
 import (
+  "strconv"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"sync"
 	//"net/http/httptest"
 	"encoding/json"
 	"os"
@@ -86,44 +86,16 @@ func CreateMainContent() string {
 }
 
 func TestConnection(url string) (response string) {
-	urls := []string{
-		"http://" + url,
-	}
-	jsonResponses := make(chan string)
+  fullurl := "http://" + url
 
-	var wg sync.WaitGroup
+  resp, err := http.Get(fullurl)
+  if err != nil {
+    response = err.Error()
+  } else {
+    //response = string(http.StatusText(resp.StatusCode))
+    response = strconv.Itoa(resp.StatusCode)
+  }
 
-	wg.Add(len(urls))
-
-	for _, url := range urls {
-		go func(url string) {
-			defer wg.Done()
-			res, err := http.Get(url)
-			if err != nil {
-				log.Fatal(err)
-			} else {
-				defer res.Body.Close()
-				//body, err := ioutil.ReadAll(res.Body)
-				// this returns È
-				body := string(res.StatusCode)
-				if err != nil {
-					log.Fatal(err)
-				} else {
-					jsonResponses <- string(body)
-				}
-			}
-		}(url)
-	}
-
-	go func() {
-		for response := range jsonResponses {
-			fmt.Println(response)
-		}
-	}()
-
-	wg.Wait()
-
-	response = "ok"
 	return response
 }
 
@@ -144,11 +116,6 @@ func CreateCheckContent() string {
 		},
 	}
 
-	/*response, httperr := http.Get("http://0.0.0.0:4490/check")
-	if httperr != nil {
-		hostname = "unknown"
-	}
-	*/
 	jsonresult, err := json.MarshalIndent(&result, "", "\t")
 	if err != nil {
 		return "Error generating check result"
