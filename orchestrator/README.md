@@ -24,6 +24,7 @@ Pin-Priority: 1000
 docker stack deploy --compose-file system/network_main-compose.yml network
 docker stack deploy --compose-file stacks/frontend_poll-compose.yml frontend
 docker stack deploy --compose-file stacks/backend-compose.yml backend
+docker stack deploy --compose-file stacks/db-compose.yml db
 ...
 
 ### HOWTOs
