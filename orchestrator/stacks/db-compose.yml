@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  backend:
+    image: mysql:5.7
+    ports: 
+      - "4460:3306"
+networks:
+  default:
+    external:
+      name: network_main
+
