@@ -1,4 +1,4 @@
-set -e
+set -euo pipefail
 
 SECRETS="pg_database \
   pg_user \
