@@ -1,10 +1,26 @@
-version: '3'
+version: '3.1'
 
 services:
   db:
     image: arm32v6/postgres:11.4-alpine
+        restart: always
+        environment:
+            POSTGRES_USER_FILE: /run/secrets/pg_user
+            POSTGRES_PASSWORD_FILE: /run/secrets/pg_password
+            POSTGRES_DB_FILE: /run/secrets/pg_database
+        secrets:
+           - pg_password
+           - pg_user
+           - pg_database
     ports: 
       - "4460:5432"
+secrets:
+  pg_user:
+    external: true
+  pg_password:
+    external: true
+  pg_database:
+    external: true
 networks:
   default:
     external:
