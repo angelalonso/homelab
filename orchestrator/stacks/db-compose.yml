@@ -13,7 +13,6 @@ services:
       - pg_database
     ports: 
       - "4460:5432"
-    constraint
     deploy:
       mode: replicated
       replicas: 1
