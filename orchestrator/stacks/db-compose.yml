@@ -11,6 +11,8 @@ services:
       - pg_password
       - pg_user
       - pg_database
+    volumes:
+      - db-data:/var/lib/postgresql/data
     ports: 
       - "4460:5432"
     deploy:
@@ -26,6 +28,9 @@ secrets:
     external: true
   pg_database:
     external: true
+volumes:
+  db-data:
+    driver: local
 networks:
   default:
     external:
