@@ -20,6 +20,10 @@ Pin-Priority: 1000
 #### Docker Swarm WORKER
 - Paste the output command from the manager (previous step)
 
+#### Make one of the workers get the DBs
+docker node ls # to get the node's ID
+docker node update --label-add type=db <NODE_ID>
+
 #### Deploy or update your stacks
 bash create_secrets.sh
 docker stack deploy --compose-file system/network_main-compose.yml network
