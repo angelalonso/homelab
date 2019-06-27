@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 )
 
 type Dependency struct {
@@ -29,10 +30,8 @@ func Router() *mux.Router {
 }
 
 func createMain(w http.ResponseWriter, req *http.Request) {
-	joke := `What do you call a white girl that can run faster than her brothers?
-The redneck virgin.`
 	w.WriteHeader(200)
-	w.Write([]byte(joke))
+	w.Write([]byte(getJoke()))
 }
 
 func createCheck(w http.ResponseWriter, req *http.Request) {
@@ -55,13 +54,6 @@ func createCheckContent() string {
 		return "Error generating check result"
 	}
 	return string(jsonresult)
-	/*
-		hostname, err := os.Hostname()
-		if err != nil {
-			hostname = "unknown"
-		}
-		return "ok, " + hostname
-	*/
 }
 
 func main() {

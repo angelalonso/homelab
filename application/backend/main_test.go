@@ -39,3 +39,7 @@ func TestCreateCheckContent(t *testing.T) {
 	pageContent := string(pageContentInBytes)
 	assert.Contains(t, pageContent, "ok", "OK response is expected")
 }
+
+func TestGetJoke(t *testing.T) {
+	assert.NotEqual(t, getJoke(), "", "a returned joke is expected")
+}
