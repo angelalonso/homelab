@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>Contacts</title>
+<!--        <link rel="stylesheet" href="https://unpkg.com/tachyons@4.10.0/css/tachyons.min.css"/>
+-->
+    </head>
+<style>
+body {
+}
+.contactlist {
+  max-width: 38rem;
+  padding: 2rem;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  max-height: 300px; 
+  overflow:auto;
+}
+.mw6 {
+  display: flex;
+  flex-direction: column;
+  max-height: 300px; 
+  overflow:auto;
+  padding:10px;
+}
+.buttons {
+  max-width: 38rem;
+  padding: 0rem;
+  margin: auto;
+  overflow:auto;
+  box-sizing: border-box;
+}
+button {
+  display:inline-block;
+  width: 49%;
+}
+
+</style>
+
+    <body>
+        <div class="contactlist">
+            <h1 class="mb4">Contacts</h1>
+            {{range .Contacts}}
+            <div class="pa2 mb3 striped--near-white">
+                <header class="b mb2">{{.Name}}</header>
+                <div class="pl2">
+                    <p class="mb2">{{.Phone }}</p>
+                </div>
+            </div>
+            {{end}}
+        </div>
+        <div class="buttons">
+              <button type="button" onclick="alert('Hello world!')">Add</button>
+              <button type="button" onclick="alert('Hello world!')">Edit</button>
+        </div>
+    </body>
+</html>

@@ -12,5 +12,6 @@ RUN apk add --update \
     git \
   && go get -u github.com/gorilla/mux \
   && go build -o main . 
+# && go get -u github.com/lib/pq
 
 CMD ["/app/main"]
