@@ -19,6 +19,8 @@ Pin-Priority: 1000
 
 #### Docker Swarm WORKER
 - Paste the output command from the manager (previous step)
+- otherwise, run the following on the MANAGER to retrieve the token again:
+  - docker swarm join-token worker
 
 #### Make one of the workers get the DBs
 docker node ls # to get the node's ID
@@ -26,7 +28,6 @@ docker node update --label-add type=db <NODE_ID>
 
 #### Deploy or update your stacks
 bash create_secrets.sh
-docker stack deploy --compose-file system/network_main-compose.yml network
 docker stack deploy --compose-file stacks/frontend_poll-compose.yml frontend
 docker stack deploy --compose-file stacks/backend-compose.yml backend
 docker stack deploy --compose-file stacks/db-compose.yml db
