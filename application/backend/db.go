@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	host     = "localhost"
-	port     = 5432
+	dbhost   = "localhost"
+	dbport   = 5432
 	user     = "miniuser"
 	password = "minipass"
 	dbname   = "minidb"
@@ -20,10 +20,11 @@ const (
 func getJoke() string {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
 		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
+		dbhost, dbport, user, password, dbname)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		panic(err)
+		//panic(err)
+		return "No joke received"
 	}
 	defer db.Close()
 
@@ -48,7 +49,8 @@ func getRandomJoke(db *sql.DB) string {
 	case nil:
 		return joke
 	default:
-		panic(err)
+		//panic(err)
+		return "No joke received"
 	}
 	return ""
 }
@@ -64,11 +66,12 @@ func getSelectCount(db *sql.DB) string {
 		fmt.Println("No rows were returned!")
 	case nil:
 		return count
-		fmt.Println(count)
 	default:
-		panic(err)
+		//panic(err)
+		//TODO: can we NOT set a default of 1 here?
+		return "1"
 	}
-	return ""
+	return "1"
 }
 
 func format4HTML(joke string) string {
