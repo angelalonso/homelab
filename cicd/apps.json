@@ -3,6 +3,10 @@
     "dir": "application/frontend_poll",
     "hubuser": "angelalonso"
   },
+  "homelab_frontend_data_armv6": {
+    "dir": "application/frontend_data",
+    "hubuser": "angelalonso"
+  },
   "homelab_backend_armv6": {
     "dir": "application/backend",
     "hubuser": "angelalonso"

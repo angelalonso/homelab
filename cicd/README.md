@@ -35,10 +35,17 @@ Pin-Priority: 1000
 - sudo apt-get update
 - sudo apt-get install docker-ce
 
-
-
 ### Installing docker-compose
 
 sudo apt-get install build-essential libssl-dev libffi-dev python-dev python-pip
 pip install -U docker-compose
 
+## Adding a new app
+- Create and adapt a Dockerfile file
+- Create and adapt a run_tests.sh file
+- Create a VERSION file, and make v0.01 its content
+docker build <appname>:v0.00 .
+docker run <appname>:v0.00
+- Test the application runs
+- Add the new application to apps.json (copy and adapt from another one)
+- Commit and push the changes
