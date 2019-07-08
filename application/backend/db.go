@@ -3,22 +3,32 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 )
 
-const (
-	dbhost   = "localhost"
-	dbport   = 5432
-	user     = "miniuser"
-	password = "minipass"
-	dbname   = "minidb"
+var (
+	dbhost   = os.Getenv("DB_HOST")
+	dbport   = os.Getenv("DB_PORT")
+	user     = getVarFromFile(os.Getenv("DB_USER_FILE"))
+	password = getVarFromFile(os.Getenv("DB_PASS_FILE"))
+	dbname   = getVarFromFile(os.Getenv("DB_NAME_FILE"))
 )
 
+func getVarFromFile(filename string) string {
+	b, err := ioutil.ReadFile(filename) // just pass the file name
+	if err != nil {
+		return ""
+	}
+	return string(b)
+}
+
 func getJoke() string {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		dbhost, dbport, user, password, dbname)
 	db, err := sql.Open("postgres", psqlInfo)
