@@ -30,6 +30,7 @@ func getVarFromFile(filename string) string {
 }
 
 func getJoke() string {
+	rlog.Debug("Vars: " + dbhost + " - " + dbport + " - " + user + " - " + password + " - " + dbname)
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		dbhost, dbport, user, password, dbname)
