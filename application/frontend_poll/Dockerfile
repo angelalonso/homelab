@@ -11,6 +11,7 @@ WORKDIR /app
 RUN apk add --update \
     git \
   && go get -u github.com/gorilla/mux \
+  && go get -u github.com/romana/rlog \
   && go build -o main . 
 
 CMD ["/app/main"]
