@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   backend:
-    image: angelalonso/homelab_backend_armv6:0.05
+    image: angelalonso/homelab_backend_armv6:0.05debug
     ports: 
       - "90:4490"
     environment:

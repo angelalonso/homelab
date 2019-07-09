@@ -8,6 +8,8 @@ ADD . /app/
 
 WORKDIR /app 
 
+ENV RLOG_LOG_LEVEL=DEBUG 
+
 RUN apk add --update \
     git \
   && go get -u github.com/gorilla/mux \

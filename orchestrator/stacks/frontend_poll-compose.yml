@@ -2,7 +2,7 @@ version: '3'
 
 services:
   frontend:
-    image: angelalonso/homelab_frontend_armv6:0.05
+    image: angelalonso/homelab_frontend_armv6:0.05debug
     ports: 
       - "80:4480"
     environment:

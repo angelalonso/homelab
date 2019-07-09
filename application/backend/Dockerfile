@@ -21,6 +21,8 @@ ENV DB_USER_FILE=/run/secrets/pg_user
 ENV DB_PASS_FILE=/run/secrets/pg_password
 ENV DB_NAME_FILE=/run/secrets/pg_database
 
+ENV RLOG_LOG_LEVEL=DEBUG
+
 RUN mkdir -p /run/secrets \
   && echo "miniuser" > /run/secrets/pg_user \
   && echo "minipass" > /run/secrets/pg_password \
