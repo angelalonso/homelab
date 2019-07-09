@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-  "github.com/romana/rlog"
+	"github.com/romana/rlog"
 )
 
 var (
@@ -35,7 +35,7 @@ func getJoke() string {
 		dbhost, dbport, user, password, dbname)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-    rlog.Error("Error opening connection to Postgresql: " + err.Error())
+		rlog.Error("Error opening connection to Postgresql: " + err.Error())
 		return "No joke received"
 	}
 	defer db.Close()
@@ -51,17 +51,21 @@ func getRandomJoke(db *sql.DB) string {
 	WHERE id = $1;`
 
 	source := rand.NewSource(time.Now().UnixNano())
-	maxRand, _ := strconv.Atoi(getSelectCount(db))
+	maxRand, errMaxRand := strconv.Atoi(getSelectCount(db))
+	if errMaxRand != nil {
+		rlog.Error("Error producing a random Number: " + errMaxRand.Error())
+	}
 	r := rand.New(source).Intn(maxRand)
 	row := db.QueryRow(sqlStatement, r+1)
 	var joke string
 	switch err := row.Scan(&joke); err {
 	case sql.ErrNoRows:
-    rlog.Warn("No rows were returned!")
+		rlog.Warn("No rows were returned!")
 	case nil:
+		rlog.Debug("Returning a proper joke: " + joke)
 		return joke
 	default:
-    rlog.Error("Error getting jokes from the SELECT")
+		rlog.Error("Error getting jokes from the SELECT")
 		return "No joke received"
 	}
 	return ""
@@ -75,11 +79,11 @@ func getSelectCount(db *sql.DB) string {
 	var count string
 	switch err := row.Scan(&count); err {
 	case sql.ErrNoRows:
-		fmt.Println("No rows were returned!")
+		rlog.Debug("No rows were returned!")
 	case nil:
 		return count
 	default:
-    rlog.Error("Error getting NUMBER OF jokes from the SELECT COUNT")
+		rlog.Error("Error getting NUMBER OF jokes from the SELECT COUNT")
 		//TODO: can we NOT set a default of 1 here?
 		return "1"
 	}
@@ -93,5 +97,4 @@ func format4HTML(joke string) string {
 			"`", "'", -1),
 		`"`, ``, -1)
 	return result
-
 }

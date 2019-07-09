@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	"github.com/romana/rlog"
 )
 
 type Dependency struct {
@@ -42,6 +43,7 @@ func createCheck(w http.ResponseWriter, req *http.Request) {
 func createCheckContent() string {
 	hostname, err := os.Hostname()
 	if err != nil {
+		rlog.Warn("Hostname not defined")
 		hostname = "unknown"
 	}
 	result := Check{
@@ -51,6 +53,7 @@ func createCheckContent() string {
 
 	jsonresult, err := json.MarshalIndent(&result, "", "\t")
 	if err != nil {
+		rlog.Error("Marshalling the JSON result did not work")
 		return "Error generating check result"
 	}
 	return string(jsonresult)
@@ -58,6 +61,7 @@ func createCheckContent() string {
 
 func main() {
 	PORT := "4490"
+	rlog.Debug("Serving on port " + PORT + "...")
 	fmt.Println("Serving on port " + PORT + "...")
 	log.Fatal(http.ListenAndServe(":"+PORT, Router()))
 }
