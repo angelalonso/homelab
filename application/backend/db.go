@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+  "github.com/romana/rlog"
 )
 
 var (
@@ -20,11 +22,11 @@ var (
 )
 
 func getVarFromFile(filename string) string {
-	b, err := ioutil.ReadFile(filename) // just pass the file name
+	content, err := ioutil.ReadFile(filename) // just pass the file name
 	if err != nil {
 		return ""
 	}
-	return string(b)
+	return string(content)
 }
 
 func getJoke() string {
@@ -33,7 +35,7 @@ func getJoke() string {
 		dbhost, dbport, user, password, dbname)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		//panic(err)
+    rlog.Error("Error opening connection to Postgresql: " + err.Error())
 		return "No joke received"
 	}
 	defer db.Close()
@@ -55,11 +57,11 @@ func getRandomJoke(db *sql.DB) string {
 	var joke string
 	switch err := row.Scan(&joke); err {
 	case sql.ErrNoRows:
-		fmt.Println("No rows were returned!")
+    rlog.Warn("No rows were returned!")
 	case nil:
 		return joke
 	default:
-		//panic(err)
+    rlog.Error("Error getting jokes from the SELECT")
 		return "No joke received"
 	}
 	return ""
@@ -77,7 +79,7 @@ func getSelectCount(db *sql.DB) string {
 	case nil:
 		return count
 	default:
-		//panic(err)
+    rlog.Error("Error getting NUMBER OF jokes from the SELECT COUNT")
 		//TODO: can we NOT set a default of 1 here?
 		return "1"
 	}
