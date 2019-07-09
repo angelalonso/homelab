@@ -2,12 +2,12 @@ version: '3.1'
 
 services:
   backend:
-    image: angelalonso/homelab_backend_armv6:0.03
+    image: angelalonso/homelab_backend_armv6:0.04
     ports: 
       - "90:4490"
     environment:
       DB_HOST: db
-      DB_PORT: 4460
+      DB_PORT: 5432
       DB_NAME_FILE: /run/secrets/pg_database
       DB_PASS_FILE: /run/secrets/pg_password
       DB_USER_FILE: /run/secrets/pg_user

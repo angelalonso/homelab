@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/romana/rlog"
 )
 
 type Classifier struct {
@@ -58,6 +59,7 @@ func GetBackendContent(backend_url string) string {
 	var result string
 	resp, err := client.Get("http://" + backend_url)
 	if err != nil {
+		rlog.Error("Error getting backend " + err.Error())
 		if err.Error() == "Get http:: http: no Host in request URL" {
 			return "No Host was provided for Backend"
 		}
@@ -68,6 +70,7 @@ func GetBackendContent(backend_url string) string {
 	if resp.StatusCode == http.StatusOK {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
+			rlog.Error("Error reading response: " + err.Error())
 			log.Fatal(err)
 		}
 		result = string(bodyBytes)
@@ -78,7 +81,7 @@ func GetBackendContent(backend_url string) string {
 func CreateMainContent() string {
 	html_main, err_html_main := ioutil.ReadFile("static/html_main")
 	if err_html_main != nil {
-		fmt.Println("Error: " + err_html_main.Error())
+		rlog.Error("Error reading html_main: " + err_html_main.Error())
 		os.Exit(1)
 	}
 	return FormatContent(string(html_main))
@@ -89,6 +92,7 @@ func TestConnection(url string) (response string) {
 
 	resp, err := http.Get(fullurl)
 	if err != nil {
+		rlog.Error("Error getting " + fullurl + ": " + err.Error())
 		response = err.Error()
 	} else {
 		response = strconv.Itoa(resp.StatusCode) + " " + string(http.StatusText(resp.StatusCode))
@@ -102,6 +106,7 @@ func CreateCheckContent() string {
 	backend_url := os.Getenv("BACKEND_HOST") + ":" + os.Getenv("BACKEND_PORT")
 	hostname, err := os.Hostname()
 	if err != nil {
+		rlog.Warn("Hostname not defined")
 		hostname = "unknown"
 	}
 	result := Check{
@@ -117,6 +122,7 @@ func CreateCheckContent() string {
 
 	jsonresult, err := json.MarshalIndent(&result, "", "\t")
 	if err != nil {
+		rlog.Error("Marshalling the JSON result did not work")
 		return "Error generating check result"
 	}
 	return string(jsonresult)
@@ -127,6 +133,7 @@ func CreateResultContent(backend_url string) string {
 	var response string
 	resp, err := client.Get("http://" + backend_url)
 	if err != nil {
+		rlog.Error("Error getting " + backend_url + ": " + err.Error())
 		if err.Error() == "Get http:: http: no Host in request URL" {
 			return "No Host was provided for Backend"
 		}
@@ -137,6 +144,7 @@ func CreateResultContent(backend_url string) string {
 	if resp.StatusCode == http.StatusOK {
 		bodyBytes, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
+			rlog.Error("Error getting the body content: " + err.Error())
 			log.Fatal(err)
 		}
 		response = string(bodyBytes)
@@ -158,7 +166,6 @@ func parseResult(result string) []Classifier {
 			c = append(c, newClassifier)
 		}
 	}
-
 	return c
 }
 
@@ -166,22 +173,22 @@ func FormatContent(mainContent string) string {
 	content := []byte{}
 	html_header, err := ioutil.ReadFile("static/html_header")
 	if err != nil {
-		fmt.Println("Error: " + err.Error())
+		rlog.Error("Error reading html_header: " + err.Error())
 		os.Exit(1)
 	}
 	css, err_css := ioutil.ReadFile("static/css")
 	if err_css != nil {
-		fmt.Println("Error: " + err_css.Error())
+		rlog.Error("Error reading css: " + err_css.Error())
 		os.Exit(1)
 	}
 	js, err_js := ioutil.ReadFile("static/js")
 	if err_js != nil {
-		fmt.Println("Error: " + err_js.Error())
+		rlog.Error("Error reading js: " + err_js.Error())
 		os.Exit(1)
 	}
 	html_footer, err_html_footer := ioutil.ReadFile("static/html_footer")
 	if err_html_footer != nil {
-		fmt.Println("Error: " + err_html_footer.Error())
+		rlog.Error("Error reading html_footer: " + err_html_footer.Error())
 		os.Exit(1)
 	}
 
