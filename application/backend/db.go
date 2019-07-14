@@ -24,6 +24,7 @@ var (
 func getVarFromFile(filename string) string {
 	content, err := ioutil.ReadFile(filename) // just pass the file name
 	if err != nil {
+		rlog.Debug("Error getting value from file " + filename + ": " + err.Error())
 		return ""
 	}
 	return string(content)

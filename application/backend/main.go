@@ -62,6 +62,5 @@ func createCheckContent() string {
 func main() {
 	PORT := "4490"
 	rlog.Debug("Serving on port " + PORT + "...")
-	fmt.Println("Serving on port " + PORT + "...")
 	log.Fatal(http.ListenAndServe(":"+PORT, Router()))
 }

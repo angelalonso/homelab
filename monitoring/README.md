@@ -55,6 +55,9 @@ sudo systemctl start telegraf
 
 sudo mv /etc/telegraf/telegraf.conf /etc/telegraf/telegraf.conf.orig
 
+- Careful! the following has quite some security implications. Research and perform at your own risk:
+sudo usermod -aG docker telegraf
+
 sudo vim /etc/telegraf/telegraf.conf
 ```
 [agent]
@@ -75,6 +78,27 @@ sudo vim /etc/telegraf/telegraf.conf
 
 [[inputs.net]]
   fieldpass = [ "bytes_*" ]
+
+[[inputs.docker]]
+  endpoint = "unix:///var/run/docker.sock"
+
+  gather_services = false
+
+  container_names = []
+
+  container_name_include = []
+  container_name_exclude = []
+
+  timeout = "5s"
+
+  perdevice = true
+
+  total = false
+
+  docker_label_include = []
+  docker_label_exclude = []
+
+  tag_env = ["JAVA_HOME", "HEAP_SIZE"]
 
 [[outputs.influxdb]]
   database = "telegraf"
