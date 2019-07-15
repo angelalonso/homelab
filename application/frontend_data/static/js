@@ -1,0 +1,8 @@
+<script>
+
+function submit() {
+    document.getElementById("regForm").submit();
+    return false;
+}
+
+</script>

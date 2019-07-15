@@ -1,0 +1,11 @@
+<body>
+
+<form id="regForm" action="/post/">
+  <h1>Add your joke:</h1>
+  <textarea class="container" name="joke" id="jokeTextArea" ></textarea>
+  <div style="overflow:auto;">
+    <div style="float:right;">
+      <button type="button" id="submitBtn" onclick="submit()" >Submit</button>
+    </div>
+  </div>
+</form>
