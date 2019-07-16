@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -11,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 	"github.com/romana/rlog"
 )
 
@@ -25,13 +27,22 @@ type Check struct {
 	Dependencies []Dependency `json:"dependencies"`
 }
 
-type Post struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
-	Body  string `json:"body"`
-}
+var (
+	dbhost   = os.Getenv("DB_HOST")
+	dbport   = os.Getenv("DB_PORT")
+	user     = getVarFromFile(os.Getenv("DB_USER_FILE"))
+	password = getVarFromFile(os.Getenv("DB_PASS_FILE"))
+	dbname   = getVarFromFile(os.Getenv("DB_NAME_FILE"))
+)
 
-var posts []Post
+func getVarFromFile(filename string) string {
+	content, err := ioutil.ReadFile(filename) // just pass the file name
+	if err != nil {
+		rlog.Debug("Error getting value from file " + filename + ": " + err.Error())
+		return ""
+	}
+	return string(content)
+}
 
 func Router() *mux.Router {
 	router := mux.NewRouter()
@@ -53,9 +64,11 @@ func CreateCheck(w http.ResponseWriter, req *http.Request) {
 
 func CreateResult(w http.ResponseWriter, req *http.Request) {
 	joke, _ := req.URL.Query()["joke"]
-	fmt.Println(joke)
+	jokeString := strings.Join(joke, " ")
+	fmt.Println(jokeString)
+	insertJoke(jokeString)
 	w.WriteHeader(200)
-	w.Write([]byte(strings.Join(joke, " ")))
+	w.Write([]byte(jokeString))
 }
 
 func CreateMainContent() string {
@@ -135,6 +148,30 @@ func FormatContent(mainContent string) string {
 	content = append(content, html_footer...)
 
 	return string(content)
+}
+
+func insertJoke(jokeString string) {
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		dbhost, dbport, user, password, dbname)
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		rlog.Error("Error opening connection to Postgresql: " + err.Error())
+	}
+	defer db.Close()
+
+	sqlStatement := `INSERT INTO jokes (id, data)
+	VALUES (DEFAULT, $1);`
+
+	jokeJson := `{"joke": "` + strings.Replace(jokeString, "\r\n", "\\n", -1) + `", "tags": []}`
+	row := db.QueryRow(sqlStatement, jokeJson)
+	var joke string
+	switch err := row.Scan(&joke); err {
+	case sql.ErrNoRows:
+		rlog.Debug("Joke was saved.")
+	default:
+		rlog.Error("Error inserting joke: " + err.Error())
+	}
 }
 
 func main() {

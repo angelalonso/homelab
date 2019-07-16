@@ -10,8 +10,18 @@ WORKDIR /app
 
 RUN apk add --update \
     git \
+  && go get -u github.com/lib/pq \
+  && go get -u github.com/romana/rlog \
   && go get -u github.com/gorilla/mux \
   && go get -u github.com/stretchr/testify/assert \
   && go build -o main . 
+
+ENV DB_USER_FILE=/run/secrets/pg_user
+ENV DB_PASS_FILE=/run/secrets/pg_password
+ENV DB_NAME_FILE=/run/secrets/pg_database
+
+ENV RLOG_LOG_LEVEL=DEBUG
+
+RUN mkdir -p /run/secrets
 
 CMD ["/app/main"]
