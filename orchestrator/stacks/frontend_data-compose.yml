@@ -1,0 +1,29 @@
+version: '3.1'
+
+services:
+  fe-data:
+    image: angelalonso/homelab_frontend_data_armv6:v0.02
+    ports: 
+      - "81:4481"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME_FILE: /run/secrets/pg_database
+      DB_PASS_FILE: /run/secrets/pg_password
+      DB_USER_FILE: /run/secrets/pg_user
+    secrets:
+      - pg_database
+      - pg_password
+      - pg_user
+secrets:
+  pg_user:
+    external: true
+  pg_password:
+    external: true
+  pg_database:
+    external: true
+networks:
+  default:
+    external:
+      name: grid
+
