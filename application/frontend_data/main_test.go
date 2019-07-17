@@ -23,3 +23,12 @@ func TestCreateCheck(t *testing.T) {
 
 	assert.Equal(t, 200, response.Code, "OK response is expected")
 }
+
+func TestTestJoke(t *testing.T) {
+	emptyJoke := ""
+	emptyJokeExpected := false
+	assert.Equal(t, emptyJokeExpected, testJoke(emptyJoke), "Empty jokes are NOT detected")
+	onlyescapedJoke := "\r\r\n\f\n\r\f"
+	onlyescapedJokeExpected := false
+	assert.Equal(t, onlyescapedJokeExpected, testJoke(onlyescapedJoke), "Jokes with only escaped characters are NOT detected")
+}

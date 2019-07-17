@@ -65,10 +65,14 @@ func CreateCheck(w http.ResponseWriter, req *http.Request) {
 func CreateResult(w http.ResponseWriter, req *http.Request) {
 	joke, _ := req.URL.Query()["joke"]
 	jokeString := strings.Join(joke, " ")
-	fmt.Println(jokeString)
-	insertJoke(jokeString)
-	w.WriteHeader(200)
-	w.Write([]byte(jokeString))
+	if testJoke(jokeString) != false {
+		insertJoke(jokeString)
+		w.WriteHeader(200)
+		w.Write([]byte(jokeString + "\n\nHas been added!"))
+	} else {
+		w.WriteHeader(200)
+		w.Write([]byte("Joke format not valid:\n" + jokeString))
+	}
 }
 
 func CreateMainContent() string {
@@ -172,6 +176,20 @@ func insertJoke(jokeString string) {
 	default:
 		rlog.Error("Error inserting joke: " + err.Error())
 	}
+}
+
+func testJoke(jokeString string) bool {
+	cleanedJokeString := strings.ReplaceAll(
+		strings.ReplaceAll(
+			strings.ReplaceAll(
+				jokeString,
+				"\n", ""),
+			"\r", ""),
+		"\f", "")
+	if cleanedJokeString == "" {
+		return false
+	}
+	return true
 }
 
 func main() {

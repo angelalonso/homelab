@@ -6,8 +6,6 @@ RUN mkdir /app
 
 ADD . /app/ 
 
-COPY docker-entrypoint.sh /
-
 WORKDIR /app 
 
 RUN apk add --update \
