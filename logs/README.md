@@ -32,3 +32,6 @@ crontab -e
 0 * * * * /bin/systemctl restart rsyslog # restart every hour. Useful to recover from connectivity loss
 ```
 
+## How to read all logs simultaneously
+./all_logs # or sudo find /var/log/rsyslog/ -type f \( -name "*.log" \) -exec sudo tail -f "$file" {} +
+

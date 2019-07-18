@@ -27,6 +27,10 @@ Several applications that might or might not be related to one another
 
 A set of scripts that automate the process between making changes on Github and getting the corresponding dockerhub image.
 
+### logs
+
+Instructions on how to get centralized logging working
+
 ### monitoring
 
 So far it contains nothing, but it's meant to store things like Grafana Dashboards
