@@ -23,7 +23,7 @@ sudo ufw allow 514
 # At the client we want to get the logs from
 echo 'deb http://download.opensuse.org/repositories/home:/rgerhards/Raspbian_9.0/ /' | sudo tee /etc/apt/sources.list.d/home:rgerhards.list
 wget -nv https://download.opensuse.org/repositories/home:rgerhards/Raspbian_9.0/Release.key -O Release.key
-apt-key add - < Release.key
+sudo apt-key add - < Release.key
 sudo apt-get update && sudo apt-get install rsyslog
 
 sudo vim /etc/rsyslog.conf # comment everything below #### RULES #### and add the following:
