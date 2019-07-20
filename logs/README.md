@@ -28,15 +28,16 @@ sudo apt-get update && sudo apt-get install rsyslog
 
 sudo vim /etc/rsyslog.conf # comment everything below #### RULES #### and add the following:
 ```
-*.* @@rsyslog_server_IP:514
-
 $ModLoad imfile
 $InputFileName /var/lib/docker/containers/*/*.log
 $InputFileTag docker-logs
 $InputFileStateFile stat-docker-logs
 $InputFileFacility local3
 $InputRunFileMonitor
-local3.* @@rsyslog_server_IP:514
+#local3.* @@rsyslog_server_IP:514 # this produces duplicated logs, leaving it here for future reference
+
+*.* @@rsyslog_server_IP:514
+
 ```
 sudo systemctl restart rsyslog
 
