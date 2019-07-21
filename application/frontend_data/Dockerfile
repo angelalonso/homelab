@@ -14,6 +14,7 @@ RUN apk add --update \
   && go get -u github.com/romana/rlog \
   && go get -u github.com/gorilla/mux \
   && go get -u github.com/stretchr/testify/assert \
+  && go get -u github.com/prometheus/client_golang/prometheus/promhttp \
   && go build -o main . 
 
 ENV DB_USER_FILE=/run/secrets/pg_user

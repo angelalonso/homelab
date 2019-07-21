@@ -29,9 +29,9 @@ sudo apt-get update && sudo apt-get install rsyslog
 sudo vim /etc/rsyslog.conf # comment everything below #### RULES #### and add the following:
 ```
 $ModLoad imfile
-$InputFileName /var/lib/docker/containers/*/*.log
-$InputFileTag docker-logs
-$InputFileStateFile stat-docker-logs
+$InputFileName /var/lib/docker/containers/*/*.log # On the CICD server, change this to the actual log file for the cicd program
+$InputFileTag docker # Again, adapt this for the cicd server, e.g: cicd instead of docker
+$InputFileStateFile stat-docker # idem
 $InputFileFacility local3
 $InputRunFileMonitor
 #local3.* @@rsyslog_server_IP:514 # this produces duplicated logs, leaving it here for future reference

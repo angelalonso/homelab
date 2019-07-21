@@ -14,6 +14,7 @@ RUN apk add --update \
     git \
   && go get -u github.com/gorilla/mux \
   && go get -u github.com/romana/rlog \
+  && go get -u github.com/prometheus/client_golang/prometheus/promhttp \
   && go build -o main . 
 
 CMD ["/app/main"]

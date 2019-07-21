@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/romana/rlog"
 )
 
@@ -34,8 +35,13 @@ func Router() *mux.Router {
 	router := mux.NewRouter()
 	router.HandleFunc("/", CreateMain).Methods("GET")
 	router.HandleFunc("/check", CreateCheck).Methods("GET")
+	router.HandleFunc("/metrics", metrics).Methods("GET")
 	router.HandleFunc("/post/", CreateResult).Methods("GET")
 	return router
+}
+
+func metrics(w http.ResponseWriter, r *http.Request) {
+	promhttp.Handler().ServeHTTP(w, r)
 }
 
 func CreateMain(w http.ResponseWriter, req *http.Request) {
