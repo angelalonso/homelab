@@ -100,6 +100,14 @@ sudo vim /etc/telegraf/telegraf.conf
 
   tag_env = ["JAVA_HOME", "HEAP_SIZE"]
 
+
+[[inputs.prometheus]]
+  urls = ["http://0.0.0.0:80/metrics"]
+[[inputs.prometheus]]
+  urls = ["http://0.0.0.0:81/metrics"]
+[[inputs.prometheus]]
+  urls = ["http://0.0.0.0:90/metrics"]
+
 [[outputs.influxdb]]
   database = "telegraf"
   urls = [ "http://127.0.0.1:8086" ]
