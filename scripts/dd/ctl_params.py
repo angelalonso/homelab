@@ -1,6 +1,6 @@
 """Controller-style Argument Parser
 
-    Adds a little bit of logic on the parsing of arguments, controlling 
+    Adds a little bit of logic on the parsing of arguments, controlling
       what arguments are valid on the first layer,
       which ones are valid on the second, depending
       on the first layer...and so on
@@ -12,16 +12,23 @@ Use case:
 """
 import json
 
+
 class ParameterMap:
     def __init__(self, filename, input):
-        self.filename = filename
-        with open(filename, 'r') as f:
-            self.map = json.load(f)
-        self.check_input(input)
-
-# TODO 
+        self.map = self.load_parametermap_file(filename)
+        print(self.map)
+# TODO
 # - execute command from the mapped action
 # - generate help automatically
+
+    def load_parametermap_file(self, filename):
+        try:
+            with open(filename, 'r') as f:
+                map = json.load(f)
+            self.check_input(input)
+        except FileNotFoundError:
+            map = []
+        return map
 
     def check_input(self, input):
         """
@@ -48,4 +55,3 @@ class ParameterMap:
             print("  " + command)
             for subcommand in self.map["params"][command]:
                 print("    " + subcommand["subparam"] + "\t\t" + subcommand["help"])
-
