@@ -13,14 +13,18 @@ Use case:
 import json
 
 class ParameterMap:
-    def __init__(self, filename):
+    def __init__(self, filename, input):
         self.filename = filename
         with open(filename, 'r') as f:
             self.map = json.load(f)
+        self.check_input(input)
+
+# TODO execute command from the mapped action
+#  checking first if the parameter is correct
+    def check_input(self, input):
+        print(input)
 
     def print_map(self):
         print(self.map)
 
-## TODO:
-# execute something configured at the json
-# control the params are correct
+

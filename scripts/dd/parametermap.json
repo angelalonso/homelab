@@ -1,6 +1,14 @@
 [
 	{
-		"Name": "get"
+		"Name": "get",
+    "SubParams": [
+      { "Name": "nodes",
+        "Action": "get_nodes"
+      },
+      { "Name": "networks",
+        "Action": "get_networks"
+      }
+    ]
 	},
 	{
 		"Name": "create"
