@@ -21,4 +21,6 @@ class ParameterMap:
     def print_map(self):
         print(self.map)
 
-
+## TODO:
+# execute something configured at the json
+# control the params are correct
