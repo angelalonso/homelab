@@ -42,6 +42,7 @@ class ParameterMap:
         if len(args_input) < 2:
             self.show_help(args_input)
         elif args_input[1] in self.map["params"]:
+            # TODO recursively check input arguments until no more levels, then return command
             return args_input[1]
         else:
             self.show_help(args_input)
