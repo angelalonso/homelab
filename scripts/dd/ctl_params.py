@@ -19,12 +19,20 @@ class ParameterMap:
             self.map = json.load(f)
         self.check_input(input)
 
-# TODO execute command from the mapped action
-#  checking first if the parameter is correct
+# TODO 
+# - execute command from the mapped action
+# - generate help automatically
+
     def check_input(self, input):
-        print(input)
+        print(input[1])
+        if input[1] in self.map["params"]:
+            print("ok")
+        else:
+            self.show_help()
 
     def print_map(self):
         print(self.map)
 
+    def show_help(self):
+        print("Error!")
 

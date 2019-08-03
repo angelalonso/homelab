@@ -1,22 +1,14 @@
-[
-	{
-		"Name": "get",
-    "SubParams": [
-      { "Name": "nodes",
-        "Action": "get_nodes"
+{ "params": 
+    {"get": [
+      { "subparam": "nodes",
+        "use": "test"
       },
-      { "Name": "networks",
-        "Action": "get_networks"
+      { "subparam": "networks",
+        "use": "test"
       }
-    ]
-	},
-	{
-		"Name": "create"
-	},
-	{
-		"Name": "edit"
-	},
-	{
-		"Name": "delete"
-	}
-]
+    ],
+    "create": {
+      "command": "premium"
+    }
+  }
+} 
