@@ -9,4 +9,5 @@ import ctl_params
 if __name__ == '__main__':
     """
     """
-    params = ctl_params.ParameterMap("parametermap.json", sys.argv)
+    params = ctl_params.ParameterMap("parametermap.json")
+    print(params.check_args_input(sys.argv))

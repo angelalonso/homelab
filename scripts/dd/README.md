@@ -2,4 +2,4 @@
 pipenv install
 
 # Test
-pipenv run pytest
+pipenv run pytest --cov .

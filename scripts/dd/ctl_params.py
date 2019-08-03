@@ -14,43 +14,44 @@ import json
 
 
 class ParameterMap:
-    def __init__(self, filename, input):
+    def __init__(self, filename):
         self.map = self.load_parametermap_file(filename)
-        self.result = ""
 # TODO
-# - execute command from the mapped action
-# - generate help automatically
+# - send back action to take from the parameters read
 
     def load_parametermap_file(self, filename):
+        """
+        Load the parameter map from a file
+        """
+        params_map = []
         try:
             with open(filename, 'r') as f:
-                map = json.load(f)
-            self.check_input(input)
+                params_map = json.load(f)
         except FileNotFoundError:
-            self.result = "Error: parameter map json file not found"
-            map = []
-        return map
+            return "Error: parameter map json file not found"
+        return params_map
 
-    def check_input(self, input):
+    def check_args_input(self, args_input):
         """
-        Check that the received input matches the parameter
+        Check that the received args_input matches the parameter
           map we have configured.
 
         If so, it continues.
         If not, it calls the function to show help.
         """
-        if input[1] in self.map["params"]:
-            self.result = input[1]
+        if len(args_input) < 2:
+            self.show_help(args_input)
+        elif args_input[1] in self.map["params"]:
+            return args_input[1]
         else:
-            self.show_help(input)
+            self.show_help(args_input)
 
-    def show_help(self, input):
+    def show_help(self, args_input):
         """
         Builds a list of helping lines from the parameter
           map received, and prints it.
         """
-        self.result = "Error: Syntax help needed"
-        print(input[0] + " syntax:\n")
+        print(args_input[0] + " syntax:\n")
         print("Commands:")
         for command in self.map["params"]:
             print("  " + command)
