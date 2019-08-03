@@ -16,7 +16,7 @@ import json
 class ParameterMap:
     def __init__(self, filename, input):
         self.map = self.load_parametermap_file(filename)
-        print(self.map)
+        self.result = ""
 # TODO
 # - execute command from the mapped action
 # - generate help automatically
@@ -27,6 +27,7 @@ class ParameterMap:
                 map = json.load(f)
             self.check_input(input)
         except FileNotFoundError:
+            self.result = "Error: parameter map json file not found"
             map = []
         return map
 
@@ -39,8 +40,7 @@ class ParameterMap:
         If not, it calls the function to show help.
         """
         if input[1] in self.map["params"]:
-            # TODO: execute something here
-            print("ok")
+            self.result = input[1]
         else:
             self.show_help(input)
 
@@ -49,6 +49,7 @@ class ParameterMap:
         Builds a list of helping lines from the parameter
           map received, and prints it.
         """
+        self.result = "Error: Syntax help needed"
         print(input[0] + " syntax:\n")
         print("Commands:")
         for command in self.map["params"]:
