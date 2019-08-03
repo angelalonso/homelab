@@ -24,15 +24,19 @@ class ParameterMap:
 # - generate help automatically
 
     def check_input(self, input):
-        print(input[1])
         if input[1] in self.map["params"]:
             print("ok")
         else:
-            self.show_help()
+            self.show_help(input)
 
     def print_map(self):
         print(self.map)
 
-    def show_help(self):
-        print("Error!")
+    def show_help(self, input):
+        print(input[0] + " syntax:\n")
+        print("Commands:")
+        for command in self.map["params"]:
+            print("  " + command)
+            for subcommand in self.map["params"][command]:
+                print("    " + subcommand["subparam"] + "\t\t" + subcommand["help"])
 

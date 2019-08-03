@@ -1,14 +1,25 @@
 { "params": 
     {"get": [
       { "subparam": "nodes",
-        "use": "test"
+        "help": "Get the list of nodes on the docker swarm",
+        "action": "docker get nodes"
+
       },
       { "subparam": "networks",
-        "use": "test"
+        "help": "Get the list of networks on the docker swarm",
+        "action": "docker get networks"
       }
     ],
-    "create": {
-      "command": "premium"
-    }
+    "create": [
+      { "subparam": "nodes",
+        "help": "Create a new node for the docker swarm",
+        "action": "docker get nodes"
+
+      },
+      { "subparam": "networks",
+        "help": "Create a new network on the docker swarm",
+        "action": "docker get networks"
+      }
+    ]
   }
 } 
