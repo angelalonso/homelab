@@ -43,9 +43,11 @@ class ParameterMap:
             if args_input[1] in self.map["params"]:
                 return self.search_command(args_input)
             else:
+                return "Error: wrong parameter for " + args_input[0]
                 self.show_help(args_input)
         except IndexError:
             self.show_help(args_input)
+            return "Error: not enough parameters for " + args_input[0]
 
     def search_command(self, args_input):
         """
@@ -60,7 +62,8 @@ class ParameterMap:
                     + args_input[3:]
             except KeyError:
                 try:
-                    return [self.map["params"][args_input[1]]["action"]] + args_input[2:]
+                    return [self.map["params"][args_input[1]]["action"]] \
+                        + args_input[2:]
                 except KeyError:
                     self.show_help(args_input)
                     return "Error: wrong or not enough parameters for " + args_input[1]
