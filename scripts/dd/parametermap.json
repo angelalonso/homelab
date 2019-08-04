@@ -1,25 +1,23 @@
 { "params": 
-    {"get": [
-      { "subparam": "nodes",
+    {"get":
+      { "nodes": {
         "help": "Get the list of nodes on the docker swarm",
         "action": "docker get nodes"
-
+        },
+        "pods": {
+        "help": "Get the list of pods on the docker swarm",
+        "action": "docker get pods"
+        }
       },
-      { "subparam": "networks",
-        "help": "Get the list of networks on the docker swarm",
-        "action": "docker get networks"
-      }
-    ],
-    "create": [
-      { "subparam": "nodes",
-        "help": "Create a new node for the docker swarm",
+     "create":
+      { "nodes": {
+        "help": "Create the list of nodes on the docker swarm",
         "action": "docker get nodes"
-
-      },
-      { "subparam": "networks",
-        "help": "Create a new network on the docker swarm",
-        "action": "docker get networks"
+        },
+        "pods": {
+        "help": "Create the list of pods on the docker swarm",
+        "action": "docker get pods"
+        }
       }
-    ]
   }
-} 
+}

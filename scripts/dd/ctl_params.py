@@ -39,22 +39,43 @@ class ParameterMap:
         If so, it continues.
         If not, it calls the function to show help.
         """
-        if len(args_input) < 2:
+        try:
+            if args_input[1] in self.map["params"]:
+                return self.search_command(args_input)
+            else:
+                self.show_help(args_input)
+        except IndexError:
             self.show_help(args_input)
-        elif args_input[1] in self.map["params"]:
-            # TODO recursively check input arguments until no more levels, then return command
-            return args_input[1]
-        else:
-            self.show_help(args_input)
+
+    def search_command(self, args_input):
+        """
+        Looks for the command to be returned and adds any additional
+          parameter as complementary
+        """
+        # NOTE: so far this only goes two levels down. Modify if needed
+        # TODO: one day, open up the possibility for indefinite levels
+        if len(args_input) > 2:
+            try:
+                return [self.map["params"][args_input[1]][args_input[2]]["action"]] \
+                    + args_input[3:]
+            except KeyError:
+                try:
+                    return [self.map["params"][args_input[1]]["action"]] + args_input[2:]
+                except KeyError:
+                    self.show_help(args_input)
+                    return "Error: wrong or not enough parameters for " + args_input[1]
 
     def show_help(self, args_input):
         """
         Builds a list of helping lines from the parameter
           map received, and prints it.
         """
-        print(args_input[0] + " syntax:\n")
-        print("Commands:")
+        print("Syntax:\n")
+        print(args_input[0] + " [command] [object] [extra parameters]\n")
+        print("Commands / objects:")
         for command in self.map["params"]:
             print("  " + command)
             for subcommand in self.map["params"][command]:
-                print("    " + subcommand["subparam"] + "\t\t" + subcommand["help"])
+                print("    " + subcommand + "\t"
+                      + self.map["params"][command][subcommand]["help"])  # noqa: W503
+        print("\n")
