@@ -2,7 +2,7 @@
     {"get":
       { "nodes": {
         "help": "Get the list of nodes on the docker swarm",
-        "action": "docker get nodes"
+        "action": "get_nodes"
         },
         "pods": {
         "help": "Get the list of pods on the docker swarm",
