@@ -4,6 +4,7 @@ Use case:
     This program is meant to help manage docker swarm, wrapping some commands up
 """
 from dotenv import load_dotenv
+import time
 import os
 import paramctl
 import paramiko
@@ -30,7 +31,8 @@ def run_on_master_ssh(command):
 def hi_node(*argv):
     hosts = get_nodes()
     for host in hosts:
-        print(run_on_ssh('hostname', host))
+        print(host)
+        print(run_on_ssh('bash /home/aafmin/homelab/scripts/led_alert.sh', host))
 
 def get_nodes(*argv):
     result = run_on_master_ssh('docker node ls --format "{{.Hostname}}"')

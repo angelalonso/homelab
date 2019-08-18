@@ -28,3 +28,6 @@ sudo apt-get --purge remove libbz2-dev libexpat1-dev liblzma-dev zlib1g-dev libf
 sudo apt-get autoremove -y
 sudo apt-get clean
 
+## Making sure we can control the LEDs from scripts/d8s
+sudo chmod 666 /sys/class/leds/led0/trigger
+sudo chmod 666 /sys/class/leds/led0/brightness
