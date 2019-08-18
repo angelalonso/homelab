@@ -1,5 +1,15 @@
 { "params": 
-    {"get":
+    {"hi":
+      { "node": {
+        "help": "Make the node passed as parameter blink several times",
+        "action": "hi_node"
+        },
+        "all": {
+        "help": "Make all nodes in the docker swarm blink several times, one after another",
+        "action": "hi_all"
+        }
+      },
+     "get":
       { "nodes": {
         "help": "Get the list of nodes on the docker swarm",
         "action": "get_nodes"

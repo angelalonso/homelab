@@ -3,18 +3,42 @@
 Use case:
     This program is meant to help manage docker swarm, wrapping some commands up
 """
-import sys
+from dotenv import load_dotenv
+import os
 import paramctl
-#import ctl_params
+import paramiko
 import sh
+import sys
 
+
+def run_on_ssh(command, host):
+    HOST = host
+    USER = os.getenv("SSHUSER")
+    PORT = os.getenv("SSHPORT")
+    KEYFILENAME = os.getenv("SSHKEYFILENAME")
+    k = paramiko.RSAKey.from_private_key_file(KEYFILENAME) 
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(hostname=HOST, port=PORT, username=USER, pkey=k)
+    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
+    return ssh_stdout.read()
+
+def run_on_master_ssh(command):
+    MASTERHOST = os.getenv("SSHMASTERHOST")
+    return run_on_ssh(command, MASTERHOST)
+
+def hi_node(*argv):
+    hosts = get_nodes()
+    for host in hosts:
+        print(run_on_ssh('hostname', host))
 
 def get_nodes(*argv):
-    args = " "
-    print(sh.kubectl("--kubeconfig", "/home/aaf/.kube/config.testing", "get", "no"))
-    for arg in argv:
-        args = args.join(arg)
-    return "you got this far " + args
+    result = run_on_master_ssh('docker node ls --format "{{.Hostname}}"')
+
+    result_list = result.decode("utf-8").split("\n")
+    while("" in result_list) : 
+        result_list.remove("") 
+    return result_list
 
 
 if __name__ == '__main__':
@@ -23,6 +47,7 @@ if __name__ == '__main__':
       and parameters, according to the parametermap loaded,
       then calls the corresponding function
     """
+    load_dotenv()
     #params = ctl_params.ParameterMap("parametermap.json")
     params = paramctl.ParameterMap("parametermap.json")
 

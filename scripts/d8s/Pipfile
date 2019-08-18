@@ -9,7 +9,9 @@ verify_ssl = true
 pytest-cov = "*"
 pytest-isort = "*"
 pytest-flake8 = "*"
-paramctl = "~=0.55"
+paramiko = "*"
+python-dotenv = "*"
+paramctl = "~=0.56"
 
 [requires]
 python_version = "3.7"
