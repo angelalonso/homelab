@@ -29,10 +29,15 @@ def run_on_master_ssh(command):
     return run_on_ssh(command, MASTERHOST)
 
 def hi_node(*argv):
+    host = argv[0][0]
+    print(host + " is now blinking back at you")
+    print(run_on_ssh('bash /home/aafmin/homelab/scripts/led_alert.sh', host))
+
+def hi_all_nodes(*argv):
     hosts = get_nodes()
     for host in hosts:
-        print(host)
-        print(run_on_ssh('bash /home/aafmin/homelab/scripts/led_alert.sh', host))
+        host_tuple = (host,) # better to have this as a tuple for the hi_node function
+        hi_node(host_tuple)
 
 def get_nodes(*argv):
     result = run_on_master_ssh('docker node ls --format "{{.Hostname}}"')

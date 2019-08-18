@@ -6,7 +6,7 @@
         },
         "all": {
         "help": "Make all nodes in the docker swarm blink several times, one after another",
-        "action": "hi_all"
+        "action": "hi_all_nodes"
         }
       },
      "get":
