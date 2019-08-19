@@ -19,6 +19,7 @@ cd Python-3.7.0
 ./configure
 make -j 4
 sudo make altinstall
+cd ..
 sudo rm -r Python-3.7.0
 rm Python-3.7.0.tar.xz
 sudo apt-get --purge remove build-essential tk-dev -y
