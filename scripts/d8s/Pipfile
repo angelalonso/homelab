@@ -6,11 +6,12 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-requests = "*"
 pytest-cov = "*"
 pytest-isort = "*"
 pytest-flake8 = "*"
-requests-mock = "*"
+paramiko = "*"
+python-dotenv = "*"
+paramctl = "~=0.56"
 
 [requires]
 python_version = "3.7"
