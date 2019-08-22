@@ -32,8 +32,6 @@ sudo apt-get clean
 ## Making sure we can control the LEDs from scripts/d8s
 sudo groupadd leds
 sudo adduser aafmin leds
-sudo chown root:leds /sys/class/leds/led0/trigger
-sudo chown root:leds /sys/class/leds/led0/brightness
-sudo chmod 664 /sys/class/leds/led0/trigger
-sudo chmod 664 /sys/class/leds/led0/brightness
+sudo chown root:leds /sys/class/leds/led0/trigger /sys/class/leds/led0/brightness
+sudo chmod 664 /sys/class/leds/led0/trigger /sys/class/leds/led0/brightness
 , then login again
