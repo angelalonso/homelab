@@ -30,5 +30,10 @@ sudo apt-get autoremove -y
 sudo apt-get clean
 
 ## Making sure we can control the LEDs from scripts/d8s
-sudo chmod 666 /sys/class/leds/led0/trigger
-sudo chmod 666 /sys/class/leds/led0/brightness
+sudo groupadd leds
+sudo adduser aafmin leds
+sudo chown root:leds /sys/class/leds/led0/trigger
+sudo chown root:leds /sys/class/leds/led0/brightness
+sudo chmod 664 /sys/class/leds/led0/trigger
+sudo chmod 664 /sys/class/leds/led0/brightness
+, then login again
