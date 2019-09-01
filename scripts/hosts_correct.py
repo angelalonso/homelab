@@ -1,6 +1,7 @@
-import sh
+import paramiko
 import socket
 import sys
+import os
 
 HOSTS = [
         "riga",
@@ -34,12 +35,19 @@ def get_ip(hostname, base_ip, range_ips):
 
 def get_hostname(hostname, ip):
     try:
-        entry = socket.gethostbyaddr(ip)[0]
+        USER = os.getenv("USER")
+        PORT = os.getenv("PORT")
+        KEYFILENAME = os.getenv("KEYFILE")
+        COMMAND = "hostname"
+        k = paramiko.RSAKey.from_private_key_file(KEYFILENAME) 
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(hostname=ip, port=PORT, username=USER, pkey=k)
+        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(COMMAND)
+        entry = ssh_stdout.read().decode("utf-8").rstrip('\r').rstrip('\n')
         if entry == hostname:
             return ip + " " + entry 
-    except socket.herror:
-        pass
-    except socket.gaierror:
+    except paramiko.ssh_exception.NoValidConnectionsError:
         pass
 
 if __name__ == "__main__":
