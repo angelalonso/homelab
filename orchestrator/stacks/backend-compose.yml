@@ -1,7 +1,7 @@
 version: '3.1'
 
 services:
-  backend:
+  be:
     image: angelalonso/homelab_backend_armv6:0.08
     ports: 
       - "90:4490"

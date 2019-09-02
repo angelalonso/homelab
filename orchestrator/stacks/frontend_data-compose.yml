@@ -1,7 +1,7 @@
 version: '3.1'
 
 services:
-  fe-data:
+  fedata:
     image: angelalonso/homelab_frontend_data_armv6:0.04
     ports: 
       - "81:4481"
