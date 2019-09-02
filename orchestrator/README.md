@@ -33,7 +33,8 @@ docker stack deploy --compose-file stacks/frontend_poll-compose.yml frontend
 docker stack deploy --compose-file stacks/backend-compose.yml backend
 docker stack deploy --compose-file stacks/db-compose.yml db
 docker stack deploy --compose-file stacks/frontend_data-compose.yml fe-data
-...
+
+
 
 ### HOWTOs
 
@@ -85,4 +86,3 @@ https://success.docker.com/article/swarm-troubleshooting-methodology
 docker service ls  
 - delete it:  
 docker service rm <name_you_found>
-- delete it:  

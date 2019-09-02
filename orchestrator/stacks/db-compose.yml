@@ -21,6 +21,10 @@ services:
       placement:
         constraints:
         - node.labels.type == db
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 25M
 secrets:
   pg_user:
     external: true

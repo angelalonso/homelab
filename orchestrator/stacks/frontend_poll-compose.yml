@@ -8,6 +8,11 @@ services:
     environment:
       - BACKEND_HOST=backend
       - BACKEND_PORT=4490
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 25M
 networks:
   default:
     external:
