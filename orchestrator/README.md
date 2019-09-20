@@ -86,3 +86,12 @@ https://success.docker.com/article/swarm-troubleshooting-methodology
 docker service ls  
 - delete it:  
 docker service rm <name_you_found>
+
+### Docker swarm commands
+#### Get nodes labels
+docker node ls -q | xargs docker node inspect   -f '{{ .ID }} [{{ .Description.Hostname }}]: {{ .Spec.Labels }}'
+
+#### Add label to node
+docker node update --label-add key=value node_id
+#### Remove label from node
+docker node update --label-rm key node_id
