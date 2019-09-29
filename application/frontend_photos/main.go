@@ -17,22 +17,17 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	wd := WebData{
 		Title: now.String(),
 	}
-	tmpl.Execute(w, &wd)
-}
-
-func pageHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, _ := template.ParseFiles("templates/layout.html", "templates/page.html")
-	wd := WebData{
-		Title: "Page",
+	if err := tmpl.Execute(w, &wd); err != nil {
+		log.Println(err.Error())
+		http.Error(w, http.StatusText(500), 500)
 	}
-	tmpl.Execute(w, &wd)
 }
 
 func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", homeHandler)
-	mux.HandleFunc("/page", pageHandler)
+	fs := http.FileServer(http.Dir("static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	http.HandleFunc("/", homeHandler)
 	port := ":9000"
 	log.Println("Listening on port ", port)
-	http.ListenAndServe(port, mux)
+	http.ListenAndServe(port, nil)
 }
