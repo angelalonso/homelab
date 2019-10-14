@@ -1,5 +1,5 @@
 import unittest
-import d8s-controller as d8sc
+import d8s_controller as d8sc
 
 class HelloworldTests(unittest.TestCase):
     
