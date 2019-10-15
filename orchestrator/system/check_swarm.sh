@@ -2,7 +2,7 @@
 #set -x
 
 USER=$1
-PORT=$1
+PORT=$2
 SSHKEY=$3
 
 MASTERIP="192.168.0.15"
