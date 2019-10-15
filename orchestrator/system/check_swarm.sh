@@ -22,12 +22,16 @@ function check_nodes {
     echo checking $node
     STATUS=$(docker node ls | grep $node | awk '{print $3 $4}')
     if [[ $STATUS != "ReadyActive" ]]; then
-      echo "Leaving the swarm..."
+      echo "node $node leaving the swarm..."
       ssh -i $SSHKEY -o "StrictHostKeyChecking no" $USER@$node -p 21012 "docker swarm leave"
       sleep 5
+      echo "Removing node $node from the swarm..."
       docker node rm $node
       sleep 5
+      echo "Rejoining node $node to the swarm..."
       ssh -i $SSHKEY -o "StrictHostKeyChecking no" $USER@$node -p 21012 "$JOINCMD"
+    else
+      echo $node is $STATUS
     fi
   done
 }
