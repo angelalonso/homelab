@@ -5,10 +5,16 @@ USER=$1
 PORT=$2
 SSHKEY=$3
 
-MASTERIP="192.168.0.15"
-NODES="lisboa praha dublin"
-#NODES="dublin"
-DB_NODE="dublin"
+function get_vars {
+  SELFPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+  source $SELFPATH/.env
+}
+
+function test_vars {
+  echo $MASTERIP
+  echo $NODES
+  echo $DB_NODE
+}
 
 function check_master_ip {
   IP_OK=$(/sbin/ifconfig | grep $MASTERIP)
@@ -37,5 +43,7 @@ function check_nodes {
   done
 }
 date "+%Y%m%d-%T"
-check_master_ip
-check_nodes
+get_vars
+test_vars
+#check_master_ip
+#check_nodes
