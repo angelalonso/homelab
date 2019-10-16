@@ -26,7 +26,7 @@ function check_master_ip {
   fi
 }
 
-function check_nodes {
+function correct_nodes {
   JOINCMD=$(docker swarm join-token worker | grep join)
   for node in $NODES; do 
     echo checking $node
@@ -45,8 +45,19 @@ function check_nodes {
     fi
   done
 }
+
+function correct_nodes_db {
+  for node in $NODES_DB; do
+    TESTLABEL=$(docker node inspect $node | grep type)
+    if [[ "$TEST" != '                "type": "db"' ]]; then
+      echo "Adding the db label to node $node"
+      docker node update --label-add type=db $node
+    fi
+  done
+}
 date "+%Y%m%d-%T"
 get_vars
 test_vars
 check_master_ip
-check_nodes
+correct_nodes
+correct_nodes_db
