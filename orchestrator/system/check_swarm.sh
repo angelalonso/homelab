@@ -12,7 +12,7 @@ function test_vars {
     -z $SSHKEY || \
     -z $MASTERIP || \
     -z $NODES || \
-    -z $DBS_NODE ]] 
+    -z $NODES_DB ]] 
   then
     echo 'ERROR: one or more variables are undefined, Check/Create your .env file'
     exit 1
