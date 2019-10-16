@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
 #set -x
 
-USER=$1
-PORT=$2
-SSHKEY=$3
-
 function get_vars {
   SELFPATH="$( cd "$(dirname "$0")" ; pwd -P )"
   source $SELFPATH/.env
 }
 
 function test_vars {
-  echo $MASTERIP
-  echo $NODES
-  echo $DB_NODE
+  if [[ -z $USER || \
+    -z $PORT || \
+    -z $SSHKEY || \
+    -z $MASTERIP || \
+    -z $NODES || \
+    -z $DBS_NODE ]] 
+  then
+    echo 'ERROR: one or more variables are undefined, Check/Create your .env file'
+    exit 1
+  fi
 }
 
 function check_master_ip {
@@ -45,5 +48,5 @@ function check_nodes {
 date "+%Y%m%d-%T"
 get_vars
 test_vars
-#check_master_ip
-#check_nodes
+check_master_ip
+check_nodes
