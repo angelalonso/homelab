@@ -71,7 +71,7 @@ function correct_nodes_db {
 }
 date "+%Y%m%d-%T"
 get_vars
-test_vars
+test_nodes_vars
 check_master_ip
 correct_nodes
 correct_nodes_db

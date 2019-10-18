@@ -3,7 +3,7 @@
 
 function get_recreate_vars {
   MASTER=$(/bin/hostname)
-  NEWMASTERIP=$(/sbin/ifconfig eth0 | grep "inet " | awk '{print $2}'"
+  NEWMASTERIP=$(/sbin/ifconfig eth0 | grep "inet " | awk '{print $2}')
 
 }
 
