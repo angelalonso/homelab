@@ -64,7 +64,7 @@ function set_etchosts {
     echo "...they are fine."
     echo "- Backing up the original one. This will need sudo rights..."
     sudo cp /etc/hosts /etc/hosts.bak
-    if [ -s /etc/hosts ]; then
+    if [ -s /etc/hosts.bak ]; then
       echo "...backup seems ready"
       echo "- Overwriting /etc/hosts..."
       sudo cp $tmp_etchosts /etc/hosts
