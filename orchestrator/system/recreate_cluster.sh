@@ -6,6 +6,6 @@ function get_etchosts {
 }
 
 function recreate_cluster {
-  get_etchosts {
+  get_etchosts
 }
 

@@ -6,6 +6,9 @@ function get_vars {
   SELFPATH="$( cd "$(dirname "$0")" ; pwd -P )"
   source $SELFPATH/.env
   echo "...loaded."
+  echo "- Loading external functions..."
+  source $SELFPATH/recreate_cluster
+  echo "...loaded."
 }
 
 function test_vars {
