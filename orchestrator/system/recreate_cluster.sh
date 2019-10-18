@@ -2,7 +2,7 @@
 #set -x
 
 function get_recreate_vars {
-  MASTER=$(localhost)
+  MASTER=$(/bin/hostname)
 
 }
 
