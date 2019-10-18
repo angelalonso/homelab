@@ -11,12 +11,11 @@ function get_vars {
   echo "...loaded."
 }
 
-function test_vars {
-  echo "- Testing vars are correct..."
+function test_nodes_vars {
+  echo "- Testing vars for nodes are correct..."
   if [[ -z $USER || \
     -z $PORT || \
     -z $SSHKEY || \
-    -z $MASTERIP || \
     -z $NODES || \
     -z $NODES_DB ]] 
   then
