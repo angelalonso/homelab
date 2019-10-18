@@ -3,6 +3,7 @@
 
 function get_recreate_vars {
   MASTER=$(/bin/hostname)
+  NEWMASTERIP=$(/sbin/ifconfig eth0 | grep "inet " | awk '{print $2}'"
 
 }
 
@@ -23,7 +24,7 @@ function test_recreate_vars {
 
 function get_etchosts {
   echo "- Getting current IPs for master and all nodes"
-  echo "master name is $MASTER"
+  echo "master name is $MASTER and IP is $NEWMASTERIP"
 
 }
 
