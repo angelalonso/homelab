@@ -26,8 +26,9 @@ function test_vars {
 function check_master_ip {
   echo "- Checking the Master IP didn't change..."
   IP_OK=$(/sbin/ifconfig | grep $MASTERIP)
-  if [[ $"IP_OK" == "" ]]; then
+  if [[ $IP_OK == "" ]]; then
     echo "...it changed!"
+    recreate_cluster
   else
     echo "...it didn't change."
   fi
