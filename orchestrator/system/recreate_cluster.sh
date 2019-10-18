@@ -48,6 +48,7 @@ function get_etchosts {
     fi
     printf '.'
   done
+  echo
   echo "-------------------"
   cat $tmp_etchosts
   echo "-------------------"
