@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 #set -x
 
+# ---- TODO:
+#  lockfile
+
 function get_vars {
   echo "- Loading vars..."
   SELFPATH="$( cd "$(dirname "$0")" ; pwd -P )"
