@@ -7,7 +7,7 @@ function get_vars {
   source $SELFPATH/.env
   echo "...loaded."
   echo "- Loading external functions..."
-  source $SELFPATH/recreate_cluster
+  source $SELFPATH/recreate_cluster.sh
   echo "...loaded."
 }
 
