@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #set -x
 
-# ---- TODO:
-#  lockfile
+
+lockfile=/tmp/check_swarm.lock
 
 function get_vars {
   echo "- Loading vars..."
@@ -72,9 +72,26 @@ function correct_nodes_db {
     fi
   done
 }
-date "+%Y%m%d-%T"
-get_vars
-test_nodes_vars
-check_master_ip
-correct_nodes
-correct_nodes_db
+
+## Lockfile controls
+if ( set -o noclobber; echo "$$" > "$lockfile") 2> /dev/null;
+then
+  ## Lockfile created
+  trap 'rm -f "$lockfile"; exit $?' INT TERM EXIT KILL
+  
+  ## Actual program run
+  date "+%Y%m%d-%T"
+  get_vars
+  test_nodes_vars
+  check_master_ip
+  correct_nodes
+  correct_nodes_db
+
+  ## Lockfile cleanup
+  rm -f "$lockfile"
+  trap - INT TERM EXIT
+else
+  ## Lockfile exists
+  echo "Failed to acquire lockfile: $lockfile."
+  echo "Held by $(cat $lockfile)"
+fi
