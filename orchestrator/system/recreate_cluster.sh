@@ -92,5 +92,6 @@ function recreate_cluster {
   test_recreate_vars
   get_etchosts
   set_etchosts
+  distribute_etchosts
 }
 
