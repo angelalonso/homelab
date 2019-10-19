@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #set -x
 
-tmp_etchosts=/tmp/etc_hosts
+tmp_etchosts=/tmp/etchosts
 
 function update_etchosts {
   if [ -s $tmp_etchosts ];then
