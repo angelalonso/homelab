@@ -63,12 +63,12 @@ function set_etchosts {
   CLEAN_NEW=$(grep -v $GREPS $tmp_etchosts)
   if [[ $CLEAN_ORIGINAL == $CLEAN_NEW ]]; then
     echo "...they are fine."
-    echo "- Backing up the original one. This will need sudo rights..."
-    sudo cp /etc/hosts /etc/hosts.bak
+    echo "- Backing up the original one..."
+    cp /etc/hosts /etc/hosts.bak
     if [ -s /etc/hosts.bak ]; then
       echo "...backup seems ready"
       echo "- Overwriting /etc/hosts..."
-      sudo cp $tmp_etchosts /etc/hosts
+      cp $tmp_etchosts /etc/hosts
       echo "...done."
     else
       echo "...backup seems wrong, aborting!"
