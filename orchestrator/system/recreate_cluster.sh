@@ -78,8 +78,13 @@ function set_etchosts {
     echo $CLEAN_ORIGINAL
     echo $CLEAN_NEW
   fi
+}
 
-
+function distribute_etchosts {
+  CLUSTER_IPS=$(cat $tmp_etchosts | awk '{print $1}')
+  for ip in $CLUSTER_IPS; do
+    ssh -i $SSHKEY -o "StrictHostKeyChecking no" $USER@$ip -p $PORT "sudo cat /etc/hosts" 2>&1)
+  done
 }
 
 function recreate_cluster {
