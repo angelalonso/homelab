@@ -7,6 +7,7 @@ function update_etchosts {
   if [ -s $tmp_etchosts ];then
     cp /etc/hosts /etc/hosts.bak
     cp $tmp_etchosts /etc/hosts
+    rm $tmp_etchosts
   fi
 }
 
