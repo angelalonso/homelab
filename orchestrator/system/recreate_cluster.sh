@@ -83,7 +83,7 @@ function set_etchosts {
 function distribute_etchosts {
   CLUSTER_IPS=$(cat $tmp_etchosts | awk '{print $1}')
   for ip in $CLUSTER_IPS; do
-    ssh -i $SSHKEY -o "StrictHostKeyChecking no" $USER@$ip -p $PORT "sudo cat /etc/hosts" 2>&1)
+    ssh -i $SSHKEY -o "StrictHostKeyChecking no" $USER@$ip -p $PORT "sudo cat /etc/hosts" 2>&1
   done
 }
 
