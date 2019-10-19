@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#set -x
+
+tmp_etchosts=/tmp/etc_hosts
+
+function update_etchosts {
+  if [ -s $tmp_etchosts ];then
+    cp /etc/hosts /etc/hosts.bak
+    cp $tmp_etchosts /etc/hosts
+  fi
+}
+
+update_etchosts
