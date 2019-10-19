@@ -5,6 +5,10 @@
 - The tools are run FROM the master
 - There is a number of nodes, but also some extra boxes in the cluster (e.g.: for monitoring or proxying)
 - All of the boxes have the same content on /etc/hosts
+- All of the boxes have to have this repo checked out under $HOME
+- All of the boxes need the following cronjob:
+```*/1 * * * * cd $HOME/homelab && git pull```
+  
 
 ## check_swarm.sh
 
