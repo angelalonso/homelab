@@ -123,11 +123,23 @@ function add_secrets {
 
 function deploy_all {
   echo "- Deploying services..."
+  # Done at check_swarm.sh but not bad to do it again
+  SELFPATH="$( cd "$(dirname "$0")" ; pwd -P )"
   docker network create --driver overlay --subnet 10.10.9.0/24 --attachable grid
-  docker stack deploy --compose-file stacks/frontend_poll-compose.yml fe
-  docker stack deploy --compose-file stacks/backend-compose.yml be
-  docker stack deploy --compose-file stacks/db-compose.yml db
-  docker stack deploy --compose-file stacks/frontend_data-compose.yml fedata
+  docker stack deploy --compose-file $SELFPATH/../stacks/frontend_poll-compose.yml fe
+  docker stack deploy --compose-file $SELFPATH/../stacks/backend-compose.yml be
+  docker stack deploy --compose-file $SELFPATH/../stacks/db-compose.yml db
+  docker stack deploy --compose-file $SELFPATH/../stacks/frontend_data-compose.yml fedata
+  echo "...done"
+}
+
+function update_masterip {
+  echo "- Updating Master IP variable..."
+  # Done at check_swarm.sh but not bad to do it again
+  SELFPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+  sed -i "s/MASTERIP.*/MASTERIP=\"$NEWMASTERIP\"/g" $SELFPATH/.env
+  echo "...done:"
+  cat $SELFPATH/.env
 }
 
 function recreate_cluster {
