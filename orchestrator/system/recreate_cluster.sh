@@ -111,6 +111,22 @@ function create_swarm {
   done
 }
 
+function add_secrets {
+  echo "- Adding secrets..."
+  echo "$SECRET_PG_DATABASE" | docker secret create pg_database -
+  echo "$SECRET_PG_USER" | docker secret create pg_user -
+  echo "$SECRET_PG_PASSWORD" | docker secret create pg_password -
+}
+
+function deploy_all {
+  echo "- Deploying services..."
+  docker network create --driver overlay --subnet 10.10.9.0/24 --attachable grid
+  docker stack deploy --compose-file stacks/frontend_poll-compose.yml fe
+  docker stack deploy --compose-file stacks/backend-compose.yml be
+  docker stack deploy --compose-file stacks/db-compose.yml db
+  docker stack deploy --compose-file stacks/frontend_data-compose.yml fedata
+}
+
 function recreate_cluster {
   get_recreate_vars
   test_recreate_vars
@@ -119,5 +135,7 @@ function recreate_cluster {
   distribute_etchosts
   remove_swarm
   create_swarm
+  add_secrets
+
 }
 
