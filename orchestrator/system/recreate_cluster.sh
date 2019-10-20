@@ -152,5 +152,6 @@ function recreate_cluster {
   create_swarm
   add_secrets
   deploy_all
+  update_masterip
 }
 
