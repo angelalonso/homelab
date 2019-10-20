@@ -117,5 +117,7 @@ function recreate_cluster {
   get_etchosts
   set_etchosts
   distribute_etchosts
+  remove_swarm
+  create_swarm
 }
 
