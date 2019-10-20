@@ -81,10 +81,13 @@ function set_etchosts {
 }
 
 function distribute_etchosts {
+  echo "- Distrubuting etchosts across all nodes configured..."
   CLUSTER_IPS=$(cat $tmp_etchosts | awk '{print $1}')
   for ip in $CLUSTER_IPS; do
+    echo "...sending to $ip..."
     scp -P $PORT -i $SSHKEY -o "StrictHostKeyChecking no" /etc/hosts $USER@$ip:/tmp/etchosts
   done
+  echo "...done."
 }
 
 function remove_swarm {
@@ -136,6 +139,6 @@ function recreate_cluster {
   remove_swarm
   create_swarm
   add_secrets
-
+  deploy_all
 }
 
