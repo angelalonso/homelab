@@ -87,6 +87,30 @@ function distribute_etchosts {
   done
 }
 
+function remove_swarm {
+  docker swarm leave --force
+}
+
+function create_swarm {
+  # Variable set already at recreate_cluster.sh but let's try again
+  NEWMASTERIP=$(/sbin/ifconfig $MASTER_INTERFACE | grep "inet " | awk '{print $2}')
+  docker swarm init --advertise-addr $NEWMASTERIP
+  echo "- Adding all nodes..."
+  JOINCMD=$(docker swarm join-token worker | grep join)
+  for node in $NODES; do 
+    echo "... removing node $node from any other swarm..."
+    ssh -i $SSHKEY -o "StrictHostKeyChecking no" $USER@$node -p $PORT "docker swarm leave"
+    sleep 5
+    echo "... joining node $node to this swarm..."
+    ssh -i $SSHKEY -o "StrictHostKeyChecking no" $USER@$node -p $PORT "$JOINCMD"
+    if [[ $NODES_DB == *$node* ]]; then
+      echo "... node $node is a DB one, setting up..."
+      docker node update --label-add type=db $node
+      echo "... done."
+    fi
+  done
+}
+
 function recreate_cluster {
   get_recreate_vars
   test_recreate_vars
