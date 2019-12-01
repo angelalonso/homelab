@@ -12,7 +12,7 @@ services:
       DB_PSQL_HOST: "db"
       DB_PSQL_PORT: "5432"
       PORT: "9000"
-      FILES_SOURCE: "http://0.0.0.0:8080/files/"
+      FILES_SOURCE: "https://homelab_backend.fonseca.de.com/files/"
 
     deploy:
       resources:

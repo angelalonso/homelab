@@ -29,6 +29,12 @@ docker node update --label-add type=db <NODE_ID>
 #### Deploy or update your stacks
 bash create_secrets.sh
 docker network create --driver overlay --subnet 10.10.9.0/24 --attachable grid
+##### Code and Share Stack
+docker stack deploy --compose-file stacks/cns_datafeed_be.yml be
+docker stack deploy --compose-file stacks/cns_datafeed_fe.yml fe
+docker stack deploy --compose-file stacks/cns_datafeed_db.yml db
+
+##### Jokes Stack
 docker stack deploy --compose-file stacks/frontend_poll-compose.yml fe
 docker stack deploy --compose-file stacks/backend-compose.yml be
 docker stack deploy --compose-file stacks/db-compose.yml db
