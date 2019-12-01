@@ -1,8 +1,8 @@
 set -euo pipefail
 
-SECRETS="pg_database \
-  pg_user \
-  pg_password \
+SECRETS="db_feed_name \
+  db_feed_user \
+  db_feed_pass \
   "
 for secret in ${SECRETS}; do
   secretvalue=''

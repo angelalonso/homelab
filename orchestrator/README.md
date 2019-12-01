@@ -27,7 +27,7 @@ docker node ls # to get the node's ID
 docker node update --label-add type=db <NODE_ID>
 
 #### Deploy or update your stacks
-bash create_secrets.sh
+bash system/create_secrets.sh
 docker network create --driver overlay --subnet 10.10.9.0/24 --attachable grid
 ##### Code and Share Stack
 docker stack deploy --compose-file stacks/cns_datafeed_be.yml be
