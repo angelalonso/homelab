@@ -1,0 +1,42 @@
+version: '3.1'
+
+services:
+  db:
+    image: arm32v6/postgres:12.1-alpine
+    environment:
+      DB_NAME_FILE: /run/secrets/db_feed_name 
+      DB_USER_FILE: /run/secrets/db_feed_user
+      DB_PASS_FILE: /run/secrets/db_feed_pass
+    secrets:
+      - db_feed_user
+      - db_feed_pass
+      - db_feed_name
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports: 
+      - "5432:5432"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+        - node.labels.type == db
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 25M
+secrets:
+  db_feed_name:
+    external: true
+  db_feed_user: 
+    external: true
+  db_feed_pass:
+    external: true
+volumes:
+  db-data:
+    driver: local
+networks:
+  default:
+    external:
+      name: grid
+
