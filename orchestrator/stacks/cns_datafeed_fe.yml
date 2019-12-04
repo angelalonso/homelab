@@ -13,7 +13,10 @@ services:
       DB_PSQL_PORT: "5432"
       PORT: "9000"
       FILES_SOURCE: "https://homelab_backend.fonseca.de.com/files/"
-
+    secrets:
+      - db_feed_name
+      - db_feed_user
+      - db_feed_pass
     deploy:
       resources:
         limits:
