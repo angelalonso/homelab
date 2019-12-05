@@ -1,4 +1,4 @@
-# Welcome to my Home Lab
+# Welcome to my [Home Lab](https://angelalonso.github.io/homelab/)
 In this repository you will find all the bits (that I can put online) needed to put my home cluster(s) together and keep them alive.
 
 # TL;DR
