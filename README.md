@@ -7,7 +7,7 @@ Things you might find interesting
 
 ## Phase 2
 - Desired Architecture:
-
+'''
                       +-------+
                       |Tools  |
                       |Server |
@@ -34,7 +34,7 @@ Things you might find interesting
    Scary         +--------|--------+
    World         | External Server |
                  +-----------------+
-
+'''
 
 
 - Further develop the current Docker Swarm cluster into an IOT-controller cluster project
