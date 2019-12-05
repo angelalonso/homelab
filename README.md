@@ -1,52 +1,60 @@
 # Welcome to my Home Lab
+In this repository you will find all the bits (that I can put online) needed to put my home cluster(s) together and keep them alive.
 
-This is a repository meant to keep track of all the bits needed to make it work.
+# TL;DR
+Things you might find interesting
+- Python script that builds and pushes docker images when a new version is found: https://github.com/angelalonso/homelab/blob/master/cicd/git2image.py
 
-## Goal
+## Phase 2
+- Desired Architecture:
 
+                      +-------+
+                      |Tools  |
+                      |Server |
+  +-----------+       +-------+       +-----------+
+  |IoT cluster|          |||          |Web cluster|
+  |           <----------+|+--------->+           |
+  +-----------+           |           +-----------+
+  |-----------|           |           |-----------|
+  |-----------|           |           |-----------|
+  |-----------|           |           |-----------|
+  +-----------+           |           +-----------+
+       ^                  |                  ^
+       |                  |                  |
+       |                  |                  |
+       |              +---v----+             |
+     Stuff            |Proxy   +-------------+
+                      |Bastion |
+                      |Bouncer |
+   Home               +--------+
+                          |
+                          v
+ -----------------------VPN-----------------------
+                          ^
+   Scary         +--------|--------+
+   World         | External Server |
+                 +-----------------+
+
+
+
+- Further develop the current Docker Swarm cluster into an IOT-controller cluster project
+ - Docker Swarm will not be maintained anymore by docker soon, also the version of docker that works for armv6 is not the latest. Make this a LAN-only cluster installation.
+- Use K3s for the Web cluster
+- The Proxy/Bastion/Bouncer server (from now on PBB) will manage anything communications
+ - This includes authentication/authorisation
+- The Tools server will manage anything that should not run on the PBB or the clusters (CICD...).
+- All applications running on both clusters should be stored on different, external repositories. This repo is from now on only for the System stuff!
+ - This also means things like scripts to build images, helm charts... should either be template-generators, or included on the application repos themselves.
+
+
+
+
+
+
+
+## Phase 1, May-Dec 2019 - completed (good enough)
+### Goal(s)
 Learn how a cluster would work with the law of minimum investment.  
   
 So far ~120€ :/
 
-## Rough instructions
-
-- Buy all the parts, or get them for free.
-- Connect the pieces together.
-- Burn the images, modify them accordingly to run a configuration script at boot time.
-- plug them in the machines, and feed the machines with power!
-...To be continued
-
-## What's with all the directories in this repo?
-
-Ehm, these are "tools" I test. As of June 2019, they contain:  
-### application
-
-Several applications that might or might not be related to one another
-
-### cicd
-
-A set of scripts that automate the process between making changes on Github and getting the corresponding dockerhub image.
-
-### logs
-
-Instructions on how to get centralized logging working
-
-### monitoring
-
-So far it contains nothing, but it's meant to store things like Grafana Dashboards
-
-### orchestrator
-
-Orchestrating-related definitions. So far it contains only docker-compose-related files
-
-### os
-
-So far empty, but one day this should help automate the installation of a new node on the cluster
-
-### scripts
-
-Scripts that don't belong in any of the other folders
-
-### security
-
-So far I just keep here some notes on how I secure my nodes
