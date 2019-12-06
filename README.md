@@ -1,6 +1,6 @@
 # Welcome to my [Home Lab](https://angelalonso.github.io/homelab/)
 In this repository you will find all the bits (that I can put online) needed to put my home cluster(s) together and keep them alive.
-[test](https://angelalonso.github.io/homelab/Test.md)
+[test](https://angelalonso.github.io/homelab/Test)
 # TL;DR
 ## Steps (roughly)
 ### Get the components
