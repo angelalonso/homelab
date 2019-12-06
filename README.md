@@ -36,16 +36,41 @@ Things you might find interesting
                        +-----------------+
 
 
+### Tools 
+#### Must have
+- Logging
+- IP/resolv management (recovery from all systems rebooted and assigned new IPs)
+#### Wish list
+- Monitoring
+- Load testing
+- CICD
 
-- Further develop the current Docker Swarm cluster into an IOT-controller cluster project
- - Docker Swarm will not be maintained anymore by docker soon, also the version of docker that works for armv6 is not the latest. Make this a LAN-only cluster installation.
-- Use K3s for the Web cluster
-- The Proxy/Bastion/Bouncer server (from now on PBB) will manage anything communications
- - This includes authentication/authorisation
-- The Tools server will manage anything that should not run on the PBB or the clusters (CICD...).
-- All applications running on both clusters should be stored on different, external repositories. This repo is from now on only for the System stuff!
- - This also means things like scripts to build images, helm charts... should either be template-generators, or included on the application repos themselves.
 
+### Proxy/Bastion/Bouncer
+#### Must have
+- Proxy for the Web cluster
+#### Wish list
+- Authentication/Authorisation for the Web cluster
+
+
+### IOT cluster
+#### Must have
+- Protected from the outside
+- Single endpoint for the IoT stuff to connect to
+- All applications running there must be stored on different, external repositories
+- Scripts to build images, helm charts... should either be template-generators, or included on the application repos themselves.
+#### Wish list
+- Fork and further develop Docker Swarm (rename to HomeSwarm? IoTernetes?)
+- Authentication/Authorisation for itself
+
+
+### Web cluster
+#### Must have
+- K3s or some lightweight K8s installation
+- All applications running there must be stored on different, external repositories
+- Scripts to build images, helm charts... should either be template-generators, or included on the application repos themselves.
+#### Wish list
+TBD
 
 
 
