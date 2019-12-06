@@ -10,7 +10,7 @@ Nothing to add, this changes from day to day, just search on other parts of the 
 TBD
 
 ### Install the tools
-- Clone this repo
+- Clone this repo  
 ```git clone https://github.com/angelalonso/homelab```
 
 ### ... (TBD)
