@@ -11,7 +11,7 @@ TBD
 
 ### Install the tools
 - Clone this repo
-    git clone https://github.com/angelalonso/homelab
+```git clone https://github.com/angelalonso/homelab```
 
 ### ... (TBD)
 
