@@ -2,8 +2,18 @@
 In this repository you will find all the bits (that I can put online) needed to put my home cluster(s) together and keep them alive.
 
 # TL;DR
-Things you might find interesting
-- Python script that builds and pushes docker images when a new version is found: https://github.com/angelalonso/homelab/blob/master/cicd/git2image.py
+## Steps (roughly)
+### Get the components
+Nothing to add, this changes from day to day, just search on other parts of the interwebs...
+
+### Install the OS, make it safe
+TBD
+
+### Install the tools
+- Clone this repo
+    git clone https://github.com/angelalonso/homelab
+
+### ... (TBD)
 
 ## Phase 2
 - Desired Architecture:
