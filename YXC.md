@@ -34,6 +34,17 @@ Currently under development.
            |              |    |              |    |              |    |              |
            +--------------+    +--------------+    +--------------+    +--------------+
        
+## Progress
+- [x] Read configs from yaml 
+ - [x] servername
+   - [x] ssh port
+ - [x] user
+   - [x] ssh keys (gitignore)
+   - [x] group
+- [x] Accept lead and do modes
+- [x] API server
+- [x] Modify config.yaml on API call
+- [x] Communicate with regular server (get and set)
 
 ## Wishlist
 - Authentication local machine -> yxc server
