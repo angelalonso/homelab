@@ -50,6 +50,7 @@ TBD, check [/os/README.md](https://github.com/angelalonso/homelab/blob/master/os
 - Logging
 - IP/resolv management (recovery from all systems rebooted and assigned new IPs)
 #### Wish list
+- [Stack management tools](https://angelalonso.github.io/homelab/tools/yxc/README)
 - Monitoring
 - Load testing
 - CICD
