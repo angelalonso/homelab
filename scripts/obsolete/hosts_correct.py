@@ -7,7 +7,7 @@ HOSTS = [
         "riga",
         "praha",
         "lisboa",
-        "dublin",
+        "seoul",
         "sidney",
         "beirut",
         "tokyo"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-HOSTS="tokyo lisboa sidney dublin beirut praha riga"
+HOSTS="tokyo seoul lisboa praha riga sidney beirut"
 for i in $HOSTS 
 do 
   echo "Editing /etc/hosts on "$i
