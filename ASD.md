@@ -38,12 +38,7 @@ Currently under development.
            +--------------+    +--------------+    +--------------+    +--------------+
        
 ## Progress
-- [x] Read configs from yaml 
- - [x] servername
-   - [x] ssh port
- - [x] user
-   - [x] ssh keys (gitignore)
-   - [x] group
+- [ok] Read configs from yaml 
 - [x] Accept lead and do modes
 - [x] API server
 - [x] Modify config.yaml on API call
