@@ -1,7 +1,15 @@
+import argparse
 import yaml
+import sys
 
-with open(r'./config.yaml') as file:
-  config_data = yaml.safe_load(file)
+def main() -> int:
+    return 0
 
-  for key, value in config_data.items():
-      print(config_data[key])
+if __name__ == 	'__main__':
+    with open(r'./config.yaml') as file:
+        config_data = yaml.safe_load(file)
+
+        for key, value in config_data.items():
+            print(config_data[key])
+
+    sys.exit(main())
