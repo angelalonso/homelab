@@ -1,14 +1,17 @@
-# YXC
+# ASD
 
-Tool to manage a home cluster
-Currently under development.
+Tool to manage a home cluster.
+
+The name is an Acronym for All my Servers Do.  
+  
+Currently under development.  
 
 ## Architecture
 
                               +------------------------------------+
                               |local machine                       |
                               |                                    |
-                              |$yxc <object> <action> <parameters> |
+                              |$asd <object> <action> <parameters> |
                               |                                    |
                               +------------------------------------+
                                                 |
@@ -18,9 +21,9 @@ Currently under development.
                                                 |
                                                 |
                                            +----------+
-                                           |yxc server|
+                                           |asd server|
                                            |          |
-                                           |$yxc lead |
+                                           |$asd lead |
                                            |          |
                                            +----------+
                                                 v
@@ -30,7 +33,7 @@ Currently under development.
            +------------v-+    +------------v-+    +-v------------+    +-v------------+
            |regular server|    |regular server|    |regular server|    |regular server|
            |              |    |              |    |              |    |              |
-           |$yxc do       |    |$yxc do       |    |$yxc do       |    |$yxc do       |
+           |$asd do       |    |$asd do       |    |$asd do       |    |$asd do       |
            |              |    |              |    |              |    |              |
            +--------------+    +--------------+    +--------------+    +--------------+
        
@@ -47,5 +50,5 @@ Currently under development.
 - [x] Communicate with regular server (get and set)
 
 ## Wishlist
-- Authentication local machine -> yxc server
-- Authentication yxc server -> regular server
+- Authentication local machine -> asd server
+- Authentication asd server -> regular server
