@@ -22,10 +22,15 @@ $ touch /media/$USER/boot/ssh
 - Find the IP  
 $ nmap -sP 192.168.0.0/24
 
-## SSH into it, give it a name
+## SSH into it, give it a name, tweak raspbian
 $ ssh pi@<IP> # password is raspberry, accept authenticity
 - once in, change hostname to your liking  
-$ echo $HOSTNAME | sudo tee /etc/hostname
+$ sudo hostname $HOSTNAME
+- tweak raspbian  
+$ sudo raspi-config  
+- > Localisation Options > Change Locale > choose the Locales you need, hit OK  
+- > Advanced Options > Expand Filesystem  
+- > Exit > Reboot  
 
 ## Add your own admin user, remove user pi
 $ sudo useradd -s /bin/bash -m -d /home/$NEWUSER $NEWUSER
@@ -63,7 +68,9 @@ Port $NEWPORT
 ```
 $ sudo systemctl reload ssh  
 - Install fail2ban  
-[x]
+$ sudo apt-get install fail2ban  
+$ sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local  
+$ sudo systemctl restart fail2ban  
 
 ## Installing and configuring Firewall
 - Install and configure UFW  
