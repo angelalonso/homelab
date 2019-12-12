@@ -86,4 +86,15 @@ $ sudo ufw default allow outgoing
 $ sudo ufw allow ${SSH_PORT}  
 $ sudo ufw enable  
 
-
+## Upgrading python
+- Check versions  
+$ sudo update-alternatives --list python  
+- Add available versions (careful with what python2 and python3 you have)  
+$ sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1  
+$ sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2  
+- Check again  
+$ sudo update-alternatives --list python
+- Make sure the default one is correct
+$ sudo update-alternatives --config python
+- Test
+$ python --version
