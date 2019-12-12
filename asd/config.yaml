@@ -3,7 +3,7 @@ tokyo:
   ssh_port: 45045
   user: 
     aafmin: 
-      ssh_key: aafminf.priv
+      ssh_key: aafmin.priv
       belongs_to_groups: 
       - admin
       - asd
@@ -13,7 +13,7 @@ riga:
   ssh_port: 21012
   user: 
     aafmin: 
-      ssh_key: aafminf.priv
+      ssh_key: aafmin.priv
       belongs_to_groups: 
       - admin
       - asd
