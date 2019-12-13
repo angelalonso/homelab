@@ -94,7 +94,7 @@ $ sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
 $ sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2  
 - Check again  
 $ sudo update-alternatives --list python
-- Make sure the default one is correct
-$ sudo update-alternatives --config python
-- Test
-$ python --version
+- Make sure the default one is correct  
+$ sudo update-alternatives --config python  
+- Test  
+$ python --version  
