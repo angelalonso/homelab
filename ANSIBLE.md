@@ -2,8 +2,8 @@
 
 ## Installation
 You will need to run Ansible from the "tools" machine in your cluster.  
-- Install it  
-$ sudo apt-get update && sudo apt-get install ansible
+- Install it and some dependencies  
+$ sudo apt-get update && sudo apt-get install ansible sshpass
 
 # Configuration
 - Hosts file:

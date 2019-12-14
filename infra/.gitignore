@@ -1,0 +1,4 @@
+hosts
+playbooks.yaml
+*.swp
+*.swo
