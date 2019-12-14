@@ -5,6 +5,12 @@ You will need to run Ansible from the "tools" machine in your cluster.
 - Install it  
 $ sudo apt-get update && sudo apt-get install ansible
 
+# Configuration
+- Hosts file:
+/etc/ansible/hosts
+- Playbooks directory:
+$HOMELAB_REPODIR/infra/manifests
+
 ## Project goals
 - Avoid manual work when installing or modifying machines in the cluster
   - Define infrastructure as code
