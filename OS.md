@@ -1,26 +1,26 @@
 # Installing and configuring a base OS for the machines
 
 ## Before we start...
-Anything $VARIABLE expects you to substitute that for the value you want.  
+Anything $VARIABLE in this document expects you to substitute that for the value you want.  
 You can easily run ```export VARIABLE=value``` before running it literally.  
   
 ## Get the image
-- Download the latest version, lite, zipped from https://www.raspberrypi.org/downloads/raspbian/
-- Unzip it to get the .img file:
-$ unzip 20XX-yy-zz-raspbian-****-lite.zip
+- Download the latest version, lite, zipped from https://www.raspberrypi.org/downloads/raspbian/  
+- Unzip it to get the .img file:  
+$ unzip 20XX-yy-zz-raspbian-****-lite.zip  
 
 ## Burn the image to the microSD
 For this I use https://www.balena.io/etcher/
 
 ## Enable SSH to the bootloader and boot it
-- Mount the partition called "boot"
+- Mount the partition called "boot"  
 - In ubuntu:  
-$ touch /media/$USER/boot/ssh
-- Unmount the MicroSD card
-- Insert it to the raspberry pi
-- Connect it to power and the network (use a cable, mate!)
+$ touch /media/$USER/boot/ssh  
+- Unmount the MicroSD card  
+- Insert it to the raspberry pi  
+- Connect it to power and the network (use a cable, mate!)  
 - Find the IP  
-$ nmap -sP 192.168.0.0/24
+$ nmap -sP 192.168.0.0/24  
 
 ## SSH into it, give it a name, tweak raspbian
 $ ssh pi@<IP> # password is raspberry, accept authenticity
@@ -93,8 +93,8 @@ $ sudo update-alternatives --list python
 $ sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1  
 $ sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2  
 - Check again  
-$ sudo update-alternatives --list python
-- Make sure the default one is correct
-$ sudo update-alternatives --config python
-- Test
-$ python --version
+$ sudo update-alternatives --list python  
+- Make sure the default one is correct  
+$ sudo update-alternatives --config python  
+- Test  
+$ python --version  
