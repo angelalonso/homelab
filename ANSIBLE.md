@@ -7,9 +7,9 @@ $ sudo apt-get update && sudo apt-get install ansible sshpass
 
 # Configuration
 - Hosts file:
-/etc/ansible/hosts
+$HOMELAB_DIR/infra/hosts
 - Playbooks directory:
-$HOMELAB_REPODIR/infra/manifests
+$HOMELAB_DIR/infra/manifests
 
 ## Project goals
 - Avoid manual work when installing or modifying machines in the cluster
