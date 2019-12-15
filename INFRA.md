@@ -8,6 +8,14 @@ $ ssh-keygen -t rsa -b 4096 -N '' -f ~/.ssh/ansible
 - Copy it over to the admin's .ssh/authorized_keys
 
 ### TBD
+- [x] Create python wrapper that generates hosts and playbooks from file that is not on git
+  - [x] init:
+    - [x] read secrets.yaml
+    - [x] create hosts, manifests
+  - [x] plan:
+    - [x] run dry 
+  - [x] apply:
+    - [x]ansible-playbook
 - [x] Create and document standard configuration/playbooks
  - Create sshkey, add to admin
  - Create ansible user, add sshkey
@@ -15,7 +23,7 @@ $ ssh-keygen -t rsa -b 4096 -N '' -f ~/.ssh/ansible
 - [x] Use and document dedicated ssh keys for ansible
 
 ## Other systems that failed
-- Own program asd -> too much effort
+- Ansible + Makefile -> escaping strings on the makefile is a bit complex
 - Saltstack 
   - too heavy to run master and minions
   - official installation does not work out of the box on raspbian
