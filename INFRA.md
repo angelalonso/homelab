@@ -23,7 +23,7 @@ $ ssh-keygen -t rsa -b 4096 -N '' -f ~/.ssh/ansible
 - [x] Use and document dedicated ssh keys for ansible
 
 ## Other systems that failed
-- Ansible + Makefile -> escaping strings on the makefile is a bit complex
+- Ansible + Makefile for the secrets -> escaping strings on the makefile is a bit complex
 - Saltstack 
   - too heavy to run master and minions
   - official installation does not work out of the box on raspbian

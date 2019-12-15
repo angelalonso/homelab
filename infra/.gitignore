@@ -1,4 +1,8 @@
 hosts
+secrets.yaml
 playbooks.yaml
+
 *.swp
 *.swo
+
+__pycache__/
