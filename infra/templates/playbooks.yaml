@@ -1,15 +1,20 @@
 ---
-- hosts: all
+{% for group, values in secrets.groups.items() %}
+- hosts: {{ group }}
   gather_facts: false
   become: yes
   vars:
     users:
-      - fideloper
+  {% for name, values in values.users.items() %}
+      - name: {{ name }}
+        pass: {{ getSaltedPassword(values.password) }}
+  {% endfor %}
   tasks:
+{% raw %}
     - name: "new user"
       user:
-        name: "{{ item }}"
-        password: "omeSalt4hLyw8vIcULr2HJV.AjX/"
+        name: "{{ item.name }}"
+        password: "{{ item.pass }}"
         groups: # Empty by default, here we give it some groups
          - sudo
         state: present
@@ -17,5 +22,7 @@
     - name: "user ssh key"
       authorized_key:
         user: "{{ item }}"
-        key: "{{ lookup('file', '~/.ssh/aafhome.pub') }}"
+        key: "{{ lookup('file', '~/.ssh/admin.pub') }}"
       with_items: "{{ users }}"
+{% endraw %}
+{% endfor %}
