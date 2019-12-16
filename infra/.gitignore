@@ -1,6 +1,5 @@
-hosts
+manifests/
 secrets.yaml
-playbooks.yaml
 
 *.swp
 *.swo
