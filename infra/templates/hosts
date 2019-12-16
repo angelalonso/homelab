@@ -1,0 +1,11 @@
+lisboa ansible_ssh_host=192.168.0.17 ansible_ssh_user=pi ansible_ssh_pass=raspberry
+{% for host, values in hosts.items() %}
+{{ host }} ansible_ssh_host={{ values.ip }} ansible_ssh_user={{ values.ssh_user }} ansible_ssh_pass={{ values.ssh_pass }}
+{% endfor %}
+
+{% for host, values in hosts.items() %}
+  {% for group in values.hostgroups %}
+{{ group }}
+  {% endfor %}
+{% endfor %}
+

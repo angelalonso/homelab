@@ -1,8 +1,12 @@
-from collections import defaultdict
 import glob
 import os
 import yaml
 
+from collections import defaultdict
+from jinja2 import Environment, FileSystemLoader
+
+
+# No Jinja
 def addServerToHosts(string, folder):
     hosts_filename = folder + '/hosts'
     with open(hosts_filename, "a") as hostsfile:
@@ -29,6 +33,16 @@ def createManifests(secrets, folder):
         addServerToHosts(line, folder)
     addGroupsToHosts(groups, folder)
 
+# Jinja
+def createTemplatedManifests(secrets, templates_folder, manifests_folder):
+    hosts_file = templates_folder + 'hosts'
+    groups = defaultdict(list)
+
+    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
+    template = env.get_template('hosts')
+    print(template.render(secrets))
+
+
 def getSecrets(filename):
     with open(filename) as file:
         secrets = yaml.safe_load(file)
@@ -41,7 +55,9 @@ def clenaupManifests(folder):
 
 if __name__ == "__main__":
     SECRETS_FILE = './secrets.yaml'
+    TEMPLATES_FOLDER = './templates'
     MANIFESTS_FOLDER = './manifests'
 
     clenaupManifests(MANIFESTS_FOLDER)
-    createManifests(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
+    #createManifests(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
+    createTemplatedManifests(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)

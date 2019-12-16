@@ -1,0 +1,21 @@
+---
+- hosts: all
+  gather_facts: false
+  become: yes
+  vars:
+    users:
+      - fideloper
+  tasks:
+    - name: "new user"
+      user:
+        name: "{{ item }}"
+        password: "omeSalt4hLyw8vIcULr2HJV.AjX/"
+        groups: # Empty by default, here we give it some groups
+         - sudo
+        state: present
+      with_items: "{{ users }}"
+    - name: "user ssh key"
+      authorized_key:
+        user: "{{ item }}"
+        key: "{{ lookup('file', '~/.ssh/aafhome.pub') }}"
+      with_items: "{{ users }}"
