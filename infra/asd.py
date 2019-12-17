@@ -1,6 +1,7 @@
 import crypt
 import glob
 import os
+import sys
 import yaml
 
 from collections import defaultdict
@@ -65,11 +66,35 @@ def clenaupManifests(folder):
     for f in files:
         os.remove(f)
 
+def init():
+    clenaupManifests(MANIFESTS_FOLDER)
+    #createManifests(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
+    createTemplatedManifests(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
+
+def plan():
+    print("Planning")
+
+def apply():
+    print("Applying")
+
+def showHelp():
+    print("SYNTAX: " + sys.argv[0] + " [init|make|apply]")
+    sys.exit(1)
+
 if __name__ == "__main__":
     SECRETS_FILE = './secrets.yaml'
     TEMPLATES_FOLDER = './templates'
     MANIFESTS_FOLDER = './manifests'
 
-    clenaupManifests(MANIFESTS_FOLDER)
-    #createManifests(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
-    createTemplatedManifests(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
+    if len(sys.argv) != 2:
+        showHelp()
+    else:
+        if sys.argv[1] == "init":
+            init()
+        elif sys.argv[1] == "plan":
+            plan()
+        elif sys.argv[1] == "apply":
+            apply()
+        else:
+            showHelp()
+
