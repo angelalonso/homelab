@@ -5,7 +5,11 @@
   become: yes
   vars:
     users:
-  {% for name, values in values.users.items() %}
+  {% for name, values in values.ansible_user.items() %}
+      - name: {{ name }}
+        pass: {{ getSaltedPassword(values.password) }}
+  {% endfor %}
+  {% for name, values in values.other_users.items() %}
       - name: {{ name }}
         pass: {{ getSaltedPassword(values.password) }}
   {% endfor %}

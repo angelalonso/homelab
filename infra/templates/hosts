@@ -1,10 +1,10 @@
 {% for host, values in secrets.hosts.items() %}
-{{ host }} ansible_ssh_host={{ values.ip }} ansible_ssh_user={{ values.ansible_ssh_user }} ansible_ssh_pass={{ values.ansible_ssh_pass }}
+{{ host }} ansible_ssh_host={{ values.ip }} ansible_ssh_user={{ values.ansible_user.name }} ansible_ssh_pass={{ values.ansible_user.password }}
 {% endfor %}
 
-{% for group in groups %}
+{% for group,values in secrets.groups.items() %}
 [{{ group }}]
-  {% for host in groups[group] %}
+  {% for host in values.hosts %}
 {{ host }}
   {% endfor %}
 {% endfor %}

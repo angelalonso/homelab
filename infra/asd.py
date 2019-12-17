@@ -37,16 +37,16 @@ def createManifests(secrets, folder):
 # Jinja
 def createTemplatedManifests(secrets, templates_folder, manifests_folder):
     hosts_file = templates_folder + 'hosts'
-    groups = defaultdict(list)
+    # groups = defaultdict(list)
 
-    groups = defaultdict(list)
-    for key, var in secrets["hosts"].items():
-        for hostgroup in secrets["hosts"][key]["hostgroups"]:
-            groups[hostgroup].append(key)
+    # for key, var in secrets["hosts"].items():
+    #     for hostgroup in secrets["hosts"][key]["hostgroups"]:
+    #         groups[hostgroup].append(key)
+
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
 
     template_hosts = env.get_template('hosts')
-    print(template_hosts.render(secrets=secrets, groups=groups))
+    print(template_hosts.render(secrets=secrets))
 
     template_hosts = env.get_template('playbooks.yaml')
     print(template_hosts.render(secrets=secrets, getSaltedPassword=getSaltedPassword))
