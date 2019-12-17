@@ -1,6 +1,7 @@
 import crypt
 import glob
 import os
+import subprocess
 import sys
 import yaml
 
@@ -37,20 +38,20 @@ def createManifests(secrets, folder):
 
 # Jinja
 def createTemplatedManifests(secrets, templates_folder, manifests_folder):
-    hosts_file = templates_folder + 'hosts'
-    # groups = defaultdict(list)
-
-    # for key, var in secrets["hosts"].items():
-    #     for hostgroup in secrets["hosts"][key]["hostgroups"]:
-    #         groups[hostgroup].append(key)
+    hosts_file = 'hosts'
+    playbooks_file = 'playbooks.yaml'
 
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
 
-    template_hosts = env.get_template('hosts')
-    print(template_hosts.render(secrets=secrets))
+    template_hosts = env.get_template(hosts_file)
 
-    template_hosts = env.get_template('playbooks.yaml')
-    print(template_hosts.render(secrets=secrets, getSaltedPassword=getSaltedPassword))
+    with open(manifests_folder + '/' + hosts_file, "w") as fh:
+        fh.write(template_hosts.render(secrets=secrets))
+
+    template_hosts = env.get_template(playbooks_file)
+
+    with open(manifests_folder + '/' + playbooks_file, "w") as fm:
+        fm.write(template_hosts.render(secrets=secrets, getSaltedPassword=getSaltedPassword))
 
 def getSaltedPassword(password):
     salt = crypt.mksalt(crypt.METHOD_SHA512)
@@ -73,6 +74,9 @@ def init():
 
 def plan():
     print("Planning")
+    subprocess.run(["ansible-playbook", "-i", "./manifests/hosts", "./manifests/playbooks.yaml", "--check"])
+    # this fails
+    #print(sh.ansible-playbook("-i", "./manifests/hosts", "./manifests/playbooks.yaml", "--check"))
 
 def apply():
     print("Applying")
@@ -82,9 +86,9 @@ def showHelp():
     sys.exit(1)
 
 if __name__ == "__main__":
-    SECRETS_FILE = './secrets.yaml'
-    TEMPLATES_FOLDER = './templates'
-    MANIFESTS_FOLDER = './manifests'
+    SECRETS_FILE = 'secrets.yaml'
+    TEMPLATES_FOLDER = 'templates'
+    MANIFESTS_FOLDER = 'manifests'
 
     if len(sys.argv) != 2:
         showHelp()
