@@ -52,8 +52,8 @@ def createTemplatedManifests(secrets, templates_folder, manifests_folder):
     print(template_hosts.render(secrets=secrets, getSaltedPassword=getSaltedPassword))
 
 def getSaltedPassword(password):
-    return crypt.crypt(password, "$1$SomeSalt$")
-
+    salt = crypt.mksalt(crypt.METHOD_SHA512)
+    return crypt.crypt(password, salt)
 
 def getSecrets(filename):
     with open(filename) as file:
