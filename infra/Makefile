@@ -2,6 +2,7 @@
 
 init:
 	@echo "Initializing..."
+#$(shell brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb >/dev/null 2>&1)
 	pipenv install
 	pipenv run python3 asd.py init
 plan: init
