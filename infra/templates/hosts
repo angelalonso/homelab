@@ -1,5 +1,6 @@
 {% for host, values in secrets.hosts.items() %}
-{{ host }} ansible_ssh_host={{ values.ip }} ansible_ssh_user={{ values.ansible_user.name }} ansible_ssh_pass={{ values.ansible_user.password }}
+{{ host }} ansible_ssh_host={{ values.ip }} ansible_ssh_user={{ values.ansible_user.name }} {% if values.ansible_user.ssh_key is defined %}ansible_ssh_private_key_file={{ values.ansible_user.ssh_key }}{% else %}ansible_ssh_pass={{ values.ansible_user.password }}{% endif %}
+
 {% endfor %}
 
 {% for group,values in secrets.groups.items() %}
