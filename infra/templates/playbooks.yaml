@@ -4,27 +4,28 @@
   gather_facts: false
   become: yes
   vars:
-    hostinfo:
-    {% for hostname in values.hosts %}
-      host: {{ hostname }}
-    {% endfor %}
     users:
   {% for name, values in values.ansible_user.items() %}
       - name: {{ name }}
         pass: {{ getSaltedPassword(values.password) }}
         ssh_key: {{ values.ssh_key }}
+        ssh_path: {{ values.ssh_path }}
   {% endfor %}
+  {% if values.other_users is defined %}
   {% for name, values in values.other_users.items() %}
       - name: {{ name }}
         pass: {{ getSaltedPassword(values.password) }}
         ssh_key: {{ values.ssh_key }}
+        ssh_path: {{ values.ssh_path }}
   {% endfor %}
+  {% endif %}
   tasks:
 {% raw %}
+# change hostname
     - name: "correct hostname"
       hostname:
-        name: "{{ item.host }}"
-      with_items: "{{ hostinfo }}"
+        name: "{{ hostvars.ansible_host }}"
+# add user, make it admin
     - name: "new user"
       user:
         name: "{{ item.name }}"
@@ -33,10 +34,18 @@
          - sudo
         state: present
       with_items: "{{ users }}"
+# give the user an ssh key
     - name: "user ssh key"
       authorized_key:
-        user: "{{ item }}"
+        user: "{{ item.name }}"
         key: "{{ lookup('file', item.ssh_key) }}"
       with_items: "{{ users }}"
 {% endraw %}
 {% endfor %}
+# remove pi user
+# expand root filesystem?
+# install packages
+# git vim fail2ban ufw
+# configure ssh port etc
+# configure ufw
+# python3 by default?

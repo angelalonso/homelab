@@ -11,6 +11,7 @@ plan: init
 #  $(shell ansible-playbook -i ./manifests/hosts ./manifests/playbooks.yaml --check)
 apply: init plan
 	@echo "Applying..."
+	pipenv run python3 asd.py apply
 
 .PHONY : init plan apply
 .DEFAULT_GOAL := plan

@@ -80,6 +80,7 @@ def plan():
 
 def apply():
     print("Applying")
+    subprocess.run(["ansible-playbook", "-i", "./manifests/hosts", "./manifests/playbooks.yaml"])
 
 def showHelp():
     print("SYNTAX: " + sys.argv[0] + " [init|make|apply]")
