@@ -4,17 +4,27 @@
   gather_facts: false
   become: yes
   vars:
+    hostinfo:
+    {% for hostname in values.hosts %}
+      host: {{ hostname }}
+    {% endfor %}
     users:
   {% for name, values in values.ansible_user.items() %}
       - name: {{ name }}
         pass: {{ getSaltedPassword(values.password) }}
+        ssh_key: {{ values.ssh_key }}
   {% endfor %}
   {% for name, values in values.other_users.items() %}
       - name: {{ name }}
         pass: {{ getSaltedPassword(values.password) }}
+        ssh_key: {{ values.ssh_key }}
   {% endfor %}
   tasks:
 {% raw %}
+    - name: "correct hostname"
+      hostname:
+        name: "{{ item.host }}"
+      with_items: "{{ hostinfo }}"
     - name: "new user"
       user:
         name: "{{ item.name }}"
@@ -26,7 +36,7 @@
     - name: "user ssh key"
       authorized_key:
         user: "{{ item }}"
-        key: "{{ lookup('file', '~/.ssh/admin.pub') }}"
+        key: "{{ lookup('file', item.ssh_key) }}"
       with_items: "{{ users }}"
 {% endraw %}
 {% endfor %}
