@@ -1,0 +1,94 @@
+---
+{% for group, values in secrets.groups.items() %}
+- hosts: {{ group }}
+  gather_facts: false
+  become: yes
+  vars:
+    users:
+  {% for name, values in values.ansible_user.items() %}
+      - name: {{ name }}
+        pass: {{ getSaltedPassword(values.password) }}
+        ssh_key: {{ values.ssh_key }}
+        ssh_path: {{ values.ssh_path }}
+  {% endfor %}
+  {% if values.other_users is defined %}
+  {% for name, values in values.other_users.items() %}
+      - name: {{ name }}
+        pass: {{ getSaltedPassword(values.password) }}
+        ssh_key: {{ values.ssh_key }}
+        ssh_path: {{ values.ssh_path }}
+  {% endfor %}
+  {% endif %}
+    system_vars:
+      ssh_port: {{ values.ssh_port }}
+      packages:
+  {% for pkg in values.packages %}
+        - {{ pkg }}
+  {% endfor %}
+  tasks:
+{% raw %}
+# change hostname
+    - name: "correct hostname"
+      hostname:
+        name: "{{ hostvars.ansible_host }}"
+# add user, make it admin
+    - name: "new user"
+      user:
+        name: "{{ item.name }}"
+        password: "{{ item.pass }}"
+        groups: # Empty by default, here we give it some groups
+         - sudo
+        state: present
+      with_items: "{{ users }}"
+# give the user an ssh key
+    - name: "user ssh key"
+      authorized_key:
+        user: "{{ item.name }}"
+        key: "{{ lookup('file', item.ssh_key) }}"
+      with_items: "{{ users }}"
+# remove pi user
+    - name: "remove pi user"
+      user:
+       name: 'pi'
+       state: absent
+       remove: yes
+# install packages
+    - name: "install base packages"
+      apt: name={{ item }} state=installed
+      with_items: "{{ system_vars.packages }}"
+# configure ssh port etc https://dmsimard.com/2016/03/15/changing-the-ssh-port-with-ansible/
+#    - name: "setup alternate SSH port"
+#      lineinfile:
+#        dest: "/etc/ssh/sshd_config"
+#        regexp: "^Port"
+#        line: "Port {{ item.ssh_port }}"
+#      notify: "restart sshd"
+#      with_items: "{{ system_vars }}"
+# copy a templated config file for sshd
+    - name: "copy sshd_config file with owner and permissions"
+      copy:
+        src: manifests/sshd_config 
+        dest: /etc/ssh/sshd_config
+        owner: root
+        group: root
+        mode: '0644'
+      notify: "restart sshd"
+    - name: "restart sshd"
+      service:
+        name: sshd
+        state: restarted
+# configure ufw
+    - name: "deny everything and enable UFW"
+      ufw:
+        state: enabled
+        policy: deny
+    - name: Allow all access to SSH port
+      ufw:
+        rule: allow
+        port: '{{ item.ssh_port }}'
+        comment: 'ssh access'
+      with_items: "{{ system_vars }}"
+{% endraw %}
+{% endfor %}
+# expand root filesystem?
+# python3 by default?

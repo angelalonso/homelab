@@ -8,35 +8,24 @@ import yaml
 from collections import defaultdict
 from jinja2 import Environment, FileSystemLoader
 
+def createInventory():
+    pass
 
-# No Jinja
-def addServerToHosts(string, folder):
-    hosts_filename = folder + '/hosts'
-    with open(hosts_filename, "a") as hostsfile:
-        hostsfile.write(string)
+def createPlaybooksPerGroup(secrets, templates_folder, manifests_folder):
+    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
+    # templated playbooks per group
+    for group in secrets['groups']:
+        playbook_file = 'playbook_' + group + '.yaml'
+        if os.path.isfile(templates_folder + '/' + playbook_file):
+            template_playbook = env.get_template(playbook_file)
+            with open(manifests_folder + '/' + playbook_file, "w") as fm:
+                fm.write(template_playbook.render(secrets=secrets, getSaltedPassword=getSaltedPassword))
+        else:
+            print(templates_folder + '/' + playbook_file + ' does not exist! Nothing to be done there.')
 
-def addGroupsToHosts(groups, folder):
-    hosts_filename = folder + '/hosts'
-    for group in groups:
-        with open(hosts_filename, "a") as hostsfile:
-            hostsfile.write("\n[" + group + "]\n")
-        for host in groups[group]:
-            with open(hosts_filename, "a") as hostsfile:
-                hostsfile.write(host + "\n")
+def createConfigFiles():
+    pass
 
-def createManifests(secrets, folder):
-    hosts_filename = folder + '/hosts'
-    groups = defaultdict(list)
-    for key, var in secrets["hosts"].items():
-        for hostgroup in secrets["hosts"][key]["hostgroups"]:
-            groups[hostgroup].append(key)
-        line = key + " ansible_ssh_host=" + secrets["hosts"][key]["ip"] + \
-                " ansible_ssh_user=" + secrets["hosts"][key]["ssh_user"] + \
-                " ansible_ssh_pass=" + secrets["hosts"][key]["ssh_pass"] + "\n"
-        addServerToHosts(line, folder)
-    addGroupsToHosts(groups, folder)
-
-# Jinja
 def createTemplatedManifests(secrets, templates_folder, manifests_folder):
     hosts_file = 'hosts'
     playbooks_file = 'playbooks.yaml'
@@ -49,9 +38,10 @@ def createTemplatedManifests(secrets, templates_folder, manifests_folder):
     with open(manifests_folder + '/' + hosts_file, "w") as fh:
         fh.write(template_hosts.render(secrets=secrets))
     # templated playbook(s)
-    template_playbooks = env.get_template(playbooks_file)
-    with open(manifests_folder + '/' + playbooks_file, "w") as fm:
-        fm.write(template_playbooks.render(secrets=secrets, getSaltedPassword=getSaltedPassword))
+    createPlaybooksPerGroup(secrets, templates_folder, manifests_folder)
+    ##  template_playbooks = env.get_template(playbooks_file)
+    ##  with open(manifests_folder + '/' + playbooks_file, "w") as fm:
+    ##      fm.write(template_playbooks.render(secrets=secrets, getSaltedPassword=getSaltedPassword))
     # templated config files
     #  sshd config
     template_cfg_ssh = env.get_template(cfg_ssh_file)
@@ -74,8 +64,8 @@ def clenaupManifests(folder):
 
 def init():
     clenaupManifests(MANIFESTS_FOLDER)
-    #createManifests(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
     createTemplatedManifests(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
+#    createPlaybooksPerGroup(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
 
 def plan():
     print("Planning")
