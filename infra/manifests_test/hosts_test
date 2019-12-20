@@ -1,8 +1,0 @@
-test01 ansible_ssh_host=192.168.0.1 ansible_ssh_user=testuser ansible_ssh_pass=testpass
-test02 ansible_ssh_host=192.168.0.2 ansible_ssh_user=testuser ansible_ssh_pass=testpass
-test03 ansible_ssh_host=192.168.0.3 ansible_ssh_user=testuser ansible_ssh_pass=testpass
-
-[all]
-test01
-test02
-test03

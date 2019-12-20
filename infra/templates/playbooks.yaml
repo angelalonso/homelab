@@ -20,8 +20,11 @@
   {% endfor %}
   {% endif %}
     system_vars:
-      - ssh_port: {{ values.ssh_port }}
-      - packages: {{ values.packages }}
+      ssh_port: {{ values.ssh_port }}
+      packages:
+  {% for pkg in values.packages %}
+        - {{ pkg }}
+  {% endfor %}
   tasks:
 {% raw %}
 # change hostname
