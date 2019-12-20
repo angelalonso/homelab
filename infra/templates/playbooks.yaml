@@ -19,6 +19,9 @@
         ssh_path: {{ values.ssh_path }}
   {% endfor %}
   {% endif %}
+    system_vars:
+      - ssh_port: {{ values.ssh_port }}
+      - packages: {{ values.packages }}
   tasks:
 {% raw %}
 # change hostname
@@ -49,14 +52,31 @@
 # install packages
     - name: "install base packages"
       apt: name={{ item }} state=installed
-      with_items:
-        - git
-        - vim
-        - ufw
-        - fail2ban
+      with_items: "{{ system_vars.packages }}"
+# configure ssh port etc https://dmsimard.com/2016/03/15/changing-the-ssh-port-with-ansible/
+    - name: "setup alternate SSH port"
+      lineinfile:
+        dest: "/etc/ssh/sshd_config"
+        regexp: "^Port"
+        line: "Port {{ item.ssh_port }}"
+      notify: "restart sshd"
+      with_items: "{{ system_vars }}"
+    - name: "restart sshd"
+      service:
+        name: sshd
+        state: restarted
+# configure ufw
+    - name: "deny everything and enable UFW"
+      ufw:
+        state: enabled
+        policy: deny
+    - name: Allow all access to SSH port
+      ufw:
+        rule: allow
+        port: '{{ item.ssh_port }}'
+        comment: 'ssh access'
+      with_items: "{{ system_vars }}"
 {% endraw %}
 {% endfor %}
 # expand root filesystem?
-# configure ssh port etc
-# configure ufw
 # python3 by default?
