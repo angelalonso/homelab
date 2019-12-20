@@ -40,12 +40,23 @@
         user: "{{ item.name }}"
         key: "{{ lookup('file', item.ssh_key) }}"
       with_items: "{{ users }}"
+# remove pi user
+    - name: "remove pi user"
+      user:
+       name: 'pi'
+       state: absent
+       remove: yes
+# install packages
+    - name: "install base packages"
+      apt: name={{ item }} state=installed
+      with_items:
+        - git
+        - vim
+        - ufw
+        - fail2ban
 {% endraw %}
 {% endfor %}
-# remove pi user
 # expand root filesystem?
-# install packages
-# git vim fail2ban ufw
 # configure ssh port etc
 # configure ufw
 # python3 by default?
