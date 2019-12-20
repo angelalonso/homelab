@@ -15,13 +15,17 @@ def createPlaybooksPerGroup(secrets, templates_folder, manifests_folder):
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
     # templated playbooks per group
     for group in secrets['groups']:
-        playbook_file = 'playbook_' + group + '.yaml'
-        if os.path.isfile(templates_folder + '/' + playbook_file):
-            template_playbook = env.get_template(playbook_file)
-            with open(manifests_folder + '/' + playbook_file, "w") as fm:
-                fm.write(template_playbook.render(secrets=secrets, getSaltedPassword=getSaltedPassword))
+        print(group)
+        if secrets['groups'][group] is None:
+            print(group + " is empty. Nothing to be done there.")
         else:
-            print(templates_folder + '/' + playbook_file + ' does not exist! Nothing to be done there.')
+            playbook_file = 'playbook_' + group + '.yaml'
+            if os.path.isfile(templates_folder + '/' + playbook_file):
+                template_playbook = env.get_template(playbook_file)
+                with open(manifests_folder + '/' + playbook_file, "w") as fm:
+                    fm.write(template_playbook.render(secrets_group=secrets['groups'][group], secrets=secrets, getSaltedPassword=getSaltedPassword))
+            else:
+                print(templates_folder + '/' + playbook_file + ' does not exist! Nothing to be done there.')
 
 def createConfigFiles():
     pass
@@ -57,25 +61,32 @@ def getSecrets(filename):
         secrets = yaml.safe_load(file)
     return secrets
 
-def clenaupManifests(folder):
+def cleanupManifests(folder):
     files = glob.glob(folder + '/*')
     for f in files:
+        print("removing old " + f)
         os.remove(f)
 
 def init():
-    clenaupManifests(MANIFESTS_FOLDER)
+    cleanupManifests(MANIFESTS_FOLDER)
     createTemplatedManifests(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
 #    createPlaybooksPerGroup(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
 
-def plan():
+def plan(secrets, manifests_folder):
     print("Planning")
-    subprocess.run(["ansible-playbook", "-i", "./manifests/hosts", "./manifests/playbooks.yaml", "--check"])
+    for group in secrets['groups']:
+        playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
+        if os.path.isfile(playbook_file):
+            subprocess.run(["ansible-playbook", "-i", "./manifests/hosts", playbook_file, "--check"])
     # this fails
     #print(sh.ansible-playbook("-i", "./manifests/hosts", "./manifests/playbooks.yaml", "--check"))
 
 def apply():
     print("Applying")
-    subprocess.run(["ansible-playbook", "-i", "./manifests/hosts", "./manifests/playbooks.yaml"])
+    for group in secrets['groups']:
+        playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
+        if os.path.isfile(playbook_file):
+            subprocess.run(["ansible-playbook", "-i", "./manifests/hosts", playbook_file])
 
 def showHelp():
     print("SYNTAX: " + sys.argv[0] + " [init|make|apply]")
@@ -92,9 +103,9 @@ if __name__ == "__main__":
         if sys.argv[1] == "init":
             init()
         elif sys.argv[1] == "plan":
-            plan()
+            plan(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
         elif sys.argv[1] == "apply":
-            apply()
+            apply(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
         else:
             showHelp()
 

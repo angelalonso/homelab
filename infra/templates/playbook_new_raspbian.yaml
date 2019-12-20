@@ -1,18 +1,15 @@
 ---
-{% for group, values in secrets.groups.items() %}
-- hosts: {{ group }}
+- hosts: new_raspbian
   gather_facts: false
   become: yes
   vars:
     users:
-  {% for name, values in values.ansible_user.items() %}
-      - name: {{ name }}
-        pass: {{ getSaltedPassword(values.password) }}
-        ssh_key: {{ values.ssh_key }}
-        ssh_path: {{ values.ssh_path }}
-  {% endfor %}
-  {% if values.other_users is defined %}
-  {% for name, values in values.other_users.items() %}
+      - name: {{ secrets_group.ansible_user.name }}
+        pass: {{ getSaltedPassword(secrets_group.ansible_user.password) }}
+        ssh_key: {{ secrets_group.ansible_user.ssh_key }}
+        ssh_path: {{ secrets_group.ansible_user.ssh_path }}
+  {% if secrets_group.other_users is defined %}
+  {% for name, values in secrets_group.other_users.items() %}
       - name: {{ name }}
         pass: {{ getSaltedPassword(values.password) }}
         ssh_key: {{ values.ssh_key }}
@@ -20,9 +17,9 @@
   {% endfor %}
   {% endif %}
     system_vars:
-      ssh_port: {{ values.ssh_port }}
+      ssh_port: {{ secrets_group.ssh_port }}
       packages:
-  {% for pkg in values.packages %}
+  {% for pkg in secrets_group.packages %}
         - {{ pkg }}
   {% endfor %}
   tasks:
@@ -56,6 +53,7 @@
     - name: "install base packages"
       apt: name={{ item }} state=installed
       with_items: "{{ system_vars.packages }}"
+      when: not ansible_check_mode
 # configure ssh port etc https://dmsimard.com/2016/03/15/changing-the-ssh-port-with-ansible/
 #    - name: "setup alternate SSH port"
 #      lineinfile:
@@ -89,6 +87,5 @@
         comment: 'ssh access'
       with_items: "{{ system_vars }}"
 {% endraw %}
-{% endfor %}
 # expand root filesystem?
 # python3 by default?
