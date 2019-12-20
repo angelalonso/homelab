@@ -65,7 +65,7 @@
 # copy a templated config file for sshd
     - name: "copy sshd_config file with owner and permissions"
       copy:
-        src: manifests/sshd_config 
+        src: manifests/new_raspbian_sshd_config 
         dest: /etc/ssh/sshd_config
         owner: root
         group: root

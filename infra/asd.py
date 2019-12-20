@@ -27,13 +27,20 @@ def createPlaybooksPerGroup(secrets, templates_folder, manifests_folder):
             else:
                 print(templates_folder + '/' + playbook_file + ' does not exist! Nothing to be done there.')
 
-def createConfigFiles():
-    pass
+def createConfigFiles(secrets, templates_folder, manifests_folder):
+    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
+    for group in secrets['groups']:
+        if secrets['groups'][group] is None:
+            print(group + " is empty. Nothing to be done there.")
+        else:
+            cfg_ssh_file = 'sshd_config'
+            template_cfg_ssh = env.get_template(cfg_ssh_file)
+            with open(manifests_folder + '/' + group + '_' + cfg_ssh_file, "w") as fcssh:
+                fcssh.write(template_cfg_ssh.render(secrets_group=secrets['groups'][group]))
 
 def createTemplatedManifests(secrets, templates_folder, manifests_folder):
     hosts_file = 'hosts'
     playbooks_file = 'playbooks.yaml'
-    cfg_ssh_file = 'sshd_config'
 
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
 
@@ -41,16 +48,14 @@ def createTemplatedManifests(secrets, templates_folder, manifests_folder):
     template_hosts = env.get_template(hosts_file)
     with open(manifests_folder + '/' + hosts_file, "w") as fh:
         fh.write(template_hosts.render(secrets=secrets))
+    # templated config files
+    #  sshd config
+    createConfigFiles(secrets, templates_folder, manifests_folder)
     # templated playbook(s)
     createPlaybooksPerGroup(secrets, templates_folder, manifests_folder)
     ##  template_playbooks = env.get_template(playbooks_file)
     ##  with open(manifests_folder + '/' + playbooks_file, "w") as fm:
     ##      fm.write(template_playbooks.render(secrets=secrets, getSaltedPassword=getSaltedPassword))
-    # templated config files
-    #  sshd config
-    template_cfg_ssh = env.get_template(cfg_ssh_file)
-    with open(manifests_folder + '/' + cfg_ssh_file, "w") as fcssh:
-        fcssh.write(template_cfg_ssh.render(secrets=secrets))
 
 def getSaltedPassword(password):
     salt = crypt.mksalt(crypt.METHOD_SHA512)
