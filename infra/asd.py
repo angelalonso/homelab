@@ -40,18 +40,23 @@ def createManifests(secrets, folder):
 def createTemplatedManifests(secrets, templates_folder, manifests_folder):
     hosts_file = 'hosts'
     playbooks_file = 'playbooks.yaml'
+    cfg_ssh_file = 'sshd_config'
 
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
 
+    # templated hosts inventory
     template_hosts = env.get_template(hosts_file)
-
     with open(manifests_folder + '/' + hosts_file, "w") as fh:
         fh.write(template_hosts.render(secrets=secrets))
-
-    template_hosts = env.get_template(playbooks_file)
-
+    # templated playbook(s)
+    template_playbooks = env.get_template(playbooks_file)
     with open(manifests_folder + '/' + playbooks_file, "w") as fm:
-        fm.write(template_hosts.render(secrets=secrets, getSaltedPassword=getSaltedPassword))
+        fm.write(template_playbooks.render(secrets=secrets, getSaltedPassword=getSaltedPassword))
+    # templated config files
+    #  sshd config
+    template_cfg_ssh = env.get_template(cfg_ssh_file)
+    with open(manifests_folder + '/' + cfg_ssh_file, "w") as fcssh:
+        fcssh.write(template_cfg_ssh.render(secrets=secrets))
 
 def getSaltedPassword(password):
     salt = crypt.mksalt(crypt.METHOD_SHA512)
