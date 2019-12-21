@@ -76,17 +76,17 @@
         name: sshd
         state: restarted
 # configure ufw
+    - name: Allow all access to SSH port
+      ufw:
+        rule: allow
+        port: '{{ system_vars.ssh_port }}'
+        comment: 'ssh access'
+      with_items: "{{ system_vars }}"
+      when: not ansible_check_mode
     - name: "deny everything and enable UFW"
       ufw:
         state: enabled
         policy: deny
-      when: not ansible_check_mode
-    - name: Allow all access to SSH port
-      ufw:
-        rule: allow
-        port: '{{ item.ssh_port }}'
-        comment: 'ssh access'
-      with_items: "{{ system_vars }}"
       when: not ansible_check_mode
 {% endraw %}
 # expand root filesystem?
