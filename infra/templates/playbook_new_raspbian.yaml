@@ -43,6 +43,7 @@
         user: "{{ item.name }}"
         key: "{{ lookup('file', item.ssh_key) }}"
       with_items: "{{ users }}"
+      when: not ansible_check_mode
 # install packages
     - name: "install base packages"
       apt: name={{ item }} state=present

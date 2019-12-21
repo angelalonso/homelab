@@ -147,17 +147,31 @@ def init(secrets, templates_folder, manifests_folder):
     createNotNewGroupsManifests(secrets, templates_folder, manifests_folder)
 
 def plan(secrets, manifests_folder):
-    verbose("Planning only new_hosts")
-    for group in secrets['groups']:
-        if group.startswith('new_'):
+    if 'new_' in str(secrets['groups'].keys()):
+        verbose("Planning only new_ groups")
+        for group in secrets['groups']:
+            if group.startswith('new_'):
+                playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
+                if os.path.isfile(playbook_file):
+                    subprocess.run(["ansible-playbook", "-i", "./manifests/hosts_" + group, playbook_file, "--check"])
+    else:
+        verbose("Planning all groups")
+        for group in secrets['groups']:
             playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
             if os.path.isfile(playbook_file):
                 subprocess.run(["ansible-playbook", "-i", "./manifests/hosts_" + group, playbook_file, "--check"])
 
 def apply(secrets, manifests_folder):
-    verbose("Applying")
+    verbose("Applying first the _new groups")
     for group in secrets['groups']:
         if group.startswith('new_'):
+            playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
+            if os.path.isfile(playbook_file):
+                subprocess.run(["ansible-playbook", "-i", "./manifests/hosts_" + group, playbook_file])
+
+    verbose("Applying then the NON _new groups")
+    for group in secrets['groups']:
+        if not group.startswith('new_'):
             playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
             if os.path.isfile(playbook_file):
                 subprocess.run(["ansible-playbook", "-i", "./manifests/hosts_" + group, playbook_file])
@@ -169,6 +183,12 @@ def showHelp():
     print("SYNTAX: " + sys.argv[0] + " [init|make|apply]")
     sys.exit(1)
 
+def test(secrets, templates_folder, manifests_folder):
+    if 'new_' in str(secrets['groups'].keys()):
+        print(secrets['groups'].keys())
+    else:
+        print("no")
+
 if __name__ == "__main__":
     SECRETS_FILE = 'secrets.yaml'
     TEMPLATES_FOLDER = 'templates'
@@ -179,6 +199,8 @@ if __name__ == "__main__":
     else:
         if sys.argv[1] == "init":
             init(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
+        elif sys.argv[1] == "test":
+            test(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
         elif sys.argv[1] == "plan":
             plan(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
         elif sys.argv[1] == "apply":
