@@ -1,5 +1,5 @@
 manifests/
-secrets.yaml
+secrets.yaml*
 
 *.swp
 *.swo
