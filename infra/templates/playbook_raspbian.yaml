@@ -51,7 +51,7 @@
        remove: yes
 # install packages
     - name: "install base packages"
-      apt: name={{ item }} state=installed
+      apt: name={{ item }} state=present
       with_items: "{{ system_vars.packages }}"
 # configure ssh port etc https://dmsimard.com/2016/03/15/changing-the-ssh-port-with-ansible/
 #    - name: "setup alternate SSH port"
@@ -64,7 +64,8 @@
 # copy a templated config file for sshd
     - name: "copy sshd_config file with owner and permissions"
       copy:
-        src: manifests/raspbian_sshd_config 
+        # ansible looks for src within manifests anyway
+        src: raspbian_sshd_config 
         dest: /etc/ssh/sshd_config
         owner: root
         group: root
@@ -79,12 +80,14 @@
       ufw:
         state: enabled
         policy: deny
+      when: not ansible_check_mode
     - name: Allow all access to SSH port
       ufw:
         rule: allow
         port: '{{ item.ssh_port }}'
         comment: 'ssh access'
       with_items: "{{ system_vars }}"
+      when: not ansible_check_mode
 {% endraw %}
 # expand root filesystem?
 # python3 by default?

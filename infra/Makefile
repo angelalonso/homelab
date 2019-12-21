@@ -9,7 +9,7 @@ plan: init
 	@echo "Planning..."
 	pipenv run python3 asd.py plan
 #  $(shell ansible-playbook -i ./manifests/hosts ./manifests/playbooks.yaml --check)
-apply: init plan
+apply: plan
 	@echo "Applying..."
 	pipenv run python3 asd.py apply
 

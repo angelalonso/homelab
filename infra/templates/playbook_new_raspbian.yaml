@@ -27,7 +27,7 @@
 # change hostname
     - name: "correct hostname"
       hostname:
-        name: "{{ hostvars.ansible_host }}"
+        name: "{{ hostvars.hostname }}"
 # add user, make it admin
     - name: "new user"
       user:
@@ -43,49 +43,22 @@
         user: "{{ item.name }}"
         key: "{{ lookup('file', item.ssh_key) }}"
       with_items: "{{ users }}"
-# remove pi user
-    - name: "remove pi user"
-      user:
-       name: 'pi'
-       state: absent
-       remove: yes
 # install packages
     - name: "install base packages"
-      apt: name={{ item }} state=installed
+      apt: name={{ item }} state=present
       with_items: "{{ system_vars.packages }}"
       when: not ansible_check_mode
-# configure ssh port etc https://dmsimard.com/2016/03/15/changing-the-ssh-port-with-ansible/
-#    - name: "setup alternate SSH port"
-#      lineinfile:
-#        dest: "/etc/ssh/sshd_config"
-#        regexp: "^Port"
-#        line: "Port {{ item.ssh_port }}"
-#      notify: "restart sshd"
-#      with_items: "{{ system_vars }}"
 # copy a templated config file for sshd
     - name: "copy sshd_config file with owner and permissions"
       copy:
-        src: manifests/new_raspbian_sshd_config 
+        # takes it from ./manifests anyway
+        src: new_raspbian_sshd_config 
         dest: /etc/ssh/sshd_config
         owner: root
         group: root
         mode: '0644'
-      notify: "restart sshd"
     - name: "restart sshd"
       service:
         name: sshd
         state: restarted
-# configure ufw
-    - name: "deny everything and enable UFW"
-      ufw:
-        state: enabled
-        policy: deny
-    - name: Allow all access to SSH port
-      ufw:
-        rule: allow
-        port: '{{ item.ssh_port }}'
-        comment: 'ssh access'
-      with_items: "{{ system_vars }}"
 {% endraw %}
-# expand root filesystem?
-# python3 by default?

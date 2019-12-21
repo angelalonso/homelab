@@ -86,7 +86,7 @@ def plan(secrets, manifests_folder):
     # this fails
     #print(sh.ansible-playbook("-i", "./manifests/hosts", "./manifests/playbooks.yaml", "--check"))
 
-def apply():
+def apply(secrets, manifests_folder):
     print("Applying")
     for group in secrets['groups']:
         playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
