@@ -53,19 +53,10 @@
     - name: "install base packages"
       apt: name={{ item }} state=present
       with_items: "{{ system_vars.packages }}"
-# configure ssh port etc https://dmsimard.com/2016/03/15/changing-the-ssh-port-with-ansible/
-#    - name: "setup alternate SSH port"
-#      lineinfile:
-#        dest: "/etc/ssh/sshd_config"
-#        regexp: "^Port"
-#        line: "Port {{ item.ssh_port }}"
-#      notify: "restart sshd"
-#      with_items: "{{ system_vars }}"
-# copy a templated config file for sshd
     - name: "copy sshd_config file with owner and permissions"
       copy:
         # ansible looks for src within manifests anyway
-        src: raspbian_sshd_config 
+        src: sshd_config_raspbian 
         dest: /etc/ssh/sshd_config
         owner: root
         group: root

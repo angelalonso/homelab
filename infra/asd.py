@@ -30,7 +30,7 @@ def createPlaybooksPerGroup(secrets, templates_folder, manifests_folder):
 def createConfigFiles(secrets, templates_folder, manifests_folder):
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
     for group in secrets['groups']:
-        if secrets['groups'][group] is None:
+        if (secrets['groups'][group] is None) or (secrets['groups'][group]['hosts'] is None):
             print(group + " is empty. Nothing to be done there.")
         else:
             cfg_ssh_file = 'sshd_config'
@@ -38,24 +38,93 @@ def createConfigFiles(secrets, templates_folder, manifests_folder):
             with open(manifests_folder + '/' + group + '_' + cfg_ssh_file, "w") as fcssh:
                 fcssh.write(template_cfg_ssh.render(secrets_group=secrets['groups'][group]))
 
-def createTemplatedManifests(secrets, templates_folder, manifests_folder):
-    hosts_file = 'hosts'
-    playbooks_file = 'playbooks.yaml'
-
+def createNewGroupsConfigFiles(secrets, templates_folder, manifests_folder):
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
+    for group in secrets['groups']:
+        if group.startswith('new_'):
+            if (secrets['groups'][group] is None) or (secrets['groups'][group]['hosts'] is None):
+                print(group + " is empty. Nothing to be done there.")
+            else:
+                cfg_ssh_file = 'sshd_config'
+                template_cfg_ssh = env.get_template(cfg_ssh_file)
+                with open(manifests_folder + '/' + cfg_ssh_file + '_' + group, "w") as fcssh:
+                    fcssh.write(template_cfg_ssh.render(secrets_group=secrets['groups'][group]))
 
-    # templated hosts inventory
-    template_hosts = env.get_template(hosts_file)
-    with open(manifests_folder + '/' + hosts_file, "w") as fh:
-        fh.write(template_hosts.render(secrets=secrets))
-    # templated config files
-    #  sshd config
-    createConfigFiles(secrets, templates_folder, manifests_folder)
-    # templated playbook(s)
-    createPlaybooksPerGroup(secrets, templates_folder, manifests_folder)
-    ##  template_playbooks = env.get_template(playbooks_file)
-    ##  with open(manifests_folder + '/' + playbooks_file, "w") as fm:
-    ##      fm.write(template_playbooks.render(secrets=secrets, getSaltedPassword=getSaltedPassword))
+def createNewGroupsPlaybooks(secrets, templates_folder, manifests_folder):
+    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
+    # templated playbooks per group
+    for group in secrets['groups']:
+        if group.startswith('new_'):
+            if secrets['groups'][group] is None:
+                print(group + " is empty. Nothing to be done there.")
+            else:
+                playbook_file = 'playbook_' + group + '.yaml'
+                if os.path.isfile(templates_folder + '/' + playbook_file):
+                    template_playbook = env.get_template(playbook_file)
+                    with open(manifests_folder + '/' + playbook_file, "w") as fm:
+                        fm.write(template_playbook.render(secrets_group=secrets['groups'][group], secrets=secrets, getSaltedPassword=getSaltedPassword))
+                else:
+                    print(templates_folder + '/' + playbook_file + ' does not exist! Nothing to be done there.')
+
+def createNotNewGroupsConfigFiles(secrets, templates_folder, manifests_folder):
+    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
+    for group in secrets['groups']:
+        if not group.startswith('new_'):
+            if (secrets['groups'][group] is None) or (secrets['groups'][group]['hosts'] is None):
+                print(group + " is empty. Nothing to be done there.")
+            else:
+                cfg_ssh_file = 'sshd_config'
+                template_cfg_ssh = env.get_template(cfg_ssh_file)
+                with open(manifests_folder + '/' + cfg_ssh_file + '_' + group, "w") as fcssh:
+                    fcssh.write(template_cfg_ssh.render(secrets_group=secrets['groups'][group]))
+
+def createNotNewGroupsPlaybooks(secrets, templates_folder, manifests_folder):
+    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
+    # templated playbooks per group
+    for group in secrets['groups']:
+        if not group.startswith('new_'):
+            if secrets['groups'][group] is None:
+                print(group + " is empty. Nothing to be done there.")
+            else:
+                playbook_file = 'playbook_' + group + '.yaml'
+                if os.path.isfile(templates_folder + '/' + playbook_file):
+                    template_playbook = env.get_template(playbook_file)
+                    with open(manifests_folder + '/' + playbook_file, "w") as fm:
+                        fm.write(template_playbook.render(secrets_group=secrets['groups'][group], secrets=secrets, getSaltedPassword=getSaltedPassword))
+                else:
+                    print(templates_folder + '/' + playbook_file + ' does not exist! Nothing to be done there.')
+
+def createNewGroupsManifests(secrets, templates_folder, manifests_folder):
+    verbose("Creating manifests for new_ groups")
+    hosts_file = 'hosts_new'
+    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
+    for group in secrets['groups']:
+        if group.startswith('new_'):
+            verbose(group)
+            # hosts inventory
+            template_hosts = env.get_template(hosts_file)
+            with open(manifests_folder + '/hosts_' + group, "w") as fh:
+                fh.write(template_hosts.render(secrets=secrets))
+            # config files
+            createNewGroupsConfigFiles(secrets, templates_folder, manifests_folder)
+            # playbooks
+            createNewGroupsPlaybooks(secrets, templates_folder, manifests_folder)
+
+def createNotNewGroupsManifests(secrets, templates_folder, manifests_folder):
+    verbose("Creating manifests for NON new_ groups")
+    hosts_file = 'hosts_notnew'
+    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
+    for group in secrets['groups']:
+        if not group.startswith('new_'):
+            verbose(group)
+            # hosts inventory
+            template_hosts = env.get_template(hosts_file)
+            with open(manifests_folder + '/hosts_' + group, "w") as fh:
+                fh.write(template_hosts.render(secrets=secrets))
+            # config files
+            createNotNewGroupsConfigFiles(secrets, templates_folder, manifests_folder)
+            # playbooks
+            createNotNewGroupsPlaybooks(secrets, templates_folder, manifests_folder)
 
 def getSaltedPassword(password):
     salt = crypt.mksalt(crypt.METHOD_SHA512)
@@ -69,29 +138,32 @@ def getSecrets(filename):
 def cleanupManifests(folder):
     files = glob.glob(folder + '/*')
     for f in files:
-        print("removing old " + f)
+        verbose("removing old " + f)
         os.remove(f)
 
-def init():
-    cleanupManifests(MANIFESTS_FOLDER)
-    createTemplatedManifests(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
-#    createPlaybooksPerGroup(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
+def init(secrets, templates_folder, manifests_folder):
+    cleanupManifests(manifests_folder)
+    createNewGroupsManifests(secrets, templates_folder, manifests_folder)
+    createNotNewGroupsManifests(secrets, templates_folder, manifests_folder)
 
 def plan(secrets, manifests_folder):
-    print("Planning")
+    verbose("Planning only new_hosts")
     for group in secrets['groups']:
-        playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
-        if os.path.isfile(playbook_file):
-            subprocess.run(["ansible-playbook", "-i", "./manifests/hosts", playbook_file, "--check"])
-    # this fails
-    #print(sh.ansible-playbook("-i", "./manifests/hosts", "./manifests/playbooks.yaml", "--check"))
+        if group.startswith('new_'):
+            playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
+            if os.path.isfile(playbook_file):
+                subprocess.run(["ansible-playbook", "-i", "./manifests/hosts_" + group, playbook_file, "--check"])
 
 def apply(secrets, manifests_folder):
-    print("Applying")
+    verbose("Applying")
     for group in secrets['groups']:
-        playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
-        if os.path.isfile(playbook_file):
-            subprocess.run(["ansible-playbook", "-i", "./manifests/hosts", playbook_file])
+        if group.startswith('new_'):
+            playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
+            if os.path.isfile(playbook_file):
+                subprocess.run(["ansible-playbook", "-i", "./manifests/hosts_" + group, playbook_file])
+
+def verbose(message):
+    print("#### " + message + " ####")
 
 def showHelp():
     print("SYNTAX: " + sys.argv[0] + " [init|make|apply]")
@@ -106,7 +178,7 @@ if __name__ == "__main__":
         showHelp()
     else:
         if sys.argv[1] == "init":
-            init()
+            init(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
         elif sys.argv[1] == "plan":
             plan(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
         elif sys.argv[1] == "apply":

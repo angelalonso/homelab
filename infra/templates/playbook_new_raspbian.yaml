@@ -52,7 +52,7 @@
     - name: "copy sshd_config file with owner and permissions"
       copy:
         # takes it from ./manifests anyway
-        src: new_raspbian_sshd_config 
+        src: sshd_config_new_raspbian
         dest: /etc/ssh/sshd_config
         owner: root
         group: root
