@@ -28,9 +28,6 @@
     - name: "correct hostname"
       hostname:
         name: "{{ inventory_hostname }}"
-        #    - name: "correct hostname 2"
-        #      command: "/bin/hostname {{ hostvars.ansible_host }}" 
-        #      become: yes
     - name: "add host name to /etc/hosts"
       lineinfile:
         dest: /etc/hosts
