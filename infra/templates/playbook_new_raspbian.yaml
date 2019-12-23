@@ -27,7 +27,13 @@
 # change hostname
     - name: "correct hostname"
       hostname:
-        name: "{{ hostvars.hostname }}"
+        name: "{{ inventory_hostname }}"
+    - name: "add host name to /etc/hosts"
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '^127\.0\.0\.1[ \t]+localhost'
+        line: "127.0.0.1 {{ inventory_hostname }} localhost"
+        state: present
 # add user, make it admin
     - name: "new user"
       user:
@@ -49,7 +55,7 @@
       apt: name={{ item }} state=present
       with_items: "{{ system_vars.packages }}"
       when: not ansible_check_mode
-# copy a templated config file for sshd
+# copy a templated config file for sshd, restart it
     - name: "copy sshd_config file with owner and permissions"
       copy:
         # takes it from ./manifests anyway
