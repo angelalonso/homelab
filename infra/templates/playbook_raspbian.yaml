@@ -24,6 +24,7 @@
   {% endfor %}
   tasks:
 {% raw %}
+## START - This is already done at new_raspbian, but let's check again it's fine
 # change hostname
     - name: "correct hostname"
       hostname:
@@ -59,6 +60,7 @@
     - name: "install base packages"
       apt: name={{ item }} state=present
       with_items: "{{ system_vars.packages }}"
+# copy a templated config file for sshd, restart it
     - name: "copy sshd_config file with owner and permissions"
       copy:
         # ansible looks for src within manifests anyway
@@ -72,6 +74,7 @@
       service:
         name: sshd
         state: restarted
+## END - This is already done at new_raspbian, but let's check again it's fine
 # configure ufw
     - name: Allow all access to SSH port
       ufw:
