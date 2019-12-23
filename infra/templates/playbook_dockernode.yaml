@@ -2,6 +2,11 @@
 - hosts: dockernode
   gather_facts: false
   become: yes
+  vars:
+    docker_group_members:
+    {% for user in secrets_group.docker_users %}
+      - {{ user }}
+    {% endfor %}
   tasks:
 {% raw %}
 # install docker
@@ -16,5 +21,14 @@
     - name: Remove the docker-installer.sh
       file: path=/tmp/docker-installer.sh state=absent
       when: not ansible_check_mode
+# add users to docker group
+    - name: add users to docker group
+      user:
+        name: '{{ item }}'
+        groups: 'docker'
+        append: 'yes'
+      with_items: '{{ docker_group_members }}'
+      when: 'docker_group_members is defined'
 {% endraw %}
+# prepare memory to run docker/k8s
 # python3 by default?
