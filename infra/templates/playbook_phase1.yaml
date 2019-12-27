@@ -38,10 +38,10 @@
       with_items: "{{ system_vars.packages }}"
       when: not ansible_check_mode
 # copy a templated config file for sshd, restart it
-    - name: "copy sshd_config file with owner and permissions"
+    - name: "copy config_sshd file with owner and permissions"
       copy:
         # takes it from ./manifests anyway
-        src: sshd_config_phase1
+        src: config_sshd_phase1
         dest: /etc/ssh/sshd_config
         owner: root
         group: root

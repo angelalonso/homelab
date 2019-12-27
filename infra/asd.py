@@ -9,37 +9,9 @@ import yaml
 from collections import defaultdict
 from jinja2 import Environment, FileSystemLoader
 
-def createConfigFiles(secrets, templates_folder, manifests_folder):
-    '''
-    Creates different config files for different groups from templates
-    So far only use case I have is sshd_config
-    '''
-    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
-    for group in secrets['groups']:
-        if (secrets['groups'][group] is None) or (secrets['groups'][group]['hosts'] is None):
-            print(group + " is empty. Nothing to be done there.")
-        else:
-            # TODO check that this file is correctly generated, add test
-            cfg_ssh_file = 'sshd_config'
-            template_cfg_ssh = env.get_template(cfg_ssh_file)
-            with open(manifests_folder + '/' + cfg_ssh_file + '_' + group, "w") as fcssh:
-                fcssh.write(template_cfg_ssh.render(secrets_group=secrets['groups'][group]))
 
-def createPlaybooks(secrets, templates_folder, manifests_folder):
-    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
-    # templated playbooks per group
-    for group in secrets['groups']:
-        if secrets['groups'][group] is None:
-            print(group + " is empty. Nothing to be done there.")
-        else:
-            playbook_file = 'playbook_' + group + '.yaml'
-            if os.path.isfile(templates_folder + '/' + playbook_file):
-                template_playbook = env.get_template(playbook_file)
-                with open(manifests_folder + '/' + playbook_file, "w") as fm:
-                    fm.write(template_playbook.render(secrets_group=secrets['groups'][group], secrets=secrets, getSaltedPassword=getSaltedPassword))
-            else:
-                print(templates_folder + '/' + playbook_file + ' does not exist! Nothing to be done there.')
-
+## OLD ##
+## start ##
 def createNewGroupsConfigFiles(secrets, templates_folder, manifests_folder):
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
     for group in secrets['groups']:
@@ -47,7 +19,7 @@ def createNewGroupsConfigFiles(secrets, templates_folder, manifests_folder):
             if (secrets['groups'][group] is None) or (secrets['groups'][group]['hosts'] is None):
                 print(group + " is empty. Nothing to be done there.")
             else:
-                cfg_ssh_file = 'sshd_config'
+                cfg_ssh_file = 'config_sshd'
                 template_cfg_ssh = env.get_template(cfg_ssh_file)
                 with open(manifests_folder + '/' + cfg_ssh_file + '_' + group, "w") as fcssh:
                     fcssh.write(template_cfg_ssh.render(secrets_group=secrets['groups'][group]))
@@ -77,7 +49,7 @@ def createNotNewGroupsConfigFiles(secrets, templates_folder, manifests_folder):
                 if (secrets['groups'][group] is None) or (secrets['groups'][group]['hosts'] is None):
                     print(group + " is empty. Nothing to be done there.")
                 else:
-                    cfg_ssh_file = 'sshd_config'
+                    cfg_ssh_file = 'config_sshd'
                     template_cfg_ssh = env.get_template(cfg_ssh_file)
                     with open(manifests_folder + '/' + cfg_ssh_file + '_' + group, "w") as fcssh:
                         fcssh.write(template_cfg_ssh.render(secrets_group=secrets['groups'][group]))
@@ -196,17 +168,8 @@ def removeNewFromSecrets(secrets):
             document = yaml.dump(secrets, file)
         verbose("Your original secrets.yaml has been saved under secrets.yaml.bkp", 2)
 
-def verbose(message, message_type):
-    if message_type == 1:
-        print("//===" + '='*len(message) + "===\\\\")
-        print("||   " + message + "   ||")
-        print("\\===" + '='*len(message) + "===//")
-    elif message_type == 2:
-        print("  --" + '-'*len(message) + "--")
-        print("  | " + message + " |")
-        print("  --" + '-'*len(message) + "--")
-    elif message_type == 3:
-        print("    -- " + message + " --")
+## end ##
+## OLD ##
 
 def findHostInGroups(secrets, host):
     groups =  []
@@ -247,23 +210,68 @@ def test_old(secrets, templates_folder, manifests_folder):
                 secrets['groups'][correct_group]['hosts'] = groups_hosts_list
             secrets['hosts'][correct_hostname] = correct_hoststruct
 
+def createConfigFiles(secrets, templates_folder, manifests_folder):
+    '''
+    Creates different config files for different groups from templates
+    So far only use case I have is config_sshd
+    '''
+    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
+    for group in secrets['groups']:
+        if (secrets['groups'][group] is None) or (secrets['groups'][group]['hosts'] is None):
+            print(group + " is empty. Nothing to be done there.")
+        else:
+            # TODO check that this file is correctly generated, add test
+            cfg_ssh_file = 'config_sshd'
+            template_cfg_ssh = env.get_template(cfg_ssh_file)
+            with open(manifests_folder + '/' + cfg_ssh_file + '_' + group, "w") as fcssh:
+                fcssh.write(template_cfg_ssh.render(secrets_group=secrets['groups'][group]))
+
+def createPlaybooks(secrets, templates_folder, manifests_folder):
+    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
+    # templated playbooks per group
+    for group in secrets['groups']:
+        if secrets['groups'][group] is None:
+            print(group + " is empty. Nothing to be done there.")
+        else:
+            playbook_file = 'playbook_' + group + '.yaml'
+            if os.path.isfile(templates_folder + '/' + playbook_file):
+                template_playbook = env.get_template(playbook_file)
+                with open(manifests_folder + '/' + playbook_file, "w") as fm:
+                    fm.write(template_playbook.render(secrets_group=secrets['groups'][group], secrets=secrets, getSaltedPassword=getSaltedPassword))
+            else:
+                print(templates_folder + '/' + playbook_file + ' does not exist! Nothing to be done there.')
+
 def testInit(secrets, templates_folder, manifests_folder):
     if isPhase1Needed(secrets)[0]:
          secrets_phase1, secrets_others = getPhaseSplittedSecrets(secrets, isPhase1Needed(secrets)[1])
          print(secrets_phase1['groups'])
          print(secrets_others['groups'])
          createManifests(secrets_phase1, templates_folder, manifests_folder)
-         saveNewSecrets(secrets_others, 'secrets.yaml.usercreated')
-    
+         saveTempSecrets(secrets_others, 'secrets.others.yaml')
+         saveTempSecrets(secrets_phase1, 'secrets.cleanedup.yaml')
+         # do not do this yet:
+         #saveNewSecrets(secrets_others, 'secrets.yaml.usercreated')
+     else:
+         saveTempSecrets(secrets_phase1, 'secrets.cleanedup.yaml')
 
-def testPlan(secrets, templates_folder, manifests_folder):
-    pass
+def testPlan(secrets, manifests_folder):
+    for group in secrets['groups']:
+        playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
+        if os.path.isfile(playbook_file):
+            subprocess.run(["ansible-playbook", "-i", "./manifests/hosts_" + group, playbook_file, "--check"])
 
 def testApply(secrets, templates_folder, manifests_folder):
     pass
 
 ## Auxiliary Functions
 ######################
+
+def saveTempSecrets(secrets, filename):
+    TMPFOLDER = 'tmp/'
+    if not os.path.exists(TMPFOLDER):
+        os.makedirs(TMPFOLDER)
+    with open(TMPFOLDER + filename, 'w') as file:
+        document = yaml.dump(secrets, file)
 
 def saveNewSecrets(secrets, backup_file):
     dest = shutil.copyfile('secrets.yaml', backup_file)
@@ -336,6 +344,18 @@ def createManifests(secrets, templates_folder, manifests_folder):
 ## General Use Functions
 ########################
 
+def verbose(message, message_type):
+    if message_type == 1:
+        print("//===" + '='*len(message) + "===\\\\")
+        print("||   " + message + "   ||")
+        print("\\===" + '='*len(message) + "===//")
+    elif message_type == 2:
+        print("  --" + '-'*len(message) + "--")
+        print("  | " + message + " |")
+        print("  --" + '-'*len(message) + "--")
+    elif message_type == 3:
+        print("    -- " + message + " --")
+
 def cleanupManifests(folder):
     files = glob.glob(folder + '/*')
     for f in files:
@@ -390,6 +410,9 @@ if __name__ == "__main__":
 #      - This second run includes a make init of the rest, as well as a make plan that requires confirmation before appliying
 # 
             testInit(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
+            TMP_SECRETS_FILE = 'secrets.cleanedup.yaml'
+            testPlan(getSecrets(TMP_SECRETS_FILE), MANIFESTS_FOLDER)
+
 #            testPlan(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
 #            testApply(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
         elif sys.argv[1] == "plan":
