@@ -1,3 +1,4 @@
+import copy
 import crypt
 import glob
 import os
@@ -243,22 +244,21 @@ def createPlaybooks(secrets, templates_folder, manifests_folder):
 
 def testInit(secrets, templates_folder, manifests_folder):
     if isPhase1Needed(secrets)[0]:
-         secrets_phase1, secrets_others = getPhaseSplittedSecrets(secrets, isPhase1Needed(secrets)[1])
-         print(secrets_phase1['groups'])
-         print(secrets_others['groups'])
-         createManifests(secrets_phase1, templates_folder, manifests_folder)
-         saveTempSecrets(secrets_others, 'secrets.others.yaml')
-         saveTempSecrets(secrets_phase1, 'secrets.cleanedup.yaml')
-         # do not do this yet:
-         #saveNewSecrets(secrets_others, 'secrets.yaml.usercreated')
-     else:
-         saveTempSecrets(secrets_phase1, 'secrets.cleanedup.yaml')
+        secrets_phase1, secrets_others = getPhaseSplittedSecrets(secrets, isPhase1Needed(secrets)[1])
+        createManifests(secrets_phase1, templates_folder, manifests_folder)
+        saveTempSecrets(secrets_others, 'secrets.others.yaml')
+        saveTempSecrets(secrets_phase1, 'secrets.phase1.yaml')
+        saveTempSecrets(secrets_phase1, 'secrets.cleanedup.yaml')
+    # do not do this yet:
+    #saveNewSecrets(secrets_others, 'secrets.yaml.usercreated')
+    else:
+        saveTempSecrets(secrets, 'tmp/secrets.cleanedup.yaml')
 
 def testPlan(secrets, manifests_folder):
     for group in secrets['groups']:
         playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
         if os.path.isfile(playbook_file):
-            subprocess.run(["ansible-playbook", "-i", "./manifests/hosts_" + group, playbook_file, "--check"])
+            subprocess.run(["ansible-playbook", "-i", "./manifests/hosts", playbook_file, "--check"])
 
 def testApply(secrets, templates_folder, manifests_folder):
     pass
@@ -298,7 +298,7 @@ def getPhaseSplittedSecrets(secrets, hosts):
     secrets_others['groups'] = {}
     # Here we focus on the hosts with phase1
     for host in hosts:
-        secrets_phase1['hosts'][host] = secrets['hosts'][host]
+        secrets_phase1['hosts'][host] = copy.deepcopy(secrets['hosts'][host])
         # Create different config for the host on phase1 here
         # TODO: If there is no config for later, Show error
         host_after_phase1 = {}
@@ -311,7 +311,7 @@ def getPhaseSplittedSecrets(secrets, hosts):
         ansible_user['ssh_path'] = secrets['groups']['phase1']['phase2_ansible_user']['ssh_path']
         host_after_phase1['ansible_user'] = ansible_user
         secrets_others['hosts'][host] = host_after_phase1
-    secrets_phase1['groups']['phase1'] = secrets['groups']['phase1']
+    secrets_phase1['groups']['phase1'] = copy.deepcopy(secrets['groups']['phase1'])
 
     for host in secrets['hosts']:
         if host not in hosts:
@@ -329,7 +329,8 @@ def getPhaseSplittedSecrets(secrets, hosts):
     return secrets_phase1, secrets_others
 
 def createManifests(secrets, templates_folder, manifests_folder):
-    cleanupManifests(manifests_folder)
+    cleanupFolder(manifests_folder)
+    cleanupFolder('tmp')
     hosts_filename = 'hosts'
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
     # hosts inventory
@@ -356,7 +357,7 @@ def verbose(message, message_type):
     elif message_type == 3:
         print("    -- " + message + " --")
 
-def cleanupManifests(folder):
+def cleanupFolder(folder):
     files = glob.glob(folder + '/*')
     for f in files:
         verbose("removing old " + f, 3)
@@ -410,7 +411,7 @@ if __name__ == "__main__":
 #      - This second run includes a make init of the rest, as well as a make plan that requires confirmation before appliying
 # 
             testInit(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
-            TMP_SECRETS_FILE = 'secrets.cleanedup.yaml'
+            TMP_SECRETS_FILE = 'tmp/secrets.cleanedup.yaml'
             testPlan(getSecrets(TMP_SECRETS_FILE), MANIFESTS_FOLDER)
 
 #            testPlan(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
