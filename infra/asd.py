@@ -258,7 +258,8 @@ def testPlan(secrets, manifests_folder):
     for group in secrets['groups']:
         playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
         if os.path.isfile(playbook_file):
-            subprocess.run(["ansible-playbook", "-i", "./manifests/hosts", playbook_file, "--check"])
+            result = subprocess.run(["ansible-playbook", "-i", "./manifests/hosts", playbook_file, "--check"])
+            verbose(str(result.returncode), 1)
 
 def testApply(secrets, templates_folder, manifests_folder):
     pass
