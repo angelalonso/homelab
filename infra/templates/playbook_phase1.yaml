@@ -1,5 +1,5 @@
 ---
-- hosts: phase1_raspbian
+- hosts: phase1
   gather_facts: false
   become: yes
   vars:
@@ -41,7 +41,7 @@
     - name: "copy sshd_config file with owner and permissions"
       copy:
         # takes it from ./manifests anyway
-        src: sshd_config_phase1_raspbian
+        src: sshd_config_phase1
         dest: /etc/ssh/sshd_config
         owner: root
         group: root

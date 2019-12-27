@@ -39,13 +39,17 @@ class TestAll:
                     {'phase1': {'hosts': ['test01'], 'packages': ['python-apt', 'git', 'vim'], 'phase2_ansible_user': {'name': 'admin', 'password': 'test', 'ssh_key': '/home/admin/.ssh/admin.pub', 'ssh_path': '/home/admin/.ssh', 'ssh_port': 2222}}}}
         assert secrets_phase1[1] == {
                 'hosts': 
-                    {'test01': {'ansible_ssh_port': 2222, 'ansible_user': {'name': 'admin', 'password': 'test', 'ssh_key': '/home/admin/.ssh/admin.pub', 'ssh_path': '/home/admin/.ssh'}}, 
+                {'test01': {'ansible_ssh_port': 2222, 'ansible_user': {'name': 'admin', 'password': 'test', 'ssh_key': '/home/admin/.ssh/admin.pub', 'ssh_path': '/home/admin/.ssh'}, 'ip': '192.168.0.1'}, 
                     'test02': {'ansible_ssh_port': 2222, 'ansible_user': {'name': 'admin', 'password': 'test'}, 'ip': '192.168.0.2'}}, 
                 'groups': 
                     {'raspbian': {'hosts': ['test01', 'test02'], 'packages': ['python-apt', 'git', 'vim']}, 
                     'dockernode': {'hosts': ['test01'], 'docker_users': ['admin']}}}
 
     def test_generatePhase1Hosts(self):
+        secretsfile = TESTFOLDER + '/secrets_onehostphase1.yaml'
+        secrets = asd.getSecrets(secretsfile)
+        secrets_phase1 = asd.getPhaseSplittedSecrets(secrets, asd.isPhase1Needed(secrets)[1])[0]
+        asd.createManifests(secrets_phase1, 'templates', 'manifests')
         pass
 
     def test_generateOtherHosts(self):

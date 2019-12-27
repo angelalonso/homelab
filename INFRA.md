@@ -1,5 +1,11 @@
 # Infrastructure as Code
 
+THIS PROGRAM IS NOWHERE NEAR PRODUCTION READY. 
+THERE ARE MANY RISKS INVOLVED.
+DO NOT SAY I DID NOT WARN YOU
+
+Now, to the less kids-friendly part...
+
 Here we try to get as close to "hands-off" as possible on all of the following phases:  
 - Securing the machines  
 - Installing and configuring everything needed for stack to run  

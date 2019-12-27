@@ -9,6 +9,37 @@ import yaml
 from collections import defaultdict
 from jinja2 import Environment, FileSystemLoader
 
+def createConfigFiles(secrets, templates_folder, manifests_folder):
+    '''
+    Creates different config files for different groups from templates
+    So far only use case I have is sshd_config
+    '''
+    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
+    for group in secrets['groups']:
+        if (secrets['groups'][group] is None) or (secrets['groups'][group]['hosts'] is None):
+            print(group + " is empty. Nothing to be done there.")
+        else:
+            # TODO check that this file is correctly generated, add test
+            cfg_ssh_file = 'sshd_config'
+            template_cfg_ssh = env.get_template(cfg_ssh_file)
+            with open(manifests_folder + '/' + cfg_ssh_file + '_' + group, "w") as fcssh:
+                fcssh.write(template_cfg_ssh.render(secrets_group=secrets['groups'][group]))
+
+def createPlaybooks(secrets, templates_folder, manifests_folder):
+    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
+    # templated playbooks per group
+    for group in secrets['groups']:
+        if secrets['groups'][group] is None:
+            print(group + " is empty. Nothing to be done there.")
+        else:
+            playbook_file = 'playbook_' + group + '.yaml'
+            if os.path.isfile(templates_folder + '/' + playbook_file):
+                template_playbook = env.get_template(playbook_file)
+                with open(manifests_folder + '/' + playbook_file, "w") as fm:
+                    fm.write(template_playbook.render(secrets_group=secrets['groups'][group], secrets=secrets, getSaltedPassword=getSaltedPassword))
+            else:
+                print(templates_folder + '/' + playbook_file + ' does not exist! Nothing to be done there.')
+
 def createNewGroupsConfigFiles(secrets, templates_folder, manifests_folder):
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
     for group in secrets['groups']:
@@ -102,22 +133,6 @@ def createNotNewGroupsManifests(secrets, templates_folder, manifests_folder):
             # playbooks
             createNotNewGroupsPlaybooks(secrets, templates_folder, manifests_folder)
 
-def getSaltedPassword(password):
-    salt = crypt.mksalt(crypt.METHOD_SHA512)
-    return crypt.crypt(password, salt)
-
-def cleanupManifests(folder):
-    files = glob.glob(folder + '/*')
-    for f in files:
-        verbose("removing old " + f, 3)
-        os.remove(f)
-
-def getConfirmation(message):
-    answer = ""
-    while answer not in ["y", "n"]:
-        answer = input(message + " [Y/N]? ").lower()
-    return answer == "y"
-
 def init(secrets, templates_folder, manifests_folder):
     verbose("Cleaning Manifests folder", 1)
     cleanupManifests(manifests_folder)
@@ -185,7 +200,7 @@ def verbose(message, message_type):
     if message_type == 1:
         print("//===" + '='*len(message) + "===\\\\")
         print("||   " + message + "   ||")
-        print("\\\===" + '='*len(message) + "===//")
+        print("\\===" + '='*len(message) + "===//")
     elif message_type == 2:
         print("  --" + '-'*len(message) + "--")
         print("  | " + message + " |")
@@ -233,7 +248,13 @@ def test_old(secrets, templates_folder, manifests_folder):
             secrets['hosts'][correct_hostname] = correct_hoststruct
 
 def testInit(secrets, templates_folder, manifests_folder):
-    pass
+    if isPhase1Needed(secrets)[0]:
+         secrets_phase1, secrets_others = getPhaseSplittedSecrets(secrets, isPhase1Needed(secrets)[1])
+         print(secrets_phase1['groups'])
+         print(secrets_others['groups'])
+         createManifests(secrets_phase1, templates_folder, manifests_folder)
+         saveNewSecrets(secrets_others, 'secrets.yaml.usercreated')
+    
 
 def testPlan(secrets, templates_folder, manifests_folder):
     pass
@@ -243,6 +264,12 @@ def testApply(secrets, templates_folder, manifests_folder):
 
 ## Auxiliary Functions
 ######################
+
+def saveNewSecrets(secrets, backup_file):
+    dest = shutil.copyfile('secrets.yaml', backup_file)
+    with open(r'secrets.yaml', 'w') as file:
+        document = yaml.dump(secrets, file)
+    verbose("We modified your secrets.yaml. Your original secrets.yaml has been saved under " + backup_file, 2)
 
 def isPhase1Needed(secrets):
     hosts = []
@@ -268,6 +295,7 @@ def getPhaseSplittedSecrets(secrets, hosts):
         # TODO: If there is no config for later, Show error
         host_after_phase1 = {}
         host_after_phase1['ansible_ssh_port'] = secrets['groups']['phase1']['phase2_ansible_user']['ssh_port']
+        host_after_phase1['ip'] = secrets['hosts'][host]['ip']
         ansible_user = {}
         ansible_user['name'] = secrets['groups']['phase1']['phase2_ansible_user']['name']
         ansible_user['password'] = secrets['groups']['phase1']['phase2_ansible_user']['password']
@@ -284,11 +312,45 @@ def getPhaseSplittedSecrets(secrets, hosts):
     for group in secrets['groups']:
         if group != 'phase1':
             secrets_others['groups'][group] = secrets['groups'][group]
+        else:
+            phase1_group = {}
+            phase1_group = secrets['groups']['phase1']
+            phase1_group['hosts'] = []
+            secrets_others['groups'][group] = phase1_group
 
     return secrets_phase1, secrets_others
 
+def createManifests(secrets, templates_folder, manifests_folder):
+    cleanupManifests(manifests_folder)
+    hosts_filename = 'hosts'
+    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
+    # hosts inventory
+    template_hosts = env.get_template(hosts_filename)
+    with open(manifests_folder + '/' + hosts_filename, "w") as fh:
+        fh.write(template_hosts.render(secrets=secrets))
+    # config files
+    createConfigFiles(secrets, templates_folder, manifests_folder)
+    # playbooks
+    createPlaybooks(secrets, templates_folder, manifests_folder)
+
 ## General Use Functions
 ########################
+
+def cleanupManifests(folder):
+    files = glob.glob(folder + '/*')
+    for f in files:
+        verbose("removing old " + f, 3)
+        os.remove(f)
+
+def getConfirmation(message):
+    answer = ""
+    while answer not in ["y", "n"]:
+        answer = input(message + " [Y/N]? ").lower()
+    return answer == "y"
+
+def getSaltedPassword(password):
+    salt = crypt.mksalt(crypt.METHOD_SHA512)
+    return crypt.crypt(password, salt)
 
 def getSecrets(filename):
     ''' Loads a yaml file of secrets and configs into a structure, returns it
@@ -328,8 +390,8 @@ if __name__ == "__main__":
 #      - This second run includes a make init of the rest, as well as a make plan that requires confirmation before appliying
 # 
             testInit(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
-            testPlan(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
-            testApply(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
+#            testPlan(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
+#            testApply(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
         elif sys.argv[1] == "plan":
             plan(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
         elif sys.argv[1] == "apply":
