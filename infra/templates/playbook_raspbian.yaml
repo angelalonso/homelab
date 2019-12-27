@@ -3,19 +3,6 @@
   gather_facts: yes
   become: yes
   vars:
-    users:
-      - name: {{ secrets_group.ansible_user.name }}
-        pass: {{ getSaltedPassword(secrets_group.ansible_user.password) }}
-        ssh_key: {{ secrets_group.ansible_user.ssh_key }}
-        ssh_path: {{ secrets_group.ansible_user.ssh_path }}
-  {% if secrets_group.other_users is defined %}
-  {% for name, values in secrets_group.other_users.items() %}
-      - name: {{ name }}
-        pass: {{ getSaltedPassword(values.password) }}
-        ssh_key: {{ values.ssh_key }}
-        ssh_path: {{ values.ssh_path }}
-  {% endfor %}
-  {% endif %}
     system_vars:
       ssh_port: {{ secrets_group.ssh_port }}
       packages:
@@ -24,7 +11,8 @@
   {% endfor %}
   tasks:
 {% raw %}
-## START - This is already done at new_raspbian, but let's check again it's fine
+## START - This is already done at phase1_raspbian, but let's check again it's fine
+# change hostname
 # change hostname
     - name: "correct hostname"
       hostname:
@@ -35,27 +23,6 @@
         regexp: '^127\.0\.0\.1[ \t]+localhost'
         line: "127.0.0.1 {{ inventory_hostname }} localhost"
         state: present
-# add user, make it admin
-    - name: "new user"
-      user:
-        name: "{{ item.name }}"
-        password: "{{ item.pass }}"
-        groups: # Empty by default, here we give it some groups
-         - sudo
-        state: present
-      with_items: "{{ users }}"
-# give the user an ssh key
-    - name: "user ssh key"
-      authorized_key:
-        user: "{{ item.name }}"
-        key: "{{ lookup('file', item.ssh_key) }}"
-      with_items: "{{ users }}"
-# remove pi user
-    - name: "remove pi user"
-      user:
-       name: 'pi'
-       state: absent
-       remove: yes
 # install packages
     - name: "install base packages"
       apt: name={{ item }} state=present
@@ -74,7 +41,7 @@
       service:
         name: sshd
         state: restarted
-## END - This is already done at new_raspbian, but let's check again it's fine
+## END - This is already done at phase1_raspbian, but let's check again it's fine
 # configure ufw
     - name: Allow all access to SSH port
       ufw:

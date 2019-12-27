@@ -1,18 +1,75 @@
 # Infrastructure as Code
 
-With this tool we try to get as close to "hands-off" as possible on all of the following phases:  
+Here we try to get as close to "hands-off" as possible on all of the following phases:  
 - Securing the machines  
-- Installing and configuring everything needed for stuckk to run  
+- Installing and configuring everything needed for stack to run  
 - Making applications run (e.g.: docker swarm join) and keeping them up (e.g.: live checks and restarts)  
 
-## Why do we need this tool?
+## Problems I am trying to solve
+- Templates can be on version control, but passwords and some other stuff cannot. 
+  - SOLUTION: templating  
+- When Ansible must do changes to SSH config (also credentials), connection will stop working.  
+  - SOLUTION: run in two phases, automatic creation of phase2 definitions from phase1's variables.  
 
-Ansible (almost) can manage all three topics for us, but the first phase (securing machines) involves changing ssh access. From that moment on, ansible cannot connect to that host anymore.  
+## TL;DR
+``` make create``` 
+- Edit secrets.yaml
+``` make init```
+``` make plan```
+``` make apply```
 
-The solution was to run ansible in two sequential phases:  
-- new_<group> phase: includes all changes that will invalidate our origin ssh access.
-- <group> phase: includes all other changes needed.  
-, where <group> is the group definition for the playbook we will run, e.g.: raspbian for all the tasks we run on a raspbian system to have it configured as we want, or dockernode for all the tasks we need to turn a machine into a docker swarm node.  
+### Alright, I do want to read about the two phases...
+
+This part of the documentation is meant for people wanting to modify the default config provided.
+
+Use case: you just burnt Raspbian into an SSD, added the /boot/ssh file and want to make your Raspi secure before applying your ansible configs. 
+From now on we assume the following example variables:
+- your new machine will be called raspihost1  
+- the playbook for that machine, where you define what you want to do, will be called raspisetup  
+  
+- Create your secrets from the template:  
+``` make create ```
+- Edit secrets.yaml according to these rules:
+  - Under ```groups:```, add your playbook's name (raspisetup) and variables WITHOUT ```hosts:```
+  - Under ```groups:```, ALSO add another one named 'phase1_raspisetup' with the following variables:  
+  ```
+    hosts:
+    - phase1_raspihost1
+    phase2_ansible_user:
+      name: <future username you want to use>
+      password: <future password for that username>
+      ssh_key: </path/to/local/file/with/the/public.key>
+      ssh_path: </path/to/.ssh/on/the/raspberry/server>
+      ssh_port: <future ssh port you want to use on the raspberry server>
+  ```
+  - Under ```hosts:```, add the current raspberry definition, and name it 'phase1_raspihost1', such as:
+  ```
+hosts:
+  phase1_raspihost1:
+    ansible_ssh_port: 22
+    ansible_user:
+      name: pi
+      password: raspberry
+    ip: 192.168.0.4
+  ```
+- Under the templates folder:  
+  - rename playbook_phase1_raspbian.yaml to playbook_phase1_raspisetup.yaml, and edit the file to have '- hosts: phase1_raspisetup'
+  - rename playbook_raspbian.yaml to playbook_raspisetup.yaml, and edit the file to have '- hosts: raspisetup'
+  - make sure any group you defined has its own playbook_ file
+
+``` make init```
+``` make plan```
+``` make apply```
+
+### What will happen in the background?
+- asd.py is where the (not-so-)magic happens.
+- asd.py create copies secrets_test.yaml to secrets.yaml, as a means to create an "empty" secrets file to modify 
+- asd.py init creates the hosts needed for phase1, then separately those for phase2
+- asd.py init creates the manifests based on templates and your secrets.yaml file  
+- asd.py init creates any config files that are tailored to a specific group
+- asd.py plan 
+
+
 
 ## Caveats
 - Since we are using a wrapper on top of ansible, any group we define on our secrets.yaml will need a templates/playbook_<group>.yaml file for it to work.
@@ -20,26 +77,25 @@ The solution was to run ansible in two sequential phases:
 
 
 
-## Ansible
-- Install it on your tools host  
+## Requirements
+You'll need ansible and some other stuff. Just run:
+'''$ make init '''
+- Install it 
 $ sudo apt-get update && sudo apt-get install ansible  
 - Create your SSH key to access hosts  
 $ ssh-keygen -t rsa -b 4096 -N '' -f ~/.ssh/ansible
 - Copy it over to the admin's .ssh/authorized_keys
 
-### TBD
+### Plan
 - [x] Create python wrapper that generates hosts and playbooks from file that is not on git
   - [x] init:
-    - [x] read secrets.yaml
-    - [x] create hosts, manifests
-  - [x] plan:
-    - [x] run dry 
-  - [x] apply:
-    - [x]ansible-playbook
-- [x] Create and document standard configuration/playbooks
- - Create sshkey, add to admin
- - Create ansible user, add sshkey
- - Remove sshkey from admin user
+    - [ok] read secrets.yaml
+    - [ok] create hosts, manifests
+  - [ok] plan:
+    - [ok] run dry 
+  - [ok] apply:
+    - [ok]ansible-playbook
+- [ok] Create and document standard configuration/playbooks
 - [x] Use and document dedicated ssh keys for ansible
 
 ## Other systems that failed

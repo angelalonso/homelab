@@ -1,10 +1,14 @@
 {% for host, values in secrets.hosts.items() %}
 {{ host }} ansible_ssh_host={{ values.ip }} ansible_ssh_user={{ values.ansible_user.name }} {% if values.ansible_ssh_port is defined %}ansible_port={{ values.ansible_ssh_port }} {% endif %}{% if values.ansible_user.ssh_key is defined %}ansible_ssh_private_key_file={{ values.ansible_user.ssh_key }} ansible_sudo_pass={{ values.ansible_user.password }}{% else %}ansible_ssh_pass={{ values.ansible_user.password }}{% endif %}
 
+{% if values.phase1 is defined %}
+{{ host }}_phase1 ansible_ssh_host={{ values.phase1.ip }} ansible_ssh_user={{ values.phase1.user }} ansible_ssh_port={{ values.phase1.port }} ansible_ssh_pass={{ values.phase1.pass }}
+{% endif %}
+
 {% endfor %}
 
 {% for group,values in secrets.groups.items() %}
-{% if 'new_' in group %}
+{% if 'phase1_' in group %}
 [{{ group }}]
   {% if values.hosts is defined %}{% for host in values.hosts %}
 {{ host }}

@@ -6,6 +6,11 @@ test:
 	bash ./dependencies.sh
 	pipenv install
 	pipenv run pytest -vvv
+create:
+	@echo "    Creating a new Secrets File...    "
+	@echo "#######################"
+	pipenv install
+	pipenv run python3 asd.py create
 init:
 	@echo "    Initializing...    "
 	@echo "#######################"

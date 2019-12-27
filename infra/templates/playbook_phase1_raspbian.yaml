@@ -1,39 +1,21 @@
 ---
-- hosts: new_raspbian
+- hosts: phase1_raspbian
   gather_facts: false
   become: yes
   vars:
     users:
-      - name: {{ secrets_group.ansible_user.name }}
-        pass: {{ getSaltedPassword(secrets_group.ansible_user.password) }}
-        ssh_key: {{ secrets_group.ansible_user.ssh_key }}
-        ssh_path: {{ secrets_group.ansible_user.ssh_path }}
-  {% if secrets_group.other_users is defined %}
-  {% for name, values in secrets_group.other_users.items() %}
-      - name: {{ name }}
-        pass: {{ getSaltedPassword(values.password) }}
-        ssh_key: {{ values.ssh_key }}
-        ssh_path: {{ values.ssh_path }}
-  {% endfor %}
-  {% endif %}
+      - name: {{ secrets_group.phase2_ansible_user.name }}
+        pass: {{ getSaltedPassword(secrets_group.phase2_ansible_user.password) }}
+        ssh_key: {{ secrets_group.phase2_ansible_user.ssh_key }}
+        ssh_path: {{ secrets_group.phase2_ansible_user.ssh_path }}
     system_vars:
-      ssh_port: {{ secrets_group.ssh_port }}
+      ssh_port: {{ secrets_group.phase2_ansible_user.ssh_port }}
       packages:
   {% for pkg in secrets_group.packages %}
         - {{ pkg }}
   {% endfor %}
   tasks:
 {% raw %}
-# change hostname
-    - name: "correct hostname"
-      hostname:
-        name: "{{ inventory_hostname }}"
-    - name: "add host name to /etc/hosts"
-      lineinfile:
-        dest: /etc/hosts
-        regexp: '^127\.0\.0\.1[ \t]+localhost'
-        line: "127.0.0.1 {{ inventory_hostname }} localhost"
-        state: present
 # add user, make it admin
     - name: "new user"
       user:
@@ -59,7 +41,7 @@
     - name: "copy sshd_config file with owner and permissions"
       copy:
         # takes it from ./manifests anyway
-        src: sshd_config_new_raspbian
+        src: sshd_config_phase1_raspbian
         dest: /etc/ssh/sshd_config
         owner: root
         group: root

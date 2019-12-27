@@ -4,7 +4,7 @@
 {% endfor %}
 
 {% for group,values in secrets.groups.items() %}
-{% if 'new_' not in group %}
+{% if 'phase1_' not in group %}
 [{{ group }}]
   {% if values.hosts is defined %}{% for host in values.hosts %}
 {{ host }}
