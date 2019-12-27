@@ -255,14 +255,25 @@ def testInit(secrets, templates_folder, manifests_folder):
         saveTempSecrets(secrets, 'tmp/secrets.cleanedup.yaml')
 
 def testPlan(secrets, manifests_folder):
+    verbose("Planning playbooks", 1)
     for group in secrets['groups']:
         playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
         if os.path.isfile(playbook_file):
-            result = subprocess.run(["ansible-playbook", "-i", "./manifests/hosts", playbook_file, "--check"])
-            verbose(str(result.returncode), 1)
+            result = subprocess.run(["ansible-playbook", "-i", manifests_folder + "/hosts", playbook_file, "--check"])
+            if result.returncode > 0:
+                return result.returncode
+    return 0
 
-def testApply(secrets, templates_folder, manifests_folder):
-    pass
+def testApply(secrets, manifests_folder):
+    verbose("Applying playbooks", 1)
+    for group in secrets['groups']:
+        playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
+        if os.path.isfile(playbook_file):
+            result = subprocess.run(["ansible-playbook", "-i", manifests_folder + "/hosts", playbook_file])
+            if result.returncode > 0:
+                return result.returncode
+    return 0
+
 
 ## Auxiliary Functions
 ######################
@@ -413,10 +424,18 @@ if __name__ == "__main__":
 # 
             testInit(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
             TMP_SECRETS_FILE = 'tmp/secrets.cleanedup.yaml'
-            testPlan(getSecrets(TMP_SECRETS_FILE), MANIFESTS_FOLDER)
+            plan_returncode = testPlan(getSecrets(TMP_SECRETS_FILE), MANIFESTS_FOLDER)
+            if plan_returncode < 1:
+                apply_returncode = testApply(getSecrets(TMP_SECRETS_FILE), MANIFESTS_FOLDER)
+                if apply_returncode < 1:
+                    # TODO: overwrite secrets.yaml with the cleand up one
+                    pass
+                else:
+                    verbose("ERROR while applying changes. Please review secrets.yaml, manifests folder and try again", 1)
+            else:
+                verbose("ERROR while testing a dry-run. Please review secrets.yaml and try again", 1)
 
-#            testPlan(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
-#            testApply(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
+
         elif sys.argv[1] == "plan":
             plan(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
         elif sys.argv[1] == "apply":
