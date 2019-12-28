@@ -5,6 +5,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 import yaml
 
 from collections import defaultdict
@@ -106,7 +107,7 @@ def createNotNewGroupsManifests(secrets, templates_folder, manifests_folder):
             # playbooks
             createNotNewGroupsPlaybooks(secrets, templates_folder, manifests_folder)
 
-def init(secrets, templates_folder, manifests_folder):
+def initOld(secrets, templates_folder, manifests_folder):
     verbose("Cleaning Manifests folder", 1)
     cleanupManifests(manifests_folder)
     #managePhase1Secrets(secrets)
@@ -114,7 +115,7 @@ def init(secrets, templates_folder, manifests_folder):
     createNewGroupsManifests(secrets, templates_folder, manifests_folder)
     createNotNewGroupsManifests(secrets, templates_folder, manifests_folder)
 
-def plan(secrets, manifests_folder):
+def planOld(secrets, manifests_folder):
     verbose("Planning playbooks", 1)
     if 'phase1_' in str(secrets['groups'].keys()):
         verbose("Planning only phase1_ groups", 2)
@@ -130,7 +131,7 @@ def plan(secrets, manifests_folder):
             if os.path.isfile(playbook_file):
                 subprocess.run(["ansible-playbook", "-i", "./manifests/hosts_" + group, playbook_file, "--check"])
 
-def apply(secrets, manifests_folder):
+def applyOld(secrets, manifests_folder):
     verbose("Applying playbooks", 1)
     verbose("Applying first the _new groups", 2)
     for group in secrets['groups']:
@@ -221,11 +222,16 @@ def createConfigFiles(secrets, templates_folder, manifests_folder):
         if (secrets['groups'][group] is None) or (secrets['groups'][group]['hosts'] is None):
             print(group + " is empty. Nothing to be done there.")
         else:
-            # TODO check that this file is correctly generated, add test
-            cfg_ssh_file = 'config_sshd'
-            template_cfg_ssh = env.get_template(cfg_ssh_file)
-            with open(manifests_folder + '/' + cfg_ssh_file + '_' + group, "w") as fcssh:
-                fcssh.write(template_cfg_ssh.render(secrets_group=secrets['groups'][group]))
+            # Only generate from template when group needs it
+            # key to find is <service>_changes: [True|False]
+            try:
+                if secrets['groups'][group]['sshd_changes']:
+                    cfg_ssh_file = 'config_sshd'
+                    template_cfg_ssh = env.get_template(cfg_ssh_file)
+                    with open(manifests_folder + '/' + cfg_ssh_file + '_' + group, "w") as fcssh:
+                        fcssh.write(template_cfg_ssh.render(secrets_group=secrets['groups'][group]))
+            except KeyError:
+                pass
 
 def createPlaybooks(secrets, templates_folder, manifests_folder):
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
@@ -242,19 +248,19 @@ def createPlaybooks(secrets, templates_folder, manifests_folder):
             else:
                 print(templates_folder + '/' + playbook_file + ' does not exist! Nothing to be done there.')
 
-def testInit(secrets, templates_folder, manifests_folder):
-    if isPhase1Needed(secrets)[0]:
-        secrets_phase1, secrets_others = getPhaseSplittedSecrets(secrets, isPhase1Needed(secrets)[1])
-        createManifests(secrets_phase1, templates_folder, manifests_folder)
+def init(secrets, templates_folder, manifests_folder):
+    cleanupFolder('tmp')
+    phase1_needed = isPhase1Needed(secrets)
+    if phase1_needed[0]:
+        verbose("Phase 1 needed",1)
+        secrets_phase1, secrets_others = getPhaseSplittedSecrets(secrets, phase1_needed[1])
         saveTempSecrets(secrets_others, 'secrets.others.yaml')
         saveTempSecrets(secrets_phase1, 'secrets.phase1.yaml')
-        saveTempSecrets(secrets_phase1, 'secrets.cleanedup.yaml')
-    # do not do this yet:
-    #saveNewSecrets(secrets_others, 'secrets.yaml.usercreated')
+        createManifests(secrets_phase1, templates_folder, manifests_folder)
     else:
-        saveTempSecrets(secrets, 'tmp/secrets.cleanedup.yaml')
+        createManifests(secrets, templates_folder, manifests_folder)
 
-def testPlan(secrets, manifests_folder):
+def plan(secrets, manifests_folder):
     verbose("Planning playbooks", 1)
     # TODO: os.environ['ANSIBLE_HOST_KEY_CHECKING'] = str(False)
     for group in secrets['groups']:
@@ -265,7 +271,7 @@ def testPlan(secrets, manifests_folder):
                 return result.returncode
     return 0
 
-def testApply(secrets, manifests_folder):
+def apply(secrets, manifests_folder):
     verbose("Applying playbooks", 1)
     for group in secrets['groups']:
         playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
@@ -273,6 +279,7 @@ def testApply(secrets, manifests_folder):
             result = subprocess.run(["ansible-playbook", "-i", manifests_folder + "/hosts", playbook_file])
             if result.returncode > 0:
                 return result.returncode
+    backupAndOverwrite('secrets.yaml', 'tmp/secrets.others.yaml', 'secrets.yaml.bkp.' + time.strftime("%Y%m%d-%H%M%S"))
     return 0
 
 
@@ -280,11 +287,10 @@ def testApply(secrets, manifests_folder):
 ######################
 
 def saveTempSecrets(secrets, filename):
-    TMPFOLDER = 'tmp/'
-    if not os.path.exists(TMPFOLDER):
-        os.makedirs(TMPFOLDER)
-    with open(TMPFOLDER + filename, 'w') as file:
-        document = yaml.dump(secrets, file)
+    if not os.path.exists(TMP_FOLDER):
+        os.makedirs(TMP_FOLDER)
+    with open(TMP_FOLDER + "/" + filename, 'w') as file2write:
+        document = yaml.dump(secrets, file2write)
 
 def saveNewSecrets(secrets, backup_file):
     dest = shutil.copyfile('secrets.yaml', backup_file)
@@ -296,7 +302,10 @@ def isPhase1Needed(secrets):
     hosts = []
     try:
         hosts = secrets['groups']['phase1']['hosts']
-        return True, hosts
+        if len(hosts) < 1:
+            return False, hosts
+        else:
+            return True, hosts
     except KeyError:
         return False, hosts
 
@@ -343,7 +352,6 @@ def getPhaseSplittedSecrets(secrets, hosts):
 
 def createManifests(secrets, templates_folder, manifests_folder):
     cleanupFolder(manifests_folder)
-    cleanupFolder('tmp')
     hosts_filename = 'hosts'
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
     # hosts inventory
@@ -409,6 +417,7 @@ if __name__ == "__main__":
     SECRETS_FILE = 'secrets.yaml'
     TEMPLATES_FOLDER = 'templates'
     MANIFESTS_FOLDER = 'manifests'
+    TMP_FOLDER = 'tmp'
 
     if len(sys.argv) != 2:
         showHelp()
@@ -429,14 +438,13 @@ if __name__ == "__main__":
 #    - once this has happened, the user will be asked if a run of the other regular playbooks is desired.
 #      - This second run includes a make init of the rest, as well as a make plan that requires confirmation before appliying
 # 
-            testInit(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
-            TMP_SECRETS_FILE = 'tmp/secrets.cleanedup.yaml'
+            TMP_SECRETS_FILE = TMP_FOLDER + '/secrets.phase1.yaml'
             plan_returncode = testPlan(getSecrets(TMP_SECRETS_FILE), MANIFESTS_FOLDER)
             if plan_returncode < 1:
                 apply_returncode = testApply(getSecrets(TMP_SECRETS_FILE), MANIFESTS_FOLDER)
                 if apply_returncode < 1:
                     # TODO: overwrite secrets.yaml with the cleand up one
-                    backupAndOverwrite('secrets.yaml', TMP_SECRETS_FILE, 'secrets.yaml.usercreated')
+                    backupAndOverwrite('secrets.yaml', TMP_SECRETS_FILE, 'secrets.yaml.bkp.' + time.strftime("%Y%m%d-%H%M%S"))
                 else:
                     verbose("ERROR while applying changes. Please review secrets.yaml, manifests folder and try again", 1)
             else:

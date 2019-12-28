@@ -28,7 +28,7 @@
         groups: 'docker'
         append: 'yes'
       with_items: '{{ docker_group_members }}'
-      when: 'docker_group_members is defined'
+      when: not ansible_check_mode
 {% endraw %}
 # prepare memory to run docker/k8s
 # python3 by default?
