@@ -24,4 +24,5 @@ groups:
     - once this has happened, the user will be asked if a run of the other regular playbooks is desired.
       - This second run includes a make init of the rest, as well as a make plan that requires confirmation before appliying
 
-
+##Known Issues
+- If you recreate hosts under the same IP, you'll need to deal with "REMOTE HOST IDENTIFICATION HAS CHANGED" manually (change ansible configs)

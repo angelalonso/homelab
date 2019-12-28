@@ -256,6 +256,7 @@ def testInit(secrets, templates_folder, manifests_folder):
 
 def testPlan(secrets, manifests_folder):
     verbose("Planning playbooks", 1)
+    # TODO: os.environ['ANSIBLE_HOST_KEY_CHECKING'] = str(False)
     for group in secrets['groups']:
         playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
         if os.path.isfile(playbook_file):
@@ -361,7 +362,7 @@ def verbose(message, message_type):
     if message_type == 1:
         print("//===" + '='*len(message) + "===\\\\")
         print("||   " + message + "   ||")
-        print("\\===" + '='*len(message) + "===//")
+        print("\\\===" + '='*len(message) + "===//")
     elif message_type == 2:
         print("  --" + '-'*len(message) + "--")
         print("  | " + message + " |")
@@ -374,6 +375,12 @@ def cleanupFolder(folder):
     for f in files:
         verbose("removing old " + f, 3)
         os.remove(f)
+
+def backupAndOverwrite(old_file, new_file, backup_file):
+    dest = shutil.copyfile(old_file, backup_file)
+    dest2 = shutil.copyfile(new_file, old_file)
+    verbose("We modified your secrets.yaml. Your original secrets.yaml has been saved under " + backup_file, 2)
+
 
 def getConfirmation(message):
     answer = ""
@@ -429,7 +436,7 @@ if __name__ == "__main__":
                 apply_returncode = testApply(getSecrets(TMP_SECRETS_FILE), MANIFESTS_FOLDER)
                 if apply_returncode < 1:
                     # TODO: overwrite secrets.yaml with the cleand up one
-                    pass
+                    backupAndOverwrite('secrets.yaml', TMP_SECRETS_FILE, 'secrets.yaml.usercreated')
                 else:
                     verbose("ERROR while applying changes. Please review secrets.yaml, manifests folder and try again", 1)
             else:

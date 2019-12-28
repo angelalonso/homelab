@@ -1,4 +1,4 @@
-Port {{ secrets_group.ssh_port }}
+Port {{ secrets_group.phase2_ansible_user.ssh_port }}
 PermitRootLogin no
 PasswordAuthentication no
 ChallengeResponseAuthentication no
