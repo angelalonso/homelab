@@ -4,14 +4,14 @@ THERE ARE MANY RISKS INVOLVED.
 DO NOT SAY I DID NOT WARN YOU
 
 # secrets.yaml
-hosts:
+```hosts:
   test01:
 
 groups:
   phase1:
     hosts:
     - test01
-
+```
 
 ## Logic
 - If phase1 has something on the "hosts:" definition, a first phase is run.

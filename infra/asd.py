@@ -12,144 +12,7 @@ from collections import defaultdict
 from jinja2 import Environment, FileSystemLoader
 
 
-## OLD ##
-## start ##
-def createNewGroupsConfigFiles(secrets, templates_folder, manifests_folder):
-    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
-    for group in secrets['groups']:
-        if group.startswith('phase1_'):
-            if (secrets['groups'][group] is None) or (secrets['groups'][group]['hosts'] is None):
-                print(group + " is empty. Nothing to be done there.")
-            else:
-                cfg_ssh_file = 'config_sshd'
-                template_cfg_ssh = env.get_template(cfg_ssh_file)
-                with open(manifests_folder + '/' + cfg_ssh_file + '_' + group, "w") as fcssh:
-                    fcssh.write(template_cfg_ssh.render(secrets_group=secrets['groups'][group]))
-
-def createNewGroupsPlaybooks(secrets, templates_folder, manifests_folder):
-    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
-    # templated playbooks per group
-    for group in secrets['groups']:
-        if group.startswith('phase1_'):
-            if secrets['groups'][group] is None:
-                print(group + " is empty. Nothing to be done there.")
-            else:
-                playbook_file = 'playbook_' + group + '.yaml'
-                if os.path.isfile(templates_folder + '/' + playbook_file):
-                    template_playbook = env.get_template(playbook_file)
-                    with open(manifests_folder + '/' + playbook_file, "w") as fm:
-                        fm.write(template_playbook.render(secrets_group=secrets['groups'][group], secrets=secrets, getSaltedPassword=getSaltedPassword))
-                else:
-                    print(templates_folder + '/' + playbook_file + ' does not exist! Nothing to be done there.')
-
-def createNotNewGroupsConfigFiles(secrets, templates_folder, manifests_folder):
-    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
-    for group in secrets['groups']:
-        if not group.startswith('phase1_'):
-            verbose("Creating config files for " + group, 3)
-            try:
-                if (secrets['groups'][group] is None) or (secrets['groups'][group]['hosts'] is None):
-                    print(group + " is empty. Nothing to be done there.")
-                else:
-                    cfg_ssh_file = 'config_sshd'
-                    template_cfg_ssh = env.get_template(cfg_ssh_file)
-                    with open(manifests_folder + '/' + cfg_ssh_file + '_' + group, "w") as fcssh:
-                        fcssh.write(template_cfg_ssh.render(secrets_group=secrets['groups'][group]))
-            except KeyError:
-                print(group + " is empty. Nothing to be done there.")
-
-def createNotNewGroupsPlaybooks(secrets, templates_folder, manifests_folder):
-    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
-    # templated playbooks per group
-    for group in secrets['groups']:
-        if not group.startswith('phase1_'):
-            verbose("Creating playbooks for " + group, 3)
-            if secrets['groups'][group] is None:
-                print(group + " is empty. Nothing to be done there.")
-            else:
-                playbook_file = 'playbook_' + group + '.yaml'
-                if os.path.isfile(templates_folder + '/' + playbook_file):
-                    template_playbook = env.get_template(playbook_file)
-                    with open(manifests_folder + '/' + playbook_file, "w") as fm:
-                        fm.write(template_playbook.render(secrets_group=secrets['groups'][group], secrets=secrets, getSaltedPassword=getSaltedPassword))
-                else:
-                    print(templates_folder + '/' + playbook_file + ' does not exist! Nothing to be done there.')
-
-def createNewGroupsManifests(secrets, templates_folder, manifests_folder):
-    verbose("Creating manifests for phase1_ groups", 1)
-    hosts_file = 'hosts_phase1'
-    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
-    for group in secrets['groups']:
-        if group.startswith('phase1_'):
-            verbose("Manifest for " + group + " created", 3)
-            # hosts inventory
-            template_hosts = env.get_template(hosts_file)
-            with open(manifests_folder + '/hosts_' + group, "w") as fh:
-                fh.write(template_hosts.render(secrets=secrets))
-            # config files
-            createNewGroupsConfigFiles(secrets, templates_folder, manifests_folder)
-            # playbooks
-            createNewGroupsPlaybooks(secrets, templates_folder, manifests_folder)
-
-def createNotNewGroupsManifests(secrets, templates_folder, manifests_folder):
-    verbose("Creating manifests for NON phase1_ groups", 1)
-    hosts_file = 'hosts'
-    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
-    for group in secrets['groups']:
-        if not group.startswith('phase1_'):
-            verbose("Manifest for " + group + " created", 3)
-            # hosts inventory
-            template_hosts = env.get_template(hosts_file)
-            with open(manifests_folder + '/hosts_' + group, "w") as fh:
-                fh.write(template_hosts.render(secrets=secrets))
-            # config files
-            createNotNewGroupsConfigFiles(secrets, templates_folder, manifests_folder)
-            # playbooks
-            createNotNewGroupsPlaybooks(secrets, templates_folder, manifests_folder)
-
-def initOld(secrets, templates_folder, manifests_folder):
-    verbose("Cleaning Manifests folder", 1)
-    cleanupManifests(manifests_folder)
-    #managePhase1Secrets(secrets)
-    verbose("Creating Manifests", 1)
-    createNewGroupsManifests(secrets, templates_folder, manifests_folder)
-    createNotNewGroupsManifests(secrets, templates_folder, manifests_folder)
-
-def planOld(secrets, manifests_folder):
-    verbose("Planning playbooks", 1)
-    if 'phase1_' in str(secrets['groups'].keys()):
-        verbose("Planning only phase1_ groups", 2)
-        for group in secrets['groups']:
-            if group.startswith('phase1_'):
-                playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
-                if os.path.isfile(playbook_file):
-                    subprocess.run(["ansible-playbook", "-i", "./manifests/hosts_" + group, playbook_file, "--check"])
-    else:
-        verbose("Planning all groups", 2)
-        for group in secrets['groups']:
-            playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
-            if os.path.isfile(playbook_file):
-                subprocess.run(["ansible-playbook", "-i", "./manifests/hosts_" + group, playbook_file, "--check"])
-
-def applyOld(secrets, manifests_folder):
-    verbose("Applying playbooks", 1)
-    verbose("Applying first the _new groups", 2)
-    for group in secrets['groups']:
-        if group.startswith('phase1_'):
-            playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
-            if os.path.isfile(playbook_file):
-                subprocess.run(["ansible-playbook", "-i", "./manifests/hosts_" + group, playbook_file])
-
-    if 'phase1_' in str(secrets['groups'].keys()):
-        removeNewFromSecrets(secrets)
-    verbose("Applying then the NON _new groups", 2)
-    for group in secrets['groups']:
-        if not group.startswith('phase1_'):
-            playbook_file = manifests_folder + "/playbook_" + group + ".yaml"
-            if os.path.isfile(playbook_file):
-                subprocess.run(["ansible-playbook", "-i", "./manifests/hosts_" + group, playbook_file])
-
-def create(secrets_template, secrets_file):
+def createSecrets(secrets_template, secrets_file):
     verbose("Creating a new secrets.yaml file", 1)
     if os.path.isfile(secrets_file):
         verbose("ATTENTION! " + secrets_file + " already exists!", 2)
@@ -158,20 +21,6 @@ def create(secrets_template, secrets_file):
         dest = shutil.copyfile(secrets_template, secrets_file)
         verbose("DONE! You can now edit " + secrets_file + " accordingly", 2)
         verbose(" AND REMEMBER: this file will contain private data!", 2)
-
-def removeNewFromSecrets(secrets):
-    for group in list(secrets['groups']):
-        if group.startswith('phase1_'):
-            secrets['groups'].pop(group)
-
-    if getConfirmation("The 'phase1_' groups are no longer needed/working\n Do you want to remove them from your secrets.yaml?"):
-        dest = shutil.copyfile('secrets.yaml', 'secrets.yaml.bkp')
-        with open(r'secrets.yaml', 'w') as file:
-            document = yaml.dump(secrets, file)
-        verbose("Your original secrets.yaml has been saved under secrets.yaml.bkp", 2)
-
-## end ##
-## OLD ##
 
 def findHostInGroups(secrets, host):
     groups =  []
@@ -268,6 +117,7 @@ def plan(secrets, manifests_folder):
         if os.path.isfile(playbook_file):
             result = subprocess.run(["ansible-playbook", "-i", manifests_folder + "/hosts", playbook_file, "--check"])
             if result.returncode > 0:
+                verbose("The dry run had issues. Modify secrets.yaml or your templates accordingly", 1)
                 return result.returncode
     return 0
 
@@ -278,6 +128,7 @@ def apply(secrets, manifests_folder):
         if os.path.isfile(playbook_file):
             result = subprocess.run(["ansible-playbook", "-i", manifests_folder + "/hosts", playbook_file])
             if result.returncode > 0:
+                verbose("There were issues found while applying. Modify secrets.yaml or your templates accordingly", 1)
                 return result.returncode
     backupAndOverwrite('secrets.yaml', 'tmp/secrets.others.yaml', 'secrets.yaml.bkp.' + time.strftime("%Y%m%d-%H%M%S"))
     return 0
@@ -425,32 +276,7 @@ if __name__ == "__main__":
         if sys.argv[1] == "init":
             init(getSecrets(SECRETS_FILE), TEMPLATES_FOLDER, MANIFESTS_FOLDER)
         elif sys.argv[1] == "create":
-            create(SECRETS_TEMPLATE, SECRETS_FILE)
-        elif sys.argv[1] == "test":
-# 
-#- If phase1 has something on the "hosts:" definition, a first phase is run.
-#- phase1 run means:
-#  - make init generates ONLY manifests for phase1
-#  - make plan runs only on manifests for phase1
-#  - make apply runs only on manifests for phase1
-#    - secrets.yaml is modified AFTER make apply has run successfully.
-#      - The user needs to be informed of this.
-#    - once this has happened, the user will be asked if a run of the other regular playbooks is desired.
-#      - This second run includes a make init of the rest, as well as a make plan that requires confirmation before appliying
-# 
-            TMP_SECRETS_FILE = TMP_FOLDER + '/secrets.phase1.yaml'
-            plan_returncode = testPlan(getSecrets(TMP_SECRETS_FILE), MANIFESTS_FOLDER)
-            if plan_returncode < 1:
-                apply_returncode = testApply(getSecrets(TMP_SECRETS_FILE), MANIFESTS_FOLDER)
-                if apply_returncode < 1:
-                    # TODO: overwrite secrets.yaml with the cleand up one
-                    backupAndOverwrite('secrets.yaml', TMP_SECRETS_FILE, 'secrets.yaml.bkp.' + time.strftime("%Y%m%d-%H%M%S"))
-                else:
-                    verbose("ERROR while applying changes. Please review secrets.yaml, manifests folder and try again", 1)
-            else:
-                verbose("ERROR while testing a dry-run. Please review secrets.yaml and try again", 1)
-
-
+            createSecrets(SECRETS_TEMPLATE, SECRETS_FILE)
         elif sys.argv[1] == "plan":
             plan(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
         elif sys.argv[1] == "apply":
