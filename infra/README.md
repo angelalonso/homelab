@@ -4,7 +4,8 @@ THERE ARE MANY RISKS INVOLVED.
 DO NOT SAY I DID NOT WARN YOU
 
 # secrets.yaml
-```hosts:
+```
+hosts:
   test01:
 
 groups:
