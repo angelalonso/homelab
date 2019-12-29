@@ -105,6 +105,9 @@ def apply(secrets, manifests_folder):
                 verbose("There were issues found while applying. Modify secrets.yaml or your templates accordingly", 1)
                 return result.returncode
     backupAndOverwrite('secrets.yaml', 'tmp/secrets.others.yaml', 'secrets.yaml.bkp.' + time.strftime("%Y%m%d-%H%M%S"))
+    if isPhase1Needed(secrets)[0]:
+        verbose("This was the phase 1 run", 2)
+        verbose("To continue the other playbooks, run make init && make apply again", 1)
     return 0
 
 

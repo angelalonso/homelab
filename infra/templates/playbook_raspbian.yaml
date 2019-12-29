@@ -15,6 +15,12 @@
     - name: "install base packages"
       apt: name={{ item }} state=present
       with_items: "{{ system_vars.packages }}"
+# remove pi
+    - name: remove pi user
+      user:
+        name: pi
+        state: absent
+        remove: yes
 # configure ufw
     - name: Allow all access to SSH port
       ufw:
