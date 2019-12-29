@@ -1,5 +1,13 @@
 #!make
 
+help:
+	@echo   SYNTAX:
+	@echo make init   - install dependencies, prepare manifests
+	@echo make create - Create secrets.yaml from a template
+	@echo make plan   - Dry run of the manifests
+	@echo make apply  - Apply manifests
+	@echo make help   - this help
+
 test:
 	bash ./dependencies.sh
 	pipenv install
@@ -17,5 +25,5 @@ plan: init
 apply: plan
 	pipenv run python3 asd.py apply
 
-.PHONY : init plan apply
+.PHONY : init plan apply help
 .DEFAULT_GOAL := plan

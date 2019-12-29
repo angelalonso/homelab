@@ -22,45 +22,6 @@ def createSecrets(secrets_template, secrets_file):
         verbose("DONE! You can now edit " + secrets_file + " accordingly", 2)
         verbose(" AND REMEMBER: this file will contain private data!", 2)
 
-def findHostInGroups(secrets, host):
-    groups =  []
-    for group in secrets['groups']:
-        try:
-            if host in secrets['groups'][group]['hosts']:
-                groups.append(group)
-        except KeyError:
-            pass
-    return groups
-
-def test_old(secrets, templates_folder, manifests_folder):
-    for host in list(secrets['hosts']):
-        if host.startswith('phase1_'):
-            group_def = findHostInGroups(secrets, host)
-            if len(group_def) == 1:
-                correct_hostname = host.replace('phase1_','',1)
-                correct_hoststruct = {}
-                correct_user = {}
-                verbose(str(group_def[0]), 3)
-                # create host without phase1_
-                correct_hoststruct['ansible_ssh_port'] = secrets['groups'][group_def[0]]['phase2_ansible_user']['ssh_port']
-                correct_user['name'] = secrets['groups'][group_def[0]]['phase2_ansible_user']['name']
-                correct_user['password'] = secrets['groups'][group_def[0]]['phase2_ansible_user']['password']
-                correct_user['ssh_key'] = secrets['groups'][group_def[0]]['phase2_ansible_user']['ssh_key']
-                correct_user['ssh_path'] = secrets['groups'][group_def[0]]['phase2_ansible_user']['ssh_path']
-                correct_hoststruct['ansible_user'] = correct_user
-            else:
-                verbose("Could not find the necessary 1-to-1 relationship between phase1_host and phase1_group", 3)
-            correct_group = group_def[0].replace('phase1_','',1)
-            try:
-                groups_hosts_list = secrets['groups'][correct_group]['hosts']
-                groups_hosts_list.append(correct_hostname)
-                secrets['groups'][correct_group]['hosts'] = groups_hosts_list
-            except:
-                groups_hosts_list = []
-                groups_hosts_list.append(correct_hostname)
-                secrets['groups'][correct_group]['hosts'] = groups_hosts_list
-            secrets['hosts'][correct_hostname] = correct_hoststruct
-
 def createConfigFiles(secrets, templates_folder, manifests_folder):
     '''
     Creates different config files for different groups from templates
@@ -96,6 +57,19 @@ def createPlaybooks(secrets, templates_folder, manifests_folder):
                     fm.write(template_playbook.render(secrets_group=secrets['groups'][group], secrets=secrets, getSaltedPassword=getSaltedPassword))
             else:
                 print(templates_folder + '/' + playbook_file + ' does not exist! Nothing to be done there.')
+
+def createManifests(secrets, templates_folder, manifests_folder):
+    cleanupFolder(manifests_folder)
+    hosts_filename = 'hosts'
+    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
+    # hosts inventory
+    template_hosts = env.get_template(hosts_filename)
+    with open(manifests_folder + '/' + hosts_filename, "w") as fh:
+        fh.write(template_hosts.render(secrets=secrets))
+    # config files
+    createConfigFiles(secrets, templates_folder, manifests_folder)
+    # playbooks
+    createPlaybooks(secrets, templates_folder, manifests_folder)
 
 def init(secrets, templates_folder, manifests_folder):
     cleanupFolder('tmp')
@@ -142,12 +116,6 @@ def saveTempSecrets(secrets, filename):
         os.makedirs(TMP_FOLDER)
     with open(TMP_FOLDER + "/" + filename, 'w') as file2write:
         document = yaml.dump(secrets, file2write)
-
-def saveNewSecrets(secrets, backup_file):
-    dest = shutil.copyfile('secrets.yaml', backup_file)
-    with open(r'secrets.yaml', 'w') as file:
-        document = yaml.dump(secrets, file)
-    verbose("We modified your secrets.yaml. Your original secrets.yaml has been saved under " + backup_file, 2)
 
 def isPhase1Needed(secrets):
     hosts = []
@@ -200,19 +168,6 @@ def getPhaseSplittedSecrets(secrets, hosts):
             secrets_others['groups'][group] = phase1_group
 
     return secrets_phase1, secrets_others
-
-def createManifests(secrets, templates_folder, manifests_folder):
-    cleanupFolder(manifests_folder)
-    hosts_filename = 'hosts'
-    env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
-    # hosts inventory
-    template_hosts = env.get_template(hosts_filename)
-    with open(manifests_folder + '/' + hosts_filename, "w") as fh:
-        fh.write(template_hosts.render(secrets=secrets))
-    # config files
-    createConfigFiles(secrets, templates_folder, manifests_folder)
-    # playbooks
-    createPlaybooks(secrets, templates_folder, manifests_folder)
 
 ## General Use Functions
 ########################
