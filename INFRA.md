@@ -18,15 +18,27 @@ Here we try to get as close to "hands-off" as possible on all of the following p
   - SOLUTION: run in two phases, automatic creation of phase2 definitions from phase1's variables.  
 
 ## TL;DR
-``` make create``` 
+```
+make create
+``` 
 - Edit secrets.yaml
-``` make init```
-``` make plan```
-``` make apply```
+```
+make init
+```
+```
+make plan
+```
+```
+make apply
+```
 
 ### Alright, I do want to read about the two phases...
 
 This part of the documentation is meant for people wanting to modify the default config provided.
+
+IT IS ALSO OBSOLETE RIGHT NOW! JUST EDIT secrets.yaml and the templates to make sense, and follow the procedure above...
+
+...now if you continue reading, this is how it looked before:
 
 Use case: you just burnt Raspbian into an SSD, added the /boot/ssh file and want to make your Raspi secure before applying your ansible configs. 
 From now on we assume the following example variables:
@@ -34,13 +46,15 @@ From now on we assume the following example variables:
 - the playbook for that machine, where you define what you want to do, will be called raspisetup  
   
 - Create your secrets from the template:  
-``` make create ```
+``` 
+make create 
+```
 - Edit secrets.yaml according to these rules:
-  - Under ```groups:```, add your playbook's name (raspisetup) and variables WITHOUT ```hosts:```
-  - Under ```groups:```, ALSO add another one named 'phase1_raspisetup' with the following variables:  
+  - Under "groups:", add your playbook's name (raspisetup) and variables
+  - Under "groups:", ALSO add another one named "phase1" with the following variables:  
   ```
     hosts:
-    - phase1_raspihost1
+    - raspihost1
     phase2_ansible_user:
       name: <future username you want to use>
       password: <future password for that username>
@@ -48,10 +62,10 @@ From now on we assume the following example variables:
       ssh_path: </path/to/.ssh/on/the/raspberry/server>
       ssh_port: <future ssh port you want to use on the raspberry server>
   ```
-  - Under ```hosts:```, add the current raspberry definition, and name it 'phase1_raspihost1', such as:
+  - Under "hosts:", add the current raspberry definition, and name it "raspihost1", such as:
   ```
 hosts:
-  phase1_raspihost1:
+  raspihost1:
     ansible_ssh_port: 22
     ansible_user:
       name: pi
@@ -59,13 +73,19 @@ hosts:
     ip: 192.168.0.4
   ```
 - Under the templates folder:  
-  - rename playbook_phase1_raspbian.yaml to playbook_phase1_raspisetup.yaml, and edit the file to have '- hosts: phase1_raspisetup'
+  - Edit playbook_phase1 to have '- hosts: phase1'
   - rename playbook_raspbian.yaml to playbook_raspisetup.yaml, and edit the file to have '- hosts: raspisetup'
   - make sure any group you defined has its own playbook_ file
 
-``` make init```
-``` make plan```
-``` make apply```
+```
+make init
+```
+```
+make plan
+```
+```
+make apply
+```
 
 ### What will happen in the background?
 - asd.py is where the (not-so-)magic happens.
