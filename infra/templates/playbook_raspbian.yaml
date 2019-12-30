@@ -4,7 +4,6 @@
   become: yes
   vars:
     system_vars:
-      ssh_port: {{ secrets_group.ssh_port }}
       packages:
   {% for pkg in secrets_group.packages %}
         - {{ pkg }}
@@ -12,35 +11,40 @@
   tasks:
 {% raw %}
 # install packages
-    - name: "install base packages"
+    - name: install base packages
       apt: name={{ item }} state=present
-      with_items: "{{ system_vars.packages }}"
+      with_items: '{{ system_vars.packages }}'
 # remove pi
     - name: remove pi user
       user:
         name: pi
         state: absent
         remove: yes
+# install this repo
+    - name: Clone this repository into this machine
+      git:
+        repo: https://github.com/angelalonso/homelab.git
+        version: master
+        dest: /home/aafmin/homelab
+      become: no
+
 # configure ufw
     - name: Allow all access to SSH port
       ufw:
         rule: allow
         port: '{{ system_vars.ssh_port }}'
         comment: 'ssh access'
-      with_items: "{{ system_vars }}"
+      with_items: '{{ system_vars }}'
       when: not ansible_check_mode
-    - name: "deny everything and enable UFW"
+    - name: Deny everything and enable UFW
       ufw:
         state: enabled
         policy: deny
       when: not ansible_check_mode
-    - name: "restart machine"
-      command: shutdown -r now "Ansible updates triggered"
+    - name: Restart machine
+      command: shutdown -r now 'Ansible updates triggered'
       async: 0
       poll: 0
       ignore_errors: True
-    - name: Waiting for server to come back up
-      local_action: wait_for host="{{ inventory_hostname }}" port="{{ system_vars.ssh_port }}" state=started
 {% endraw %}
-# expand root filesystem?
 # python3 by default?
