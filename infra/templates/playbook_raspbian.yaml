@@ -4,6 +4,8 @@
   become: yes
   vars:
     system_vars:
+      # ATTENTION: you will need phase1 playbook too!
+      ssh_port: {{ secrets.groups.phase1.phase2_ansible_user.ssh_port }}
       packages:
   {% for pkg in secrets_group.packages %}
         - {{ pkg }}

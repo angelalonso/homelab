@@ -10,6 +10,7 @@ pyyaml = "*"
 pytest = "*"
 jinja2 = "*"
 sh = "*"
+paramiko = "*"
 
 [requires]
 python_version = "3.7"
