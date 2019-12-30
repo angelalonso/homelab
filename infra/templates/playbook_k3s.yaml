@@ -1,0 +1,12 @@
+---
+- hosts: k3s
+  gather_facts: false
+  become: yes
+  tasks:
+{% raw %}
+# install docker
+    - name: Execute the k3s installer
+      shell: curl -sfL https://get.k3s.io | sh -
+      when: not ansible_check_mode
+{% endraw %}
+# prepare memory to run k3s
