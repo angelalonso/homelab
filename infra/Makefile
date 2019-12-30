@@ -21,8 +21,7 @@ init:
 	pipenv run python3 asd.py init
 plan: init
 	pipenv run python3 asd.py plan
-#  $(shell ansible-playbook -i ./manifests/hosts ./manifests/playbooks.yaml --check)
-apply: plan
+apply:
 	pipenv run python3 asd.py apply
 
 .PHONY : install init plan apply help

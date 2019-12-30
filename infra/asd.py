@@ -238,7 +238,9 @@ if __name__ == "__main__":
         elif sys.argv[1] == "plan":
             plan(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
         elif sys.argv[1] == "apply":
-            apply(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
+            plan(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
+            if getConfirmation("\n\n\n\nDo you want to apply?"):
+                apply(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
         else:
             showHelp()
 
