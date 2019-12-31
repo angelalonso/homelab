@@ -1,6 +1,7 @@
 import copy
 import crypt
 import glob
+import ipaddress
 import os
 import paramiko
 import shutil
@@ -173,27 +174,65 @@ def getPhaseSplittedSecrets(secrets, hosts):
 
     return secrets_phase1, secrets_others
 
-def getNetwork(secrets):
+def getNetwork(secrets, ip_start, ip_end):
+    start_ip = ipaddress.IPv4Address(ip_start)
+    end_ip = ipaddress.IPv4Address(ip_end)
+    command_getmac = 'cat /sys/class/net/eth0/address'
+    command_hostname = 'hostname'
     for host in secrets['hosts']:
-        print(host + " - " + secrets['hosts'][host]['ip'])
-        command = 'cat /sys/class/net/eth0/address'
+        # check all hosts for
+        #  connection
+        #  hostname
+        #  mac address
         try:
             client = paramiko.SSHClient()
-            #client.load_system_host_keys()
-            #client.set_missing_host_key_policy(paramiko.WarningPolicy)
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             
             client.connect(secrets['hosts'][host]['ip'], 
-                    port=secrets['hosts'][host]['ansible_ssh_port'], 
-                    username=secrets['hosts'][host]['ansible_user']['name'], 
-                    key_filename=secrets['hosts'][host]['ansible_user']['ssh_key'],
-                    password=secrets['hosts'][host]['ansible_user']['password'])
+                port=secrets['hosts'][host]['ansible_ssh_port'], 
+                username=secrets['hosts'][host]['ansible_user']['name'], 
+                key_filename=secrets['hosts'][host]['ansible_user']['ssh_key'],
+                password=secrets['hosts'][host]['ansible_user']['password'])
 
-            stdin, stdout, stderr = client.exec_command(command)
-            print(stdout.read())
-
+            stdin, stdout, stderr = client.exec_command(command_getmac)
+            mac_address = stdout.read().decode("utf-8").replace("\n","",1)
+            stdin, stdout, stderr = client.exec_command(command_hostname)
+            host_name = stdout.read().decode("utf-8").replace("\n","",1)
+            print(host_name + " - " + mac_address)
         finally:
             client.close()
+        # if anything fails:
+        #   try all ips, look for mac address
+        #     found?
+        #       get hostname too
+        #       add to change_list
+        #     not found?
+        #       ask user what to do
+        # change secrets
+    #for ip_int in range(int(start_ip), int(end_ip)):
+    #    testing_ip = ipaddress.IPv4Address(ip_int)
+    #    for host in secrets['hosts']:
+    #        if str(secrets['hosts'][host]['ip']) == str(testing_ip):
+    #            print(secrets['hosts'][host]['ip'])
+    #            try:
+    #                client = paramiko.SSHClient()
+    #                client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    #                
+    #                client.connect(secrets['hosts'][host]['ip'], 
+    #                    port=secrets['hosts'][host]['ansible_ssh_port'], 
+    #                    username=secrets['hosts'][host]['ansible_user']['name'], 
+    #                    key_filename=secrets['hosts'][host]['ansible_user']['ssh_key'],
+    #                    password=secrets['hosts'][host]['ansible_user']['password'])
+
+    #                stdin, stdout, stderr = client.exec_command(command)
+    #                mac_address = stdout.read().decode("utf-8").replace("\n","",1)
+    #                if mac_address != secrets['hosts'][host]['mac_address']:
+    #                    print("Wrong mac")
+
+    #                print(mac_address)
+
+    #            finally:
+    #                client.close()
 
 
 ## General Use Functions
@@ -266,7 +305,7 @@ if __name__ == "__main__":
             if getConfirmation("\n\n\n\nDo you want to apply?"):
                 apply(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
         elif sys.argv[1] == "network":
-            getNetwork(getSecrets(SECRETS_FILE))
+            getNetwork(getSecrets(SECRETS_FILE), "192.168.0.1", "192.168.1.255")
         else:
             showHelp()
 
