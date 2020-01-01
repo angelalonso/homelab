@@ -5,6 +5,7 @@ import ipaddress
 import os
 import paramiko
 import shutil
+import socket
 import subprocess
 import sys
 import time
@@ -174,7 +175,8 @@ def getPhaseSplittedSecrets(secrets, hosts):
 
     return secrets_phase1, secrets_others
 
-def runOnHost(ip, hostname, host_details, command):
+def runOnHost(ip, hostname, host_details, commands):
+    responses = []
     try:
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -183,31 +185,35 @@ def runOnHost(ip, hostname, host_details, command):
             port=host_details['ansible_ssh_port'], 
             username=host_details['ansible_user']['name'], 
             key_filename=host_details['ansible_user']['ssh_key'],
-            password=host_details['ansible_user']['password'])
+            password=host_details['ansible_user']['password'],
+            timeout=2)
 
-        stdin, stdout, stderr = client.exec_command(command)
-        return stdout.read().decode("utf-8").replace("\n","",1)
-    except (paramiko.ssh_exception.NoValidConnectionsError, TimeoutError):
-        return "Connection Error"
+        for command in commands:
+            stdin, stdout, stderr = client.exec_command(command)
+            responses.append(stdout.read().decode("utf-8").replace("\n","",1))
+    except (paramiko.ssh_exception.NoValidConnectionsError, TimeoutError, socket.timeout):
+        for i in range(len(commands)):
+            responses.append("Connection Error")
     finally:
         client.close()
+    return responses
 
 def getRealIP(hostname, host_details, ip_start, ip_end):
     command_getmac = 'cat /sys/class/net/eth0/address'
     command_hostname = 'hostname'
     start_ip = ipaddress.IPv4Address(ip_start)
     end_ip = ipaddress.IPv4Address(ip_end)
-    print("looking for " + hostname + "'s new IP...")
+    print("looking for " + hostname + "'s new IP", end = '')
     for ip_int in range(int(start_ip), int(end_ip)):
-        check_hostname = runOnHost(ipaddress.IPv4Address(ip_int), hostname, host_details, command_hostname)
+        print(".", end = '')
+        check_hostname = runOnHost(ipaddress.IPv4Address(ip_int), hostname, host_details, [command_hostname])[0]
         if check_hostname != "Connection Error":
-            check_mac = runOnHost(ipaddress.IPv4Address(ip_int), hostname, host_details, command_getmac)
+            check_mac = runOnHost(ipaddress.IPv4Address(ip_int), hostname, host_details, [command_getmac])[0]
             if (host_details['mac_address'] == check_mac) and (hostname == check_hostname):
-                print("We found " + hostname + " at " + str(ipaddress.IPv4Address(ip_int)))
+                print("\nWe found " + hostname + " at " + str(ipaddress.IPv4Address(ip_int)))
+                break
 
 def getNetwork(secrets, ip_start, ip_end):
-    start_ip = ipaddress.IPv4Address(ip_start)
-    end_ip = ipaddress.IPv4Address(ip_end)
     command_getmac = 'cat /sys/class/net/eth0/address'
     command_hostname = 'hostname'
     for host in secrets['hosts']:
@@ -215,29 +221,12 @@ def getNetwork(secrets, ip_start, ip_end):
         #  connection
         #  hostname
         #  mac address
-        try:
-            client = paramiko.SSHClient()
-            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            
-            client.connect(secrets['hosts'][host]['ip'], 
-                port=secrets['hosts'][host]['ansible_ssh_port'], 
-                username=secrets['hosts'][host]['ansible_user']['name'], 
-                key_filename=secrets['hosts'][host]['ansible_user']['ssh_key'],
-                password=secrets['hosts'][host]['ansible_user']['password'])
-
-            stdin, stdout, stderr = client.exec_command(command_getmac)
-            mac_address = stdout.read().decode("utf-8").replace("\n","",1)
-            stdin, stdout, stderr = client.exec_command(command_hostname)
-            host_name = stdout.read().decode("utf-8").replace("\n","",1)
-            print(host_name + " - " + mac_address)
-            if (mac_address != secrets['hosts'][host]['mac_address']) or (host_name != host):
-                print("there is something wrong with host " + host) 
-                getRealIP(secrets['hosts'][host], ip_start, ip_end)
-        except paramiko.ssh_exception.NoValidConnectionsError:
+        check_mac, check_hostname = runOnHost(secrets['hosts'][host]['ip'], host, secrets['hosts'][host], [command_getmac, command_hostname])
+        if (check_mac != secrets['hosts'][host]['mac_address']) or (check_hostname != host):
             print("there is something wrong with host " + host) 
             getRealIP(host, secrets['hosts'][host], ip_start, ip_end)
-        finally:
-            client.close()
+        else:
+            print(check_hostname + " - " + check_mac)
         # if anything fails:
         #   try all ips, look for mac address
         #     found?
@@ -246,30 +235,6 @@ def getNetwork(secrets, ip_start, ip_end):
         #     not found?
         #       ask user what to do
         # change secrets
-    #for ip_int in range(int(start_ip), int(end_ip)):
-    #    testing_ip = ipaddress.IPv4Address(ip_int)
-    #    for host in secrets['hosts']:
-    #        if str(secrets['hosts'][host]['ip']) == str(testing_ip):
-    #            print(secrets['hosts'][host]['ip'])
-    #            try:
-    #                client = paramiko.SSHClient()
-    #                client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    #                
-    #                client.connect(secrets['hosts'][host]['ip'], 
-    #                    port=secrets['hosts'][host]['ansible_ssh_port'], 
-    #                    username=secrets['hosts'][host]['ansible_user']['name'], 
-    #                    key_filename=secrets['hosts'][host]['ansible_user']['ssh_key'],
-    #                    password=secrets['hosts'][host]['ansible_user']['password'])
-
-    #                stdin, stdout, stderr = client.exec_command(command)
-    #                mac_address = stdout.read().decode("utf-8").replace("\n","",1)
-    #                if mac_address != secrets['hosts'][host]['mac_address']:
-    #                    print("Wrong mac")
-
-    #                print(mac_address)
-
-    #            finally:
-    #                client.close()
 
 
 ## General Use Functions
