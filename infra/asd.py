@@ -174,6 +174,37 @@ def getPhaseSplittedSecrets(secrets, hosts):
 
     return secrets_phase1, secrets_others
 
+def runOnHost(ip, hostname, host_details, command):
+    try:
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
+        client.connect(str(ip), 
+            port=host_details['ansible_ssh_port'], 
+            username=host_details['ansible_user']['name'], 
+            key_filename=host_details['ansible_user']['ssh_key'],
+            password=host_details['ansible_user']['password'])
+
+        stdin, stdout, stderr = client.exec_command(command)
+        return stdout.read().decode("utf-8").replace("\n","",1)
+    except (paramiko.ssh_exception.NoValidConnectionsError, TimeoutError):
+        return "Connection Error"
+    finally:
+        client.close()
+
+def getRealIP(hostname, host_details, ip_start, ip_end):
+    command_getmac = 'cat /sys/class/net/eth0/address'
+    command_hostname = 'hostname'
+    start_ip = ipaddress.IPv4Address(ip_start)
+    end_ip = ipaddress.IPv4Address(ip_end)
+    print("looking for " + hostname + "'s new IP...")
+    for ip_int in range(int(start_ip), int(end_ip)):
+        check_hostname = runOnHost(ipaddress.IPv4Address(ip_int), hostname, host_details, command_hostname)
+        if check_hostname != "Connection Error":
+            check_mac = runOnHost(ipaddress.IPv4Address(ip_int), hostname, host_details, command_getmac)
+            if (host_details['mac_address'] == check_mac) and (hostname == check_hostname):
+                print("We found " + hostname + " at " + str(ipaddress.IPv4Address(ip_int)))
+
 def getNetwork(secrets, ip_start, ip_end):
     start_ip = ipaddress.IPv4Address(ip_start)
     end_ip = ipaddress.IPv4Address(ip_end)
@@ -199,6 +230,12 @@ def getNetwork(secrets, ip_start, ip_end):
             stdin, stdout, stderr = client.exec_command(command_hostname)
             host_name = stdout.read().decode("utf-8").replace("\n","",1)
             print(host_name + " - " + mac_address)
+            if (mac_address != secrets['hosts'][host]['mac_address']) or (host_name != host):
+                print("there is something wrong with host " + host) 
+                getRealIP(secrets['hosts'][host], ip_start, ip_end)
+        except paramiko.ssh_exception.NoValidConnectionsError:
+            print("there is something wrong with host " + host) 
+            getRealIP(host, secrets['hosts'][host], ip_start, ip_end)
         finally:
             client.close()
         # if anything fails:
