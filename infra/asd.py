@@ -191,7 +191,7 @@ def runOnHost(ip, hostname, host_details, commands):
         for command in commands:
             stdin, stdout, stderr = client.exec_command(command)
             responses.append(stdout.read().decode("utf-8").replace("\n","",1))
-    except (paramiko.ssh_exception.NoValidConnectionsError, TimeoutError, socket.timeout):
+    except (paramiko.ssh_exception.NoValidConnectionsError, TimeoutError, socket.timeout, EOFError):
         for i in range(len(commands)):
             responses.append("Connection Error")
     finally:
@@ -203,9 +203,9 @@ def getRealIP(hostname, host_details, ip_start, ip_end):
     command_hostname = 'hostname'
     start_ip = ipaddress.IPv4Address(ip_start)
     end_ip = ipaddress.IPv4Address(ip_end)
-    print("looking for " + hostname + "'s new IP", end = '')
+    print("looking for " + hostname + "'s new IP", end = '', flush=True)
     for ip_int in range(int(start_ip), int(end_ip)):
-        print(".", end = '')
+        print(".", end = '', flush=True)
         check_hostname = runOnHost(ipaddress.IPv4Address(ip_int), hostname, host_details, [command_hostname])[0]
         if check_hostname != "Connection Error":
             check_mac = runOnHost(ipaddress.IPv4Address(ip_int), hostname, host_details, [command_getmac])[0]
@@ -287,6 +287,7 @@ def showHelp():
 
 
 if __name__ == "__main__":
+    LOCAL_IP_RANGE = ['192.168.0.1', '192.168.255.255'] # Modify this if it takes too long to check through all the IPs
     SECRETS_TEMPLATE = 'secrets.yaml.template'
     SECRETS_FILE = 'secrets.yaml'
     TEMPLATES_FOLDER = 'templates'
@@ -307,7 +308,7 @@ if __name__ == "__main__":
             if getConfirmation("\n\n\n\nDo you want to apply?"):
                 apply(getSecrets(SECRETS_FILE), MANIFESTS_FOLDER)
         elif sys.argv[1] == "network":
-            getNetwork(getSecrets(SECRETS_FILE), "192.168.0.1", "192.168.1.255")
+            getNetwork(getSecrets(SECRETS_FILE), LOCAL_IP_RANGE[0], LOCAL_IP_RANGE[1])
         else:
             showHelp()
 
