@@ -123,6 +123,11 @@ def saveTempSecrets(secrets, filename):
     with open(TMP_FOLDER + "/" + filename, 'w') as file2write:
         document = yaml.dump(secrets, file2write)
 
+def backupAndOverwrite(old_file, new_file, backup_file):
+    dest = shutil.copyfile(old_file, backup_file)
+    dest2 = shutil.copyfile(new_file, old_file)
+    verbose("We modified your secrets.yaml. Your original secrets.yaml has been saved under " + backup_file, 2)
+
 def isPhase1Needed(secrets):
     hosts = []
     try:
@@ -186,7 +191,7 @@ def runOnHost(ip, hostname, host_details, commands):
             username=host_details['ansible_user']['name'], 
             key_filename=host_details['ansible_user']['ssh_key'],
             password=host_details['ansible_user']['password'],
-            timeout=2)
+            timeout=10)
 
         for command in commands:
             stdin, stdout, stderr = client.exec_command(command)
@@ -200,18 +205,14 @@ def runOnHost(ip, hostname, host_details, commands):
 
 def getRealIP(hostname, host_details, ip_start, ip_end):
     command_getmac = 'cat /sys/class/net/eth0/address'
-    command_hostname = 'hostname'
     start_ip = ipaddress.IPv4Address(ip_start)
     end_ip = ipaddress.IPv4Address(ip_end)
     print("looking for " + hostname + "'s new IP", end = '', flush=True)
     for ip_int in range(int(start_ip), int(end_ip)):
         print(".", end = '', flush=True)
-        check_hostname = runOnHost(ipaddress.IPv4Address(ip_int), hostname, host_details, [command_hostname])[0]
-        if check_hostname != "Connection Error":
-            check_mac = runOnHost(ipaddress.IPv4Address(ip_int), hostname, host_details, [command_getmac])[0]
-            if (host_details['mac_address'] == check_mac) and (hostname == check_hostname):
-                print("\nWe found " + hostname + " at " + str(ipaddress.IPv4Address(ip_int)))
-                break
+        check_mac = runOnHost(ipaddress.IPv4Address(ip_int), hostname, host_details, [command_getmac])[0]
+        if host_details['mac_address'] == check_mac:
+            return str(ipaddress.IPv4Address(ip_int))
 
 def getNetwork(secrets, ip_start, ip_end):
     command_getmac = 'cat /sys/class/net/eth0/address'
@@ -222,9 +223,25 @@ def getNetwork(secrets, ip_start, ip_end):
         #  hostname
         #  mac address
         check_mac, check_hostname = runOnHost(secrets['hosts'][host]['ip'], host, secrets['hosts'][host], [command_getmac, command_hostname])
-        if (check_mac != secrets['hosts'][host]['mac_address']) or (check_hostname != host):
+        if check_mac != secrets['hosts'][host]['mac_address']:
             print("there is something wrong with host " + host) 
-            getRealIP(host, secrets['hosts'][host], ip_start, ip_end)
+            new_ip = getRealIP(host, secrets['hosts'][host], ip_start, ip_end)
+            check_hostname = runOnHost(new_ip, host, secrets['hosts'][host], [command_hostname])[0]
+            verbose(host + " seems to have changed to IP " + new_ip , 2)
+            if check_hostname == "Connection Error":
+                verbose("Also, an ssh with the previous ssh config failed: " + check_hostname, 2)
+            elif check_hostname != host:
+                verbose("Also, for whatever reason its hostname is now " + check_hostname, 2)
+            verbose("You have to choose before automatically changing or doing it yourself before continuing...", 1)
+            if getConfirmation("\n\n\n\nDo you want it to be automatically changed in your secrets.yaml?"):
+                secrets['hosts'][host]['ip'] = new_ip
+                saveTempSecrets(secrets, 'secrets.yaml')
+                backupAndOverwrite('secrets.yaml', 'tmp/secrets.yaml', 'secrets.yaml.bkp.' + time.strftime("%Y%m%d-%H%M%S"))
+            else:
+                verbose("You have chosen to correct it yourself. Please run this script again after that", 1)
+                sys.exit(1)
+
+
         else:
             print(check_hostname + " - " + check_mac)
         # if anything fails:
@@ -242,26 +259,21 @@ def getNetwork(secrets, ip_start, ip_end):
 
 def verbose(message, message_type):
     if message_type == 1:
-        print("//===" + '='*len(message) + "===\\\\")
+        print("\n//===" + '='*len(message) + "===\\\\")
         print("||   " + message + "   ||")
         print("\\\===" + '='*len(message) + "===//")
     elif message_type == 2:
-        print("  --" + '-'*len(message) + "--")
+        print("\n  --" + '-'*len(message) + "--")
         print("  | " + message + " |")
         print("  --" + '-'*len(message) + "--")
     elif message_type == 3:
-        print("    -- " + message + " --")
+        print("\n    -- " + message + " --")
 
 def cleanupFolder(folder):
     files = glob.glob(folder + '/*')
     for f in files:
         verbose("removing old " + f, 3)
         os.remove(f)
-
-def backupAndOverwrite(old_file, new_file, backup_file):
-    dest = shutil.copyfile(old_file, backup_file)
-    dest2 = shutil.copyfile(new_file, old_file)
-    verbose("We modified your secrets.yaml. Your original secrets.yaml has been saved under " + backup_file, 2)
 
 
 def getConfirmation(message):
