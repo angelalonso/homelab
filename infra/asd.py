@@ -189,6 +189,7 @@ def runOnHost(ip, hostname, host_details, commands):
         client.connect(str(ip), 
             port=host_details['ansible_ssh_port'], 
             username=host_details['ansible_user']['name'], 
+        # TODO: define only if present
             key_filename=host_details['ansible_user']['ssh_key'],
             password=host_details['ansible_user']['password'],
             timeout=10)
