@@ -25,11 +25,13 @@ def createSecrets(secrets_template, secrets_file):
         verbose("DONE! You can now edit " + secrets_file + " accordingly", 2)
         verbose(" AND REMEMBER: this file will contain private data!", 2)
 
-def createConfigFiles(secrets, templates_folder, manifests_folder):
+def createConfigFiles(secrets, templates_folder, manifests_folder, secrets_full):
     '''
     Creates different config files for different groups from templates
     So far only use case I have is config_sshd
     '''
+    cfg_ssh_file = 'config_sshd'
+    cfg_etchosts_file = 'config_etchosts'
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
     for group in secrets['groups']:
         if (secrets['groups'][group] is None) or (secrets['groups'][group]['hosts'] is None):
@@ -39,12 +41,14 @@ def createConfigFiles(secrets, templates_folder, manifests_folder):
             # key to find is <service>_changes: [True|False]
             try:
                 if secrets['groups'][group]['sshd_changes']:
-                    cfg_ssh_file = 'config_sshd'
                     template_cfg_ssh = env.get_template(cfg_ssh_file)
                     with open(manifests_folder + '/' + cfg_ssh_file + '_' + group, "w") as fcssh:
                         fcssh.write(template_cfg_ssh.render(secrets_group=secrets['groups'][group]))
             except KeyError:
                 pass
+    template_cfg_etchosts = env.get_template(cfg_etchosts_file)
+    with open(manifests_folder + '/' + cfg_etchosts_file, "w") as fchst:
+        fchst.write(template_cfg_etchosts.render(secrets=secrets_full))
 
 def createPlaybooks(secrets, templates_folder, manifests_folder):
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
@@ -61,7 +65,7 @@ def createPlaybooks(secrets, templates_folder, manifests_folder):
             else:
                 print(templates_folder + '/' + playbook_file + ' does not exist! Nothing to be done there.')
 
-def createManifests(secrets, templates_folder, manifests_folder):
+def createManifests(secrets, templates_folder, manifests_folder, secrets_full):
     cleanupFolder(manifests_folder)
     hosts_filename = 'hosts'
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
@@ -70,7 +74,7 @@ def createManifests(secrets, templates_folder, manifests_folder):
     with open(manifests_folder + '/' + hosts_filename, "w") as fh:
         fh.write(template_hosts.render(secrets=secrets))
     # config files
-    createConfigFiles(secrets, templates_folder, manifests_folder)
+    createConfigFiles(secrets, templates_folder, manifests_folder, secrets_full)
     # playbooks
     createPlaybooks(secrets, templates_folder, manifests_folder)
 
@@ -82,9 +86,9 @@ def init(secrets, templates_folder, manifests_folder):
         secrets_phase1, secrets_others = getPhaseSplittedSecrets(secrets, phase1_needed[1])
         saveTempSecrets(secrets_others, 'secrets.others.yaml')
         saveTempSecrets(secrets_phase1, 'secrets.phase1.yaml')
-        createManifests(secrets_phase1, templates_folder, manifests_folder)
+        createManifests(secrets_phase1, templates_folder, manifests_folder, secrets)
     else:
-        createManifests(secrets, templates_folder, manifests_folder)
+        createManifests(secrets, templates_folder, manifests_folder, secrets)
 
 def plan(secrets, manifests_folder):
     verbose("Planning playbooks", 1)
@@ -186,13 +190,20 @@ def runOnHost(ip, hostname, host_details, commands):
         client = paramiko.SSHClient()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         
-        client.connect(str(ip), 
-            port=host_details['ansible_ssh_port'], 
-            username=host_details['ansible_user']['name'], 
-        # TODO: define only if present
-            key_filename=host_details['ansible_user']['ssh_key'],
-            password=host_details['ansible_user']['password'],
-            timeout=10)
+        try:
+            ssh_key_defined = host_details['ansible_user']['ssh_key']
+            client.connect(str(ip), 
+                port=host_details['ansible_ssh_port'], 
+                username=host_details['ansible_user']['name'], 
+                key_filename=ssh_key_defined,
+                password=host_details['ansible_user']['password'],
+                timeout=10)
+        except:
+            client.connect(str(ip), 
+                port=host_details['ansible_ssh_port'], 
+                username=host_details['ansible_user']['name'], 
+                password=host_details['ansible_user']['password'],
+                timeout=10)
 
         for command in commands:
             stdin, stdout, stderr = client.exec_command(command)
