@@ -4,7 +4,7 @@
   become: yes
   tasks:
 {% raw %}
-# install docker
+# install k3s
     - name: Execute the k3s installer
       shell: curl -sfL https://get.k3s.io | sh -
       when: not ansible_check_mode
