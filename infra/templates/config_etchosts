@@ -1,4 +1,0 @@
-#cluster
-{% for host, values in secrets.hosts.items() %}
-{{ values.ip }} {{ host }}
-{% endfor %}

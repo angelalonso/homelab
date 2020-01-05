@@ -31,7 +31,6 @@ def createConfigFiles(secrets, templates_folder, manifests_folder, secrets_full)
     So far only use case I have is config_sshd
     '''
     cfg_ssh_file = 'config_sshd'
-    cfg_etchosts_file = 'config_etchosts'
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
     for group in secrets['groups']:
         if (secrets['groups'][group] is None) or (secrets['groups'][group]['hosts'] is None):
@@ -46,9 +45,6 @@ def createConfigFiles(secrets, templates_folder, manifests_folder, secrets_full)
                         fcssh.write(template_cfg_ssh.render(secrets_group=secrets['groups'][group]))
             except KeyError:
                 pass
-    template_cfg_etchosts = env.get_template(cfg_etchosts_file)
-    with open(manifests_folder + '/' + cfg_etchosts_file, "w") as fchst:
-        fchst.write(template_cfg_etchosts.render(secrets=secrets_full))
 
 def createPlaybooks(secrets, templates_folder, manifests_folder):
     env = Environment(loader = FileSystemLoader(templates_folder), trim_blocks=True, lstrip_blocks=True)
