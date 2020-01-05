@@ -8,5 +8,15 @@
     - name: Execute the k3s installer
       shell: curl -sfL https://get.k3s.io | sh -
       when: not ansible_check_mode
+    - name: Add k3s alias for our user
+      lineinfile:
+        path: /home/{{ ansible_user }}/.bashrc
+        regexp: "^alias k3='sudo k3s kubectl '$"
+        line: "alias k3='sudo k3s kubectl '"
+        owner: '{{ ansible_user }}'
+        state: present
+        insertafter: EOF
+        create: True
+
 {% endraw %}
 # prepare memory to run k3s
