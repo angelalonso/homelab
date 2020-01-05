@@ -1,12 +1,22 @@
 ---
 - hosts: k3s
   gather_facts: false
-  become: yes
+  become: no
   tasks:
 {% raw %}
 # install k3s
+    - name: Use iptables-legacy
+      become: yes
+      shell:  update-alternatives --set iptables /usr/sbin/iptables-legacy > /dev/null
+      when: not ansible_check_mode
+    - name: Use iptables-legacy, IPv6
+      become: yes
+      shell:  update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy > /dev/null 
+      when: not ansible_check_mode
     - name: Execute the k3s installer
-      shell: curl -sfL https://get.k3s.io | sh -
+      #      shell: curl -sfL https://get.k3s.io | sh -
+      become: yes
+      shell:  curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --no-deploy traefik --cluster-cidr=192.168.0.0/17 --service-cidr=192.168.128.0/17' sh -s -
       when: not ansible_check_mode
     - name: Add k3s alias for our user
       lineinfile:
