@@ -156,6 +156,7 @@ def getPhaseSplittedSecrets(secrets, hosts):
         host_after_phase1 = {}
         host_after_phase1['ansible_ssh_port'] = secrets['groups']['phase1']['phase2_ansible_user']['ssh_port']
         host_after_phase1['ip'] = secrets['hosts'][host]['ip']
+        host_after_phase1['mac_address'] = secrets['hosts'][host]['mac_address']
         ansible_user = {}
         ansible_user['name'] = secrets['groups']['phase1']['phase2_ansible_user']['name']
         ansible_user['password'] = secrets['groups']['phase1']['phase2_ansible_user']['password']
