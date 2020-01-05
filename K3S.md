@@ -29,3 +29,7 @@ curl -sfL https://get.k3s.io | sh -
 sudo k3s agent --server ${K3S_URL} --token ${K3S_TOKEN}
 
 
+## KNOWN ISSUES
+- After first install I had to recreate local-path-provisioner and metrics-server because coredns was not alive yet
+
+
