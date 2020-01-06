@@ -35,6 +35,8 @@ sudo k3s agent --server ${K3S_URL} --token ${K3S_TOKEN}
 ``` k3s check-config ```
 
 ## KNOWN ISSUES
+- After running k3s my machine collapses and I have to reboot
+ - Check you modified cmdline.txt as described above
 - After first install I had to recreate local-path-provisioner and metrics-server because coredns was not alive yet
  - Had to reinstall with 
  ``` curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --no-deploy traefik --cluster-cidr=192.168.0.0/17 --service-cidr=192.168.128.0/17' sh -s - ```
