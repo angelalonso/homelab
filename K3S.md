@@ -28,6 +28,11 @@ export K3S_TOKEN="The Join Key you got from master"
 curl -sfL https://get.k3s.io | sh -
 sudo k3s agent --server ${K3S_URL} --token ${K3S_TOKEN}
 
+## Q&A
+- Remove k3s completely
+``` /usr/local/bin/k3s-uninstall.sh```
+- Check installation
+``` k3s check-config ```
 
 ## KNOWN ISSUES
 - After first install I had to recreate local-path-provisioner and metrics-server because coredns was not alive yet
