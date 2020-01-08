@@ -13,8 +13,9 @@ sudo init 6
 
 ## Master
 bootstrap cluster
-export INSTALL_K3S_VERSION='v1.0.1' && curl -sfL https://get.k3s.io | sh -
+export INSTALL_K3S_SKIP_START=true && export INSTALL_K3S_VERSION='v1.0.1' && curl -sfL https://get.k3s.io | sh -s -
 sudo systemctl status k3s
+sudo systemctl start k3s
 
 Grab the join key from this node with:
 $ sudo cat /var/lib/rancher/k3s/server/node-token
@@ -37,9 +38,10 @@ sudo k3s agent --server ${K3S_URL} --token ${K3S_TOKEN}
 ## KNOWN ISSUES
 - After running k3s my machine collapses and I have to reboot
  - Check you modified cmdline.txt as described above
+ - There seems to be trouble when running with 
+ ``` INSTALL_K3S_EXEC='server --no-deploy traefik --cluster-cidr=192.168.0.0/17 --service-cidr=192.168.128.0/17' sh -s - ```
 - After first install I had to recreate local-path-provisioner and metrics-server because coredns was not alive yet
- - Had to reinstall with 
- ``` export INSTALL_K3S_VERSION='v1.0.1' && curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --no-deploy traefik --cluster-cidr=192.168.0.0/17 --service-cidr=192.168.128.0/17' sh -s - ```
+ - Check you opened port 6443
  - Had also to use legacy-iptables
 ``` sudo update-alternatives --set iptables /usr/sbin/iptables-legacy > /dev/null
 sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy > /dev/null ```

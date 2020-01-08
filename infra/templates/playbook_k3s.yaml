@@ -13,22 +13,39 @@
       become: yes
       shell:  update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy > /dev/null 
       when: not ansible_check_mode
+    # configure ufw
+    - name: Allow all access to 6443 port
+      become: yes
+      ufw:
+        rule: allow
+        port: 6443
+        comment: 'k8s 6443 port'
+      when: not ansible_check_mode
     - name: cmdline cgroups 
       become: yes
       replace:
         destfile: /boot/cmdline.txt
         regexp: "^console=serial0,115200 console=tty1 root=PARTUUID=6c586e13-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait$"
         replace: "console=serial0,115200 console=tty1 root=PARTUUID=6c586e13-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory"
-    - name: Execute the k3s installer
-      #      shell: curl -sfL https://get.k3s.io | sh -
-      become: yes
-      shell:  curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --no-deploy traefik --cluster-cidr=192.168.0.0/17 --service-cidr=192.168.128.0/17' sh -s -
-      when: not ansible_check_mode
+        #    - name: Execute the k3s installer
+        #    #      shell: curl -sfL https://get.k3s.io | sh -
+        #      become: yes
+        #      shell: export INSTALL_K3S_SKIP_START=true && export INSTALL_K3S_VERSION='v1.0.1' && curl -sfL https://get.k3s.io | sh -s -
+        #      when: not ansible_check_mode
     - name: Add k3s alias for our user
       lineinfile:
         path: /home/{{ ansible_user }}/.bashrc
         regexp: "^alias k3='sudo k3s kubectl '$"
         line: "alias k3='sudo k3s kubectl '"
+        owner: '{{ ansible_user }}'
+        state: present
+        insertafter: EOF
+        create: True
+    - name: Add better alias for watch 
+      lineinfile:
+        path: /home/{{ ansible_user }}/.bashrc
+        regexp: "^alias watch='watch '$"
+        line: "alias watch='watch '"
         owner: '{{ ansible_user }}'
         state: present
         insertafter: EOF
