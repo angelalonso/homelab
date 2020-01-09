@@ -1,10 +1,13 @@
 # K3s
  based on https://blog.alexellis.io/test-drive-k3s-on-raspberry-pi/
 
+## Raspberry preparations
+### Memory Split -> Done by ansible
 raspi-config
 > advanced options > Memory Split
 Set the GPU memory split to 16mb 
 
+### Cgroup Configs -> Done by ansible
 We also need to enable container features in the kernel
 vim /boot/cmdline.txt # and add the following to the end of the line:
 ``` cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory```

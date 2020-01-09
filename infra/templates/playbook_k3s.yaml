@@ -13,6 +13,13 @@
       become: yes
       shell:  update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy > /dev/null 
       when: not ansible_check_mode
+    - name: Change GPU Mem to 16
+      become: yes
+      lineinfile:
+        path: /boot/config.txt
+        regexp: "^gpu_mem=.*"
+        line: "gpu_mem=16"
+        state: present
     # configure ufw
     - name: Allow all access to 6443 port
       become: yes
