@@ -14,3 +14,23 @@ spec:
         image: nginx:1.9.1
         ports:
         - containerPort: 80
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cns_fe
+spec:
+  selector:
+    matchLabels:
+      app: cns_fe
+  replicas: 2 # tells deployment to run 2 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: cns_fe
+    spec:
+      containers:
+      - name: cns_frontend
+        image: angelalonso/cns_datafeed_frontend_armv6:v0.13
+        ports:
+        - containerPort: 80
+

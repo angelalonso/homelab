@@ -2,12 +2,18 @@ apiVersion: v1
 kind: Service
 metadata:
   name: cns_fe
+  namespace: default
 spec:
-  type: NodePort
+  clusterIP: 10.43.82.97
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
   selector:
     app: cns_fe
-  ports:
-    - name: http
-      protocol: TCP
-      port: 80
-      targetPort: 80
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
+
