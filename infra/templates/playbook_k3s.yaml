@@ -20,13 +20,13 @@
         regexp: "^gpu_mem=.*"
         line: "gpu_mem=16"
         state: present
-    # configure ufw
-    - name: Allow all access to 6443 port
+    # configure ufw to allow traffic within the cluster
+    - name: Allow all machines in cluster access to all ports
       become: yes
       ufw:
         rule: allow
-        port: 6443
-        comment: 'k8s 6443 port'
+        comment: 'k8s cluster'
+        src: '192.168.0.0/24'
       when: not ansible_check_mode
     - name: cmdline cgroups 
       become: yes
