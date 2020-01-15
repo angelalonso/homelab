@@ -30,7 +30,7 @@ spec:
         - name: cns-fe-secret-volume
           secret:
             secretName: cns-fe-secret
-        - name: voume-images
+        - name: volume-images
           persistentVolumeClaim:
             claimName: cns-images-pvc
 
