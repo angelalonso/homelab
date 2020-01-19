@@ -21,8 +21,8 @@ spec:
         # name must match the volume name below
           - name: cns-fe-secret-volume
             mountPath: /secrets
-          - name: volume-images
-            mountPath: /images
+          - name: volume-cns
+            mountPath: /cns
         envFrom:
           - configMapRef:
               name: cns-fe-config
@@ -30,7 +30,7 @@ spec:
         - name: cns-fe-secret-volume
           secret:
             secretName: cns-fe-secret
-        - name: volume-images
+        - name: volume-cns
           persistentVolumeClaim:
             claimName: cns-images-pvc
 

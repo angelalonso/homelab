@@ -10,9 +10,10 @@ spec:
     storage: 500Mi
   persistentVolumeReclaimPolicy: Recycle
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   hostPath:
-    path: "/home/aafmin/datafeed-frontend/raw"
+    path: "/home/aafmin/synced-data"
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -20,7 +21,7 @@ metadata:
 spec:
   storageClassName: manual
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 500Mi
