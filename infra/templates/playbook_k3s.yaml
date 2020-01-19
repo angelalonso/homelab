@@ -57,6 +57,20 @@
         state: present
         insertafter: EOF
         create: True
+# install repos for application data
+    - name: Clone CNS-FE repository into this machine
+      git:
+        repo: https://github.com/code-and-share/datafeed-frontend.git
+        version: master
+        dest: /home/aafmin/datafeed-frontend
+      become: no
+    - name: Clone CNS-BE repository into this machine
+      git:
+        repo: https://github.com/code-and-share/datafeed-backend.git
+        version: master
+        dest: /home/aafmin/datafeed-frontend
+      become: no
+
 
 {% endraw %}
 # prepare memory to run k3s
