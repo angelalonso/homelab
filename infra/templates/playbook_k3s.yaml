@@ -68,7 +68,7 @@
       git:
         repo: https://github.com/code-and-share/datafeed-backend.git
         version: master
-        dest: /home/aafmin/datafeed-frontend
+        dest: /home/aafmin/datafeed-backend
       become: no
 
 
