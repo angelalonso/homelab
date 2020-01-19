@@ -11,7 +11,7 @@ spec:
   persistentVolumeReclaimPolicy: Delete
   storageClassName: local-storage
   local:
-    path: /home/aafmin/datafeed-frontend/raw
+    path: /home/aafmin/synced-data
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -26,9 +26,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: cns-fe-images-pvc
 spec:
-  storageClassName: manual
+  storageClassName: local-storage
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
-      storage: 500Mi
+      storage: 200Mi
