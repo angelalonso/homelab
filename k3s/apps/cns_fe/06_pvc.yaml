@@ -11,7 +11,7 @@ spec:
   persistentVolumeReclaimPolicy: Delete
   storageClassName: local-storage
   local:
-    path: /home/aafmin/synced-data
+    path: /home/aafmin/datafeed-frontend/raw
   nodeAffinity:
     required:
       nodeSelectorTerms:
