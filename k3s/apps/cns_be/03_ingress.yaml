@@ -1,7 +1,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: homelab
+  name: homelab-be
   namespace: default
 spec:
   rules:
