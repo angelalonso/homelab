@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   rules:
-    - host: homelab_backend.fonseca.de.com
+    - host: homelab-backend.fonseca.de.com
       http:
         paths:
           - path: /
