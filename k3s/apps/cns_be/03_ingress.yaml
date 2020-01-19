@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: homelab
+  namespace: default
+spec:
+  rules:
+    - host: homelab_backend.fonseca.de.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: cns-be
+              servicePort: 80
+

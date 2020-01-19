@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cns-be
+spec:
+  selector:
+    matchLabels:
+      app: cns-be
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: cns-be
+    spec:
+      containers:
+      - name: cns-backend
+        image: angelalonso/cns_datafeed_backend_armv6:v0.12
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        # name must match the volume name below
+          - name: cns-be-secret-volume
+            mountPath: /secrets
+          - name: volume-images
+            mountPath: /images
+        envFrom:
+          - configMapRef:
+              name: cns-be-config
+      volumes:
+        - name: cns-be-secret-volume
+          secret:
+            secretName: cns-be-secret
+        - name: volume-images
+          persistentVolumeClaim:
+            claimName: cns-images-pvc
+

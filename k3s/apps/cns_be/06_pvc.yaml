@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cns-be-files-pv
+spec:
+  capacity:
+    storage: 200Mi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: local-storage
+  local:
+    path: /home/aafmin/datafeed-backend/files
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - tokyo
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cns-be-files-pvc
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Mi
