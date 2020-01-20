@@ -23,6 +23,8 @@ spec:
             mountPath: /secrets
           - name: volume-cns
             mountPath: /cns
+          - name: nfs
+            mountPath: /data-shared
         envFrom:
           - configMapRef:
               name: cns-fe-config
@@ -33,4 +35,7 @@ spec:
         - name: volume-cns
           persistentVolumeClaim:
             claimName: cns-fe-images-pvc
+        - name: nfs
+          persistentVolumeClaim:
+            claimName: nfs-client-pvc
 

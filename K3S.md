@@ -71,3 +71,22 @@ sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy > /dev/null 
 
 
 
+## To be documented
+NFS
+https://medium.com/@aallan/adding-an-external-disk-to-a-raspberry-pi-and-sharing-it-over-the-network-5b321efce86a
+
+format a USB drive as FAT32
+plug it
+mount it
+check it's there
+ lsblk
+format it
+ sudo mkfs.vfat /dev/sda1 -n USB
+mount it
+ sudo mkdir /mnt/usb
+ sudo chown -R user:user /mnt/usb
+ sudo mount /dev/sda1 /mnt/usb -o uid=user,gid=user
+do it permanent
+ sudo vim /etc/fstab
+   /dev/sda1 /mnt/usb auto defaults,user 0 1
+
