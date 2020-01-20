@@ -46,7 +46,7 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: nfs--server-service
+  name: nfs-server-service
 spec:
   selector:
     role: nfs
