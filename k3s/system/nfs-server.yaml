@@ -9,7 +9,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: nfs-pv
+  name: nfs-server-pv
   labels:
     type: local
 spec:
@@ -33,7 +33,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: nfs-pvc
+  name: nfs-server-pvc
 spec:
   storageClassName: manual
   accessModes:
@@ -46,7 +46,7 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: nfs-service
+  name: nfs--server-service
 spec:
   selector:
     role: nfs
@@ -87,11 +87,11 @@ spec:
         - /mnt/usb
       volumeMounts:
         - mountPath: "/data-nfs"
-          name: nfs-pv-storage
+          name: nfs-server-pv-storage
   volumes:
-    - name: nfs-pv-storage
+    - name: nfs-server-pv-storage
       persistentVolumeClaim:
-        claimName: nfs-pvc
+        claimName: nfs-server-pvc
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:

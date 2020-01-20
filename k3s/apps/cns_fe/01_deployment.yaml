@@ -21,8 +21,6 @@ spec:
         # name must match the volume name below
           - name: cns-fe-secret-volume
             mountPath: /secrets
-          - name: volume-cns
-            mountPath: /cns
           - name: nfs
             mountPath: /data-shared
         envFrom:
@@ -32,9 +30,6 @@ spec:
         - name: cns-fe-secret-volume
           secret:
             secretName: cns-fe-secret
-        - name: volume-cns
-          persistentVolumeClaim:
-            claimName: cns-fe-images-pvc
         - name: nfs
           persistentVolumeClaim:
             claimName: nfs-client-pvc

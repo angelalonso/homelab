@@ -4,7 +4,7 @@ metadata:
   name: nfs-client-pv
 spec:
   capacity:
-    storage: 1Gi
+    storage: 2Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteMany
@@ -25,4 +25,4 @@ spec:
   storageClassName: "slow"
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi
