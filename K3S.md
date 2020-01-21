@@ -32,6 +32,10 @@ export K3S_TOKEN="The Join Key you got from master"
 export INSTALL_K3S_VERSION='v1.0.1' && curl -sfL https://get.k3s.io | sh -
 sudo k3s agent --server ${K3S_URL} --token ${K3S_TOKEN}
 
+### Tag nodes
+- Node where you mount the USB for your NFS server
+k3 label nodes <your-node-name> nfs_usb=true
+
 ## Reverse Proxy
 If you are using some kind of nginx proxy before your cluster, remembe you need to pass headers:
 ```
@@ -72,7 +76,7 @@ sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy > /dev/null 
 
 
 ## To be documented
-NFS
+### NFS
 https://medium.com/@aallan/adding-an-external-disk-to-a-raspberry-pi-and-sharing-it-over-the-network-5b321efce86a
 
 format a USB drive as FAT32
@@ -89,4 +93,6 @@ mount it
 do it permanent
  sudo vim /etc/fstab
    /dev/sda1 /mnt/usb auto defaults,user 0 1
+
+apply -f nfs*
 

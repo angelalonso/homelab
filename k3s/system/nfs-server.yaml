@@ -24,10 +24,10 @@ spec:
     required:
       nodeSelectorTerms:
       - matchExpressions:
-        - key: k3s.io/hostname
+        - key: nfs_usb
           operator: In
           values:
-          - datanode
+          - true
 
 ---
 apiVersion: v1
@@ -97,7 +97,7 @@ spec:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
         - matchExpressions:
-          - key: k3s.io/hostname
+          - key: nfs_usb
             operator: In
             values:
-            - datanode
+            - true
