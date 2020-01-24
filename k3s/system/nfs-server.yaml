@@ -50,6 +50,7 @@ metadata:
 spec:
   selector:
     role: nfs
+  clusterIP: 10.43.44.10
   ports:
     # Open the ports required by the NFS server
     # Port 2049 for TCP
