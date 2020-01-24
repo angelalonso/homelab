@@ -23,9 +23,6 @@ spec:
             mountPath: /secrets
           - name: nfs
             mountPath: /data-shared
-        envFrom:
-          - configMapRef:
-              name: cns-db-config
       volumes:
         - name: cns-secret-volume
           secret:
