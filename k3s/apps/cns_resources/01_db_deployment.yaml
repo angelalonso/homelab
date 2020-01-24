@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cns-db
+spec:
+  selector:
+    matchLabels:
+      app: cns-db
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: cns-db
+    spec:
+      containers:
+      - name: cns-db-postgres
+        image: postgres:12.1-alpine
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        # name must match the volume name below
+          - name: cns-secret-volume
+            mountPath: /secrets
+          - name: nfs
+            mountPath: /data-shared
+        envFrom:
+          - configMapRef:
+              name: cns-db-config
+      volumes:
+        - name: cns-secret-volume
+          secret:
+            secretName: cns-secret
+        - name: nfs
+          persistentVolumeClaim:
+            claimName: nfs-client-pvc
+

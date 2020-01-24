@@ -96,3 +96,8 @@ do it permanent
 
 apply -f nfs*
 
+### Dashboard
+k3 apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
+k3 proxy
+
+how to access from outside?
