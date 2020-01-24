@@ -28,6 +28,8 @@ spec:
             mountPath: /docker-entrypoint-initdb.d
           - name: nfs
             mountPath: /data-shared
+      securityContext:
+        fsGroup: 0
       volumes:
         - name: cns-secret-volume
           secret:
