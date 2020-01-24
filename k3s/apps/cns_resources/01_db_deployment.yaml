@@ -17,16 +17,24 @@ spec:
         image: postgres:12.1-alpine
         ports:
         - containerPort: 5432
+        env:
+        - name: PGDATA
+          value: "/data-shared/datafeed"
         volumeMounts:
         # name must match the volume name below
           - name: cns-secret-volume
             mountPath: /secrets
+          - name: nfs-db-init
+            mountPath: /docker-entrypoint-initdb.d
           - name: nfs
             mountPath: /data-shared
       volumes:
         - name: cns-secret-volume
           secret:
             secretName: cns-secret
+        - name: nfs-db-init
+          persistentVolumeClaim:
+            claimName: nfs-client-db-init-pvc
         - name: nfs
           persistentVolumeClaim:
             claimName: nfs-client-pvc
