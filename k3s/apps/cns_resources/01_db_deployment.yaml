@@ -40,4 +40,13 @@ spec:
         - name: nfs
           persistentVolumeClaim:
             claimName: nfs-client-pvc
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nfs_usb
+                operator: In
+                values:
+                - "true"
 
