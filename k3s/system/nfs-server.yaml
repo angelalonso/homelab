@@ -27,7 +27,7 @@ spec:
         - key: nfs_usb
           operator: In
           values:
-          - true
+          - "true"
 
 ---
 apiVersion: v1
@@ -101,4 +101,4 @@ spec:
           - key: nfs_usb
             operator: In
             values:
-            - true
+            - "true"
