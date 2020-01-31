@@ -7,6 +7,6 @@ data:
   DB_NAME_FILE: "/secrets/db_feed_name"
   DB_USER_FILE: "/secrets/db_feed_user"
   DB_PASS_FILE: "/secrets/db_feed_pass"
-  DB_PSQL_HOST: "0.0.0.0"
+  DB_PSQL_HOST: "cns-db"
   DB_PSQL_PORT: "5432"
 
