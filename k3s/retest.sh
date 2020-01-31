@@ -8,7 +8,8 @@ done
 
 sleep 10
 
-sudo k3s kubectl apply -f ./system/nfs-server.yaml
-sudo k3s kubectl apply -f ./system/nfs-client.yaml
-sudo k3s kubectl apply -f ./apps/cns_fe/01_deployment.yaml
-sudo k3s kubectl apply -f ./apps/cns_be/01_deployment.yaml
+for i in ./system/nfs-server.yaml ./system/nfs-client.yaml ./apps/cns_fe/01_deployment.yaml ./apps/cns_be/01_deployment.yaml
+do
+  echo "### applying $i"
+  sudo k3s kubectl apply -f $i
+done
