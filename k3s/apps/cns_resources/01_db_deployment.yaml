@@ -29,6 +29,7 @@ spec:
           - name: nfs
             mountPath: /data-shared
       securityContext:
+        runAsUser: 70
         fsGroup: 70
       volumes:
         - name: cns-secret-volume
