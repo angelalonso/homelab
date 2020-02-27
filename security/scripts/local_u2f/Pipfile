@@ -7,6 +7,8 @@ verify_ssl = true
 
 [packages]
 pyu2f = "*"
+pytest-cov = "*"
+bandit = "*"
 
 [requires]
 python_version = "3.7"
