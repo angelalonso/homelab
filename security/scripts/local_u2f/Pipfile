@@ -6,8 +6,7 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-pyu2f = {path = "./pyu2f"}
-pyasn1 = "*"
+pyu2f = "*"
 
 [requires]
 python_version = "3.7"

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7d33a7bc8bfc801ade1a53036f50d67577ed2c8627a8cf525ee87db98e5cb211"
+            "sha256": "c301338a4bfcc16d3585c2bf4c965cf2c6c1f31155c1a7b69a33d52e83a34df3"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,16 +16,19 @@
         ]
     },
     "default": {
-        "pyasn1": {
+        "pyu2f": {
             "hashes": [
-                "sha256:39c7e2ec30515947ff4e87fb6f456dfc6e84857d34be479c9d4a4ba4bf46aa5d",
-                "sha256:aef77c9fb94a3ac588e87841208bdec464471d9871bd5050a287cc9a475cd0ba"
+                "sha256:12d1260ccd7cfd7a987fc1ad84667770efd6b422cec47fe8eda18d5d52ff6bd3"
             ],
             "index": "pypi",
-            "version": "==0.4.8"
+            "version": "==0.1.4"
         },
-        "pyu2f": {
-            "path": "./pyu2f"
+        "six": {
+            "hashes": [
+                "sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a",
+                "sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c"
+            ],
+            "version": "==1.14.0"
         }
     },
     "develop": {}
