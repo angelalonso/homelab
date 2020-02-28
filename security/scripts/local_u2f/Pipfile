@@ -9,6 +9,8 @@ verify_ssl = true
 pyu2f = "*"
 pytest-cov = "*"
 bandit = "*"
+pyasn1 = "*"
+cryptography = "*"
 
 [requires]
 python_version = "3.7"
