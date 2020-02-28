@@ -6,6 +6,10 @@ U2F_SEC=pipenv run bandit ./*.py -n 3 -ll
 
 U2F_INIT=pipenv install
 
+U2F_ADD=pipenv run python3 local_u2f.py register
+
+U2F_AUTH=pipenv run python3 local_u2f.py authenticate
+
 U2F_RUN=pipenv run python3 local_u2f.py
 
 sec:
@@ -16,6 +20,12 @@ test:
 
 init:
 	@$(U2F_INIT)
+
+add:
+	@$(U2F_ADD)
+
+auth:
+	@$(U2F_AUTH)
 
 localu2f:
 	@$(U2F_RUN)
