@@ -26,6 +26,8 @@ $ nmap -sP 192.168.0.0/24
 $ ssh pi@<IP> # password is raspberry, accept authenticity
 - once in, change hostname to your liking  
 $ sudo hostname $HOSTNAME
+$ sudo vim /etc/hosts # change raspberrypi to $HOSTNAME
+$ sudo vim /etc/hostname # change raspberrypi to $HOSTNAME
 - tweak raspbian  
 $ sudo raspi-config  
 - > Localisation Options > Change Locale > choose the Locales you need, hit OK  
