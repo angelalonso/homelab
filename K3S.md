@@ -72,6 +72,9 @@ server {
  - Had also to use legacy-iptables
 ``` sudo update-alternatives --set iptables /usr/sbin/iptables-legacy > /dev/null
 sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy > /dev/null ```
+- msg="failed to get CA certs at https://127.0.0.1:39051/cacerts ... at the agent
+ - edit /etc/systemd/system/k3s-agent.service.env
+ - Use Ip on K3S_URL instead of hostname
 
 
 
@@ -101,3 +104,10 @@ k3 apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/
 k3 proxy
 
 how to access from outside?
+
+## test https://github.com/rancher/k3s/issues/1442
+/usr/local/bin/k3s-killall.sh
+/usr/local/bin/k3s-uninstall.sh
+sudo find / -name "k3s"
+curl -sfL https://get.k3s.io | K3S_TOKEN=SECRET INSTALL_K3S_exec="server --cluster-init --docker --tls-san seoul -v 5 --log /tmp/k3s.log " sh -s -
+curl -sfL https://get.k3s.io | K3S_TOKEN=SECRET INSTALL_K3S_exec="server --cluster-init --docker --tls-san raspi4 -v 5 --log /tmp/k3s.log --bind-address 192.168.1.242" sh -s -
