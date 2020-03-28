@@ -25,6 +25,8 @@ $ sudo cat /var/lib/rancher/k3s/server/node-token
 
 open access to any port within the cluster
 sudo ufw allow from 192.168.0.1/24
+open access to any port within the k3s cluster
+sudo ufw allow from 10.0.0.0/8
 
 ## Node
 export K3S_URL="https://<hostname of master>:6443"
