@@ -1,5 +1,5 @@
 ---
-- hosts: etchosts
+- hosts: Cetchosts
   gather_facts: no
   become: yes
   vars:
@@ -9,6 +9,13 @@
   {% endfor %}
   tasks:
 {% raw %}
+    - name: Wait for the machine to be available
+      wait_for_connection:
+        connect_timeout: 20
+        sleep: 5
+        delay: 5
+        timeout: 300
+      when: not ansible_check_mode
     - name: Add all known hosts to etchosts
       lineinfile:
         dest: /etc/hosts

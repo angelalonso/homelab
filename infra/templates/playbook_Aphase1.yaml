@@ -1,5 +1,5 @@
 ---
-- hosts: phase1
+- hosts: Aphase1
   gather_facts: false
   become: yes
   vars:
@@ -45,7 +45,7 @@
     - name: "copy config_sshd file with owner and permissions"
       copy:
         # takes it from ./manifests anyway
-        src: config_sshd_phase1
+        src: config_sshd_Aphase1
         dest: /etc/ssh/sshd_config
         owner: root
         group: root

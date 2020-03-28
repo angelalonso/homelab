@@ -131,7 +131,7 @@ def backupAndOverwrite(old_file, new_file, backup_file):
 def isPhase1Needed(secrets):
     hosts = []
     try:
-        hosts = secrets['groups']['phase1']['hosts']
+        hosts = secrets['groups']['Aphase1']['hosts']
         if len(hosts) < 1:
             return False, hosts
         else:
@@ -154,28 +154,28 @@ def getPhaseSplittedSecrets(secrets, hosts):
         # Create different config for the host on phase1 here
         # TODO: If there is no config for later, Show error
         host_after_phase1 = {}
-        host_after_phase1['ansible_ssh_port'] = secrets['groups']['phase1']['phase2_ansible_user']['ssh_port']
+        host_after_phase1['ansible_ssh_port'] = secrets['groups']['Aphase1']['phase2_ansible_user']['ssh_port']
         host_after_phase1['ip'] = secrets['hosts'][host]['ip']
         host_after_phase1['mac_address'] = secrets['hosts'][host]['mac_address']
         ansible_user = {}
-        ansible_user['name'] = secrets['groups']['phase1']['phase2_ansible_user']['name']
-        ansible_user['password'] = secrets['groups']['phase1']['phase2_ansible_user']['password']
-        ansible_user['ssh_key'] = secrets['groups']['phase1']['phase2_ansible_user']['ssh_key']
-        ansible_user['ssh_path'] = secrets['groups']['phase1']['phase2_ansible_user']['ssh_path']
+        ansible_user['name'] = secrets['groups']['Aphase1']['phase2_ansible_user']['name']
+        ansible_user['password'] = secrets['groups']['Aphase1']['phase2_ansible_user']['password']
+        ansible_user['ssh_key'] = secrets['groups']['Aphase1']['phase2_ansible_user']['ssh_key']
+        ansible_user['ssh_path'] = secrets['groups']['Aphase1']['phase2_ansible_user']['ssh_path']
         host_after_phase1['ansible_user'] = ansible_user
         secrets_others['hosts'][host] = host_after_phase1
-    secrets_phase1['groups']['phase1'] = copy.deepcopy(secrets['groups']['phase1'])
+    secrets_phase1['groups']['Aphase1'] = copy.deepcopy(secrets['groups']['Aphase1'])
 
     for host in secrets['hosts']:
         if host not in hosts:
             secrets_others['hosts'][host] = secrets['hosts'][host]
 
     for group in secrets['groups']:
-        if group != 'phase1':
+        if group != 'Aphase1':
             secrets_others['groups'][group] = secrets['groups'][group]
         else:
             phase1_group = {}
-            phase1_group = secrets['groups']['phase1']
+            phase1_group = secrets['groups']['Aphase1']
             phase1_group['hosts'] = []
             secrets_others['groups'][group] = phase1_group
 

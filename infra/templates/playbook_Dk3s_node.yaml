@@ -1,0 +1,65 @@
+---
+- hosts: Dk3s_node
+  gather_facts: false
+  become: no
+  tasks:
+{% raw %}
+    - name: Change GPU Mem to 16
+      become: yes
+      lineinfile:
+        path: /boot/config.txt
+        regexp: "^gpu_mem=.*"
+        line: "gpu_mem=16"
+        state: present
+    - name: cmdline cgroups 
+      become: yes
+      replace:
+        destfile: /boot/cmdline.txt
+        regexp: "^console=serial0,115200 console=tty1 root=PARTUUID=6c586e13-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait$"
+        replace: "console=serial0,115200 console=tty1 root=PARTUUID=6c586e13-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory"
+    - name: Reboot immediately if there was a change.
+      shell: "sleep 5 && reboot"
+      async: 1
+      poll: 0
+      #when: task_result is changed
+      when: not ansible_check_mode
+    - name: Wait for the reboot to complete if there was a change.
+      wait_for_connection:
+        connect_timeout: 20
+        sleep: 5
+        delay: 5
+        timeout: 300
+        #when: task_result is changed
+      when: not ansible_check_mode
+    - name: Download k3s binary
+      become: yes
+      get_url: url=https://github.com/rancher/k3s/releases/download/v0.2.0/k3s-armhf dest=/usr/local/bin/k3s mode=a+x
+    - name: Point hostname to localhost (k3s requirement)
+      become: yes
+      lineinfile:
+        path: /etc/hosts
+        line: "127.0.0.1 {{inventory_hostname}}"
+    - name: Install k3s agent service
+      become: yes
+      get_url:
+        url: https://raw.githubusercontent.com/rancher/k3s/master/k3s.service
+        dest: /etc/systemd/system/k3s-agent.service
+        mode: a+x
+        force: yes
+    - name: Replace server command in k3s agent service with agent command
+      become: yes
+      replace:
+        path: /etc/systemd/system/k3s-agent.service
+        regexp: '^ExecStart=/usr/local/bin/k3s server$'
+        replace: 'ExecStart=/usr/local/bin/k3s agent -s "{{ k3s_server_address}}" -t "{{ k3s_cluster_token }}"'
+    - name: Reload systemd daemon to ensure latest service config
+      become: yes
+      systemd:
+        daemon_reload: yes
+    - name: Enable and start the k3s agent service
+      become: yes
+      service:
+        name: k3s-agent
+        enabled: yes
+        state: started
+{% endraw %}

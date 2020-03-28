@@ -1,5 +1,5 @@
 ---
-- hosts: dockernode
+- hosts: Ddockernode
   gather_facts: false
   become: yes
   vars:
