@@ -1,9 +1,21 @@
 ---
-- hosts: Dk3s_node
-  gather_facts: false
+- hosts: Fk3s_node
+  gather_facts: no
   become: no
+  vars:
+  {% for host in secrets.groups['Dk3s_master'].hosts %}
+    token_master: {{ host }}
+  {% endfor %}
+
   tasks:
 {% raw %}
+    - name: Wait for the machine to be available
+      wait_for_connection:
+        connect_timeout: 20
+        sleep: 5
+        delay: 5
+        timeout: 300
+      when: not ansible_check_mode
     - name: Change GPU Mem to 16
       become: yes
       lineinfile:
@@ -17,7 +29,30 @@
         destfile: /boot/cmdline.txt
         regexp: "^console=serial0,115200 console=tty1 root=PARTUUID=6c586e13-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait$"
         replace: "console=serial0,115200 console=tty1 root=PARTUUID=6c586e13-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory"
+    - name: Use iptables-legacy
+      become: yes
+      shell:  update-alternatives --set iptables /usr/sbin/iptables-legacy > /dev/null
+      when: not ansible_check_mode
+    - name: Use iptables-legacy, IPv6
+      become: yes
+      shell:  update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy > /dev/null 
+      when: not ansible_check_mode
+    - name: Allow all machines in cluster access to all ports
+      become: yes
+      ufw:
+        rule: allow
+        comment: 'k8s cluster'
+        src: '192.168.0.0/24'
+      when: not ansible_check_mode
+    - name: Allow traffic within k3s elements
+      become: yes
+      ufw:
+        rule: allow
+        comment: 'k8s cluster'
+        src: '10.0.0.0/8'
+      when: not ansible_check_mode
     - name: Reboot immediately if there was a change.
+      become: yes
       shell: "sleep 5 && reboot"
       async: 1
       poll: 0
@@ -26,8 +61,8 @@
     - name: Wait for the reboot to complete if there was a change.
       wait_for_connection:
         connect_timeout: 20
-        sleep: 5
-        delay: 5
+        sleep: 10
+        delay: 10
         timeout: 300
         #when: task_result is changed
       when: not ansible_check_mode
@@ -46,12 +81,20 @@
         dest: /etc/systemd/system/k3s-agent.service
         mode: a+x
         force: yes
+    - name: create env file if it doesn't exist
+      become: yes
+      file:
+        path: "/etc/systemd/system/k3s.service.env"
+        state: touch
     - name: Replace server command in k3s agent service with agent command
       become: yes
       replace:
         path: /etc/systemd/system/k3s-agent.service
         regexp: '^ExecStart=/usr/local/bin/k3s server$'
-        replace: 'ExecStart=/usr/local/bin/k3s agent -s "{{ k3s_server_address}}" -t "{{ k3s_cluster_token }}"'
+        #replace: 'ExecStart=/usr/local/bin/k3s agent -s "{{ k3s_server_address}}" -t "{{ k3s_cluster_token }}"'
+        replace: 'ExecStart=/usr/local/bin/k3s agent -s https://tokyo:6443 -t {{ token_master }}'
+        #replace: 'ExecStart=/usr/local/bin/k3s agent -s https://tokyo:6443 -t "K10205465ff65fc39c58f471dfa975738aa44db2ae0a8b5a121adb525d4539a74e4::server:6e91daaea9f641e74e53e202212bec30"'
+      when: not ansible_check_mode
     - name: Reload systemd daemon to ensure latest service config
       become: yes
       systemd:

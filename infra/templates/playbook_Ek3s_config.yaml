@@ -1,0 +1,28 @@
+---
+- hosts: Ek3s_config
+  gather_facts: no
+  become: no
+  tasks:
+{% raw %}
+    - name: Get node token
+      become: yes
+      slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      register: k3s_cluster_token
+      run_once: true
+      when: not ansible_check_mode
+
+    - name: Clean up node token contents
+      become: yes
+      set_fact: 
+        k3s_cluster_token: "{{ k3s_cluster_token['content'] | b64decode | replace('\n', '')}}"
+      run_once: yes
+      cacheable: yes
+      when: not ansible_check_mode
+
+    - debug: var=hostvars['tokyo']['k3s_cluster_token']
+      when: hostvars['tokyo']['k3s_cluster_token'] is defined
+
+
+{% endraw %}
+# prepare memory to run k3s
