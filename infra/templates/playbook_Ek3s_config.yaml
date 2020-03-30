@@ -20,8 +20,9 @@
       cacheable: yes
       when: not ansible_check_mode
 
-    - debug: var=hostvars['tokyo']['k3s_cluster_token']
-      when: hostvars['tokyo']['k3s_cluster_token'] is defined
+    - name: Save token to file
+      become: yes
+      copy: content="{{ k3s_cluster_token }}" dest=/var/lib/rancher/k3s/node-token.ansible
 
 
 {% endraw %}
