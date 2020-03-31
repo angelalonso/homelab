@@ -61,15 +61,33 @@
         timeout: 300
         #when: task_result is changed
       when: not ansible_check_mode
-    - name: Download k3s binary
-      become: yes
-      get_url: url=https://github.com/rancher/k3s/releases/download/v0.2.0/k3s-armhf dest=/usr/local/bin/k3s mode=a+x
-
     - name: Point hostname to localhost (k3s requirement)
       become: yes
       lineinfile:
         path: /etc/hosts
         line: "127.0.0.1 {{inventory_hostname}}"
+    - name: Download k3s files
+      become: yes
+      get_url: url=https://get.k3s.io dest=/usr/local/bin/k3s_installer.sh mode=a+x
+    - name: Edit installer to have INSTALL_K3S_VERSION
+      become: yes
+      replace:
+        path: /usr/local/bin/k3s_installer.sh
+        regexp: '^#   - INSTALL_K3S_VERSION$'
+        replace: 'INSTALL_K3S_VERSION=v1.0.1'
+      when: not ansible_check_mode
+    - name: Edit installer to have INSTALL_K3S_SKIP_START=true
+      become: yes
+      replace:
+        path: /usr/local/bin/k3s_installer.sh
+        regexp: '^#   - INSTALL_K3S_SKIP_START$'
+        replace: 'INSTALL_K3S_SKIP_START=true'
+      when: not ansible_check_mode
+      #    - name: Run command to install k3s
+      #      command: /usr/local/bin/k3s_installer.sh
+    - name: Download k3s binary
+      become: yes
+      get_url: url=https://github.com/rancher/k3s/releases/download/v1.0.1/k3s-armhf dest=/usr/local/bin/k3s mode=a+x
     - name: Install k3s server service
       become: yes
       get_url: 
@@ -108,7 +126,23 @@
         state: present
         insertafter: EOF
         create: True
-# install repos for application data
+    - name: Wait until node token is generated
+      become: yes
+      wait_for:
+        path: /var/lib/rancher/k3s/server/node-token
+      run_once: true
+
+    - name: Set server address
+      become: yes
+      set_fact:
+        k3s_server_address: "https://{{ inventory_hostname }}:6443"
+      run_once: yes
+
+    - name: Print server address
+      become: yes
+      debug:
+        msg: "{{ k3s_server_address }}"
+
     - name: Clone CNS-FE repository into this machine
       git:
         repo: https://github.com/code-and-share/datafeed-frontend.git
@@ -121,21 +155,6 @@
         version: master
         dest: /home/aafmin/datafeed-backend
       become: no
-    - name: Wait until node token is generated
-      become: yes
-      wait_for:
-        path: /var/lib/rancher/k3s/server/node-token
-      run_once: true
-    - name: Set server address
-      become: yes
-      set_fact:
-        k3s_server_address: "https://{{ inventory_hostname }}:6443"
-      run_once: yes
-
-    - name: Print server address
-      become: yes
-      debug:
-        msg: "{{ k3s_server_address }}"
 
 
 {% endraw %}

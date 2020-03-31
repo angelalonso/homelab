@@ -22,7 +22,7 @@
 
     - name: Save token to file
       become: yes
-      copy: content="{{ k3s_cluster_token }}" dest=/var/lib/rancher/k3s/node-token.ansible
+      copy: content="{{ k3s_cluster_token }}" dest=/usr/local/bin/node-token.ansible
 
 
 {% endraw %}

@@ -3,9 +3,7 @@
   gather_facts: no
   become: yes 
   vars:
-  {% for host in secrets.groups['Dk3s_master'].hosts %}
-    token_master: {{ host }}
-  {% endfor %}
+    master_address: "none"
     token: "none"
 
   tasks:
@@ -19,7 +17,7 @@
       when: not ansible_check_mode
     - name: Load data
       slurp:
-        src: "/var/lib/rancher/k3s/node-token.ansible"
+        src: "/usr/local/bin/node-token.ansible"
       register: raw_token
       when: not ansible_check_mode
     - name: Clean up token contents
@@ -32,7 +30,7 @@
     - name: Delete token file
       file:
         state: absent
-        path: "/var/lib/rancher/k3s/node-token.ansible"
+        path: "/usr/local/bin/node-token.ansible"
 
     - name: Change GPU Mem to 16
       become: yes
@@ -76,6 +74,11 @@
       poll: 0
       #when: task_result is changed
       when: not ansible_check_mode
+    - name: Point hostname to localhost (k3s requirement)
+      become: yes
+      lineinfile:
+        path: /etc/hosts
+        line: "127.0.0.1 {{inventory_hostname}}"
     - name: Wait for the reboot to complete
       wait_for_connection:
         connect_timeout: 20
@@ -86,21 +89,23 @@
       when: not ansible_check_mode
     - name: Download k3s files
       become: yes
-      get_url: url=https://get.k3s.io dest=/var/lib/rancher/k3s/installer.sh mode=a+x
+      get_url: url=https://get.k3s.io dest=/usr/local/bin/k3s_installer.sh mode=a+x
     - name: Edit installer to have INSTALL_K3S_VERSION
       become: yes
       replace:
-        path: /var/lib/rancher/k3s/installer.sh
+        path: /usr/local/bin/k3s_installer.sh
         regexp: '^#   - INSTALL_K3S_VERSION$'
         replace: 'INSTALL_K3S_VERSION=v1.0.1'
       when: not ansible_check_mode
-    - name: Run command to get k3s agent
-      command: /var/lib/rancher/k3s/installer.sh
-    - name: Point hostname to localhost (k3s requirement)
+    - name: Edit installer to have INSTALL_K3S_SKIP_START=true
       become: yes
-      lineinfile:
-        path: /etc/hosts
-        line: "127.0.0.1 {{inventory_hostname}}"
+      replace:
+        path: /usr/local/bin/k3s_installer.sh
+        regexp: '^#   - INSTALL_K3S_SKIP_START$'
+        replace: 'INSTALL_K3S_SKIP_START=true'
+      when: not ansible_check_mode
+    - name: Run command to get k3s agent
+      command: /usr/local/bin/k3s_installer.sh
     - name: Install k3s agent service
       become: yes
       get_url:
@@ -118,9 +123,7 @@
       replace:
         path: /etc/systemd/system/k3s-agent.service
         regexp: '^ExecStart=/usr/local/bin/k3s server$'
-        #replace: 'ExecStart=/usr/local/bin/k3s agent -s "{{ k3s_server_address}}" -t "{{ k3s_cluster_token }}"'
         replace: 'ExecStart=/usr/local/bin/k3s agent -s https://tokyo:6443 -t {{ token }}'
-        #replace: 'ExecStart=/usr/local/bin/k3s agent -s https://tokyo:6443 -t "K10205465ff65fc39c58f471dfa975738aa44db2ae0a8b5a121adb525d4539a74e4::server:6e91daaea9f641e74e53e202212bec30"'
       when: not ansible_check_mode
     - name: Reload systemd daemon to ensure latest service config
       become: yes
