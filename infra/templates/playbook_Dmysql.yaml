@@ -1,0 +1,17 @@
+---
+- hosts: Dmysql
+  gather_facts: yes
+  become: yes
+  vars:
+    system_vars:
+      packages:
+  {% for pkg in secrets_group.packages %}
+        - {{ pkg }}
+  {% endfor %}
+  tasks:
+{% raw %}
+    - name: install base packages
+      apt: name={{ item }} state=present
+      with_items: '{{ system_vars.packages }}'
+{% endraw %}
+# python3 by default?
