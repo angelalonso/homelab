@@ -2,6 +2,10 @@
 - hosts: Dk3s_master
   gather_facts: no
   become: no
+  vars:
+    k3s_mysql_host: {{ secrets_group.k3s_mysql_host }}
+    k3s_mysql_user: {{ secrets_group.k3s_mysql_user }}
+    k3s_mysql_user_password: {{ secrets_group.k3s_mysql_user_password }}
   tasks:
 {% raw %}
     - name: Wait for the machine to be available
@@ -96,6 +100,14 @@
         mode: a+x
         force: yes
       content: "BAR=foo"
+      # TODO: use secrets here
+    - name: Edit service to use MySQL
+      become: yes
+      replace:
+        path: /etc/systemd/system/k3s-server.service
+        regexp: '^ExecStart=/usr/local/bin/k3s server$'
+        replace: 'ExecStart=/usr/local/bin/k3s server --datastore-endpoint mysql://{{ k3s_mysql_user }}:{{ k3s_mysql_user_password }}(riga:3306)/k3s'
+      when: not ansible_check_mode
     - name: create env file if it doesn't exist
       become: yes
       file:

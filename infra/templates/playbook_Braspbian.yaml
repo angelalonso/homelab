@@ -27,23 +27,17 @@
         dest: /home/aafmin/homelab
       become: no
 
-      #- name: Allow all access to SSH port
-      #- ufw:
-      #-   rule: allow
-      #-   port: '{{ system_vars.ssh_port }}'
-      #-   comment: 'ssh access'
-      #- with_items: '{{ system_vars }}'
-      #- when: not ansible_check_mode
-    - #- name: Deny everything and enable UFW
-      #- ufw:
-      #-   state: enabled
-      #-   policy: deny
-      #- when: not ansible_check_mode
-      #- name: Restart machine
-      #- command: shutdown -r now 'Ansible updates triggered'
-      #- async: 0
-      #- poll: 0
-      #- ignore_errors: True
+    - name: Allow all access to SSH port
+      ufw:
+        rule: allow
+        port: '{{ system_vars.ssh_port }}'
+        comment: 'ssh access'
+      when: not ansible_check_mode
+    - name: Deny everything and enable UFW
+      ufw:
+        state: enabled
+        policy: deny
+      when: not ansible_check_mode
     - name: Reboot
       shell: "sleep 5 && reboot"
       async: 1
