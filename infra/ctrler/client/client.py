@@ -27,6 +27,14 @@ def edit():
     response = requests.put("http://127.0.0.1:5000/host", verify=False, json=object_data)
     jprint(response.json())
 
+def delete():
+    object_data = {
+        'name': u'sidney',     
+        'mac_address': u'00:00:00:00:00:00'
+        }
+    response = requests.delete("http://127.0.0.1:5000/host", verify=False, json=object_data)
+    jprint(response.json())
+
 def show_help():
     print("SYNTAX:")
     print("  client.py <verb> <params>")
@@ -41,6 +49,8 @@ if __name__ == "__main__":
             add()
         elif sys.argv[1] == 'edit':
             edit()
+        elif sys.argv[1] == 'delete':
+            delete()
     except IndexError:
         show_help()
 

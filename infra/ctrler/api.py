@@ -24,7 +24,7 @@ def home():
     return "<h1>Available paths</h1> \
             <p>/host</p>"
 
-@app.route('/host', methods=['GET', 'PUT', 'POST'])
+@app.route('/host', methods=['GET', 'PUT', 'POST', 'DELETE'])
 def do_host():
     if request.method=='GET':
         return jsonify({'hosts': hosts})
@@ -43,6 +43,14 @@ def do_host():
             'mac_address': request.json['mac_address']
         }
         hosts.append(host)
+        return jsonify({'host': hosts}), 201
+    elif request.method=='DELETE':
+        host = {
+            'name': request.json['name'],
+        }
+        for entry in hosts:
+            if entry['name'] == host['name']:
+                hosts.remove(entry)
         return jsonify({'host': hosts}), 201
 
 
