@@ -10,6 +10,7 @@ flask = "*"
 jsonify = "*"
 requests = "*"
 request = "*"
+ansible = "*"
 
 [requires]
 python_version = "3.7"
