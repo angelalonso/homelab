@@ -96,7 +96,23 @@ class Ctl(object):
             data_objects[object_type][os.path.basename(data)] = parsed_yaml_file
         elif data_mode == 'string':
             data_objects[object_type] = yaml.safe_load(data)
-        print(data_objects)
+        self.send(data_objects)
+
+    def get_sendable_json(self, data):
+        json_data = {}
+        for key, value in data.items():
+            for object_name in value:
+                json_data['name'] = object_name
+                for attribute in value[object_name]:
+                    json_data[attribute] = value[object_name][attribute]
+        return json_data
+
+    def send(self, data):
+        json_data = self.get_sendable_json(data)
+        # TODO: investigate why it doesnt work for folders
+        response = requests.post("http://127.0.0.1:5000/host", verify=False, json=json_data)
+        jprint(response.json())
+
 
 ''' AUX FUNCTIONS '''
 
