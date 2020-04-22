@@ -1,5 +1,7 @@
 import argparse
 import json
+import yaml
+import os
 import requests
 import sys
 from ansible.module_utils._text import to_text
@@ -39,19 +41,62 @@ class Ctl(object):
     def delete(self):
         self.userverb('delete', 'Delete an object')
 
-    ''' class action functions '''
+    ''' class action forwarding functions '''
 
     def use_verb(self, verb, verb_description):
         parser = argparse.ArgumentParser(
             description=verb_description)
-        parser.add_argument('object')
+        parser.add_argument('object_type')
+        parser.add_argument('object_data')
         # now that we're inside a subcommand, ignore the first
         # TWO argvs, ie the command (ctl) and the subcommand (get)
         args = parser.parse_args(sys.argv[2:])
-        self.doStuff(verb, args.object)
+        if self.is_ok_object_type(args.object_type):
+            self.manage_do(verb, args.object_type, args.object_data)
+        else:
+            print('Unrecognized object type ' + args.object_type)
+            parser.print_help()
 
-    def doStuff(self, verb, object_data):
-        pass
+    def is_ok_object_type(self, object_type):
+        accepted_types = ['host']
+        return object_type in accepted_types
+
+    def manage_do(self, verb, object_type, object_data):
+        if verb == 'get':
+            pass
+        elif verb == 'add':
+            self.do_add(object_type, self.get_data_mode(object_data), object_data)
+        elif verb == 'update':
+            pass
+        elif verb == 'delete':
+            pass
+
+    def get_data_mode(self, data):
+        if os.path.isdir(data):  
+            return 'dir'
+        elif os.path.isfile(data):  
+            return 'file'
+        else:
+            return 'string'
+
+    ''' class action forwarding functions '''
+
+    def do_add(self, object_type, data_mode, data):
+        data_objects = {}
+        data_objects[object_type] = {}
+        if data_mode == 'dir':
+            for entry in os.scandir(data):
+                if os.path.isfile(entry) and entry.name != 'template':
+                    yaml_file = open(entry)
+                    parsed_yaml_file = yaml.load(yaml_file, Loader=yaml.FullLoader)
+                    data_objects[object_type][entry.name] = parsed_yaml_file
+        elif data_mode == 'file':
+            yaml_file = open(data)
+            parsed_yaml_file = yaml.load(yaml_file, Loader=yaml.FullLoader)
+            data_objects[object_type][os.path.basename(data)] = parsed_yaml_file
+        elif data_mode == 'string':
+            data_objects[object_type] = yaml.safe_load(data)
+        print(data_objects)
 
 ''' AUX FUNCTIONS '''
 
@@ -124,17 +169,3 @@ def import_ansible():
 
 if __name__ == "__main__":
     Ctl()
-#    try:
-#        if sys.argv[1] == 'get':
-#            get()
-#        elif sys.argv[1] == 'add':
-#            add()
-#        elif sys.argv[1] == 'edit':
-#            edit()
-#        elif sys.argv[1] == 'delete':
-#            delete()
-#        elif sys.argv[1] == 'import':
-#            import_ansible()
-#    except IndexError:
-#        show_help()
-
