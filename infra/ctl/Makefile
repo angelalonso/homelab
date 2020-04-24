@@ -7,10 +7,10 @@ help:
 	@echo make help    - this help
 
 init:
-	pipenv install
+	/home/aafmin/.local/bin/pipenv install
 
 run:
-	pipenv run python3 api.py
+	$(HOME)/.local/bin/pipenv run python3 api.py
 
 .PHONY : init run help
 .DEFAULT_GOAL := run

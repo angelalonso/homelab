@@ -2,22 +2,13 @@ from flask import Flask, jsonify, request
 from os import getenv
 
 
-api_port = getenv("api_port")
-api_host = getenv("api_host")
+api_port = getenv("API_PORT")
+api_host = getenv("API_HOST")
 
 app = Flask(__name__)
 app.config["debug"] = True
 
-hosts = [
-    {
-        'name': u'sidney',
-        'mac_address': u'b8:27:eb:c3:e8:e4'
-    },
-    {
-        'name': u'beirut',
-        'mac_address': u'b8:27:eb:23:a3:d4'
-    }
-]
+hosts = []
 
 @app.route('/', methods=['GET'])
 def home():
@@ -53,5 +44,6 @@ def do_host():
                 hosts.remove(entry)
         return jsonify({'host': hosts}), 201
 
-
+if api_host is None:
+    api_host = "0.0.0.0"
 app.run(host=api_host, port=api_port)

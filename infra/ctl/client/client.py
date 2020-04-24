@@ -90,6 +90,7 @@ class Ctl(object):
                     yaml_file = open(entry)
                     parsed_yaml_file = yaml.load(yaml_file, Loader=yaml.FullLoader)
                     data_objects[object_type][entry.name] = parsed_yaml_file
+            print(data_objects)
         elif data_mode == 'file':
             yaml_file = open(data)
             parsed_yaml_file = yaml.load(yaml_file, Loader=yaml.FullLoader)
@@ -98,20 +99,24 @@ class Ctl(object):
             data_objects[object_type] = yaml.safe_load(data)
         self.send(data_objects)
 
-    def get_sendable_json(self, data):
-        json_data = {}
+    def get_sendable_json_list(self, data):
+        json_data_list = []
         for key, value in data.items():
             for object_name in value:
+                json_data = {}
                 json_data['name'] = object_name
                 for attribute in value[object_name]:
                     json_data[attribute] = value[object_name][attribute]
-        return json_data
+                json_data_list.append(json_data)
+
+        print(json_data_list)
+        return json_data_list
 
     def send(self, data):
-        json_data = self.get_sendable_json(data)
-        # TODO: investigate why it doesnt work for folders
-        response = requests.post("http://127.0.0.1:5000/host", verify=False, json=json_data)
-        jprint(response.json())
+        json_data_list = self.get_sendable_json_list(data)
+        for json_data in json_data_list:
+            response = requests.post("http://" + API_HOST_PORT + "/host", verify=False, json=json_data)
+            jprint(response.json())
 
 
 ''' AUX FUNCTIONS '''
@@ -184,4 +189,5 @@ def import_ansible():
 
 
 if __name__ == "__main__":
+    API_HOST_PORT = "sidney2:5000"
     Ctl()
