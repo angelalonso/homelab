@@ -5,6 +5,7 @@ import os
 import requests
 import sys
 from ansible.module_utils._text import to_text
+from dotenv import load_dotenv
 
 ''' CTL CLASS '''
 
@@ -115,7 +116,7 @@ class Ctl(object):
     def send(self, data):
         json_data_list = self.get_sendable_json_list(data)
         for json_data in json_data_list:
-            response = requests.post("http://" + API_HOST_PORT + "/host", verify=False, json=json_data)
+            response = requests.post("http://" + API_HOST + ":" + API_PORT + "/host", verify=False, json=json_data)
             jprint(response.json())
 
 
@@ -189,5 +190,7 @@ def import_ansible():
 
 
 if __name__ == "__main__":
-    API_HOST_PORT = "sidney2:5000"
+    load_dotenv()
+    API_HOST = os.getenv("API_HOST")
+    API_PORT = os.getenv("API_PORT")
     Ctl()

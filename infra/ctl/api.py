@@ -1,9 +1,12 @@
 from flask import Flask, jsonify, request
+from dotenv import load_dotenv
 from os import getenv
 
 
-api_port = getenv("API_PORT")
-api_host = getenv("API_HOST")
+
+load_dotenv()
+API_HOST = getenv("API_HOST")
+API_PORT = getenv("API_PORT")
 
 app = Flask(__name__)
 app.config["debug"] = True
@@ -44,6 +47,27 @@ def do_host():
                 hosts.remove(entry)
         return jsonify({'host': hosts}), 201
 
-if api_host is None:
-    api_host = "0.0.0.0"
-app.run(host=api_host, port=api_port)
+# https://dev.mysql.com/doc/connector-python/en/connector-python-example-connecting.html
+def db_connect():
+    pass
+
+def db_create():
+    pass
+
+def db_select():
+    pass
+
+
+def db_insert():
+    pass
+
+def db_update():
+    pass
+
+def db_delete():
+    pass
+
+
+if API_HOST is None:
+    API_HOST = "0.0.0.0"
+app.run(host=API_HOST, port=API_PORT)

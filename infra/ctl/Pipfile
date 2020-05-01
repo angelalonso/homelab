@@ -11,6 +11,7 @@ jsonify = "*"
 requests = "*"
 request = "*"
 ansible = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.7"
