@@ -1,3 +1,4 @@
+import mysql.connector as mysql
 from flask import Flask, jsonify, request
 from dotenv import load_dotenv
 from os import getenv
@@ -7,6 +8,10 @@ from os import getenv
 load_dotenv()
 API_HOST = getenv("API_HOST")
 API_PORT = getenv("API_PORT")
+DB_HOST = getenv("DB_HOST")
+DB_PORT = getenv("DB_PORT")
+DB_USER = getenv("DB_USER")
+DB_PASS = getenv("DB_PASS")
 
 app = Flask(__name__)
 app.config["debug"] = True
@@ -21,6 +26,7 @@ def home():
 @app.route('/host', methods=['GET', 'PUT', 'POST', 'DELETE'])
 def do_host():
     if request.method=='GET':
+        print(db_connect())
         return jsonify({'hosts': hosts})
     elif request.method=='PUT':
         host = {
@@ -49,14 +55,26 @@ def do_host():
 
 # https://dev.mysql.com/doc/connector-python/en/connector-python-example-connecting.html
 def db_connect():
-    pass
+    db_conn = mysql.connect(
+        host = DB_HOST,
+        user = DB_USER,
+        passwd = DB_PASS 
+    )
+    return db_conn
 
-def db_create():
-    pass
+def db_create_db(db_conn, db_name):
+    cursor = db_conn.cursor()
+    cursor.execute("CREATE DATABASE " + db_name)
 
-def db_select():
-    pass
+def db_create_table(db_conn, db_name, table_name, structure):
+    cursor = db_conn.cursor()
+    cursor.execute("CREATE TABLE " + db_name + "." + table_name + " " + structure)
 
+def db_select(db_conn, db_name, table_name, fields, where_params):
+    cursor = db_conn.cursor()
+    cursor.execute("SELECT " + fields + " FROM " + db_name + "." + table_name + " WHERE " + where_params)
+    records = cursor.fetchall()
+    return records
 
 def db_insert():
     pass

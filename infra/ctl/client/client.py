@@ -190,6 +190,7 @@ def import_ansible():
 
 
 if __name__ == "__main__":
+    from pathlib import Path
     load_dotenv()
     API_HOST = os.getenv("API_HOST")
     API_PORT = os.getenv("API_PORT")
