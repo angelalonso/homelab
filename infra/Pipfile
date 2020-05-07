@@ -11,6 +11,9 @@ pytest = "*"
 jinja2 = "*"
 sh = "*"
 paramiko = "*"
+requests = "*"
+ansible = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.7"

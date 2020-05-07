@@ -12,6 +12,7 @@ DB_HOST = getenv("DB_HOST")
 DB_PORT = getenv("DB_PORT")
 DB_USER = getenv("DB_USER")
 DB_PASS = getenv("DB_PASS")
+DB_NAME = 'ctl'
 
 app = Flask(__name__)
 app.config["debug"] = True
@@ -26,8 +27,9 @@ def home():
 @app.route('/host', methods=['GET', 'PUT', 'POST', 'DELETE'])
 def do_host():
     if request.method=='GET':
-        print(db_connect())
-        return jsonify({'hosts': hosts})
+        if "name" in request.args:
+            result = db_select(db_connect(), DB_NAME, 'hosts', 'name, mac_address', "name LIKE '" + request.args["name"] + "'")
+        return jsonify(result)
     elif request.method=='PUT':
         host = {
             'name': request.json['name'],
@@ -38,8 +40,9 @@ def do_host():
                 entry['mac_address'] = host['mac_address']
         return jsonify({'host': hosts}), 201
     elif request.method=='POST':
+        test = db_create_db(db_connect(), "test")
         host = {
-            'name': request.json['name'],
+            'name': str(test),
             'mac_address': request.json['mac_address']
         }
         hosts.append(host)
@@ -62,6 +65,12 @@ def db_connect():
     )
     return db_conn
 
+def db_show_dbs(db_conn):
+    cursor = db_conn.cursor()
+    cursor.execute("SHOW DATABASES")
+    records = cursor.fetchall()
+    return records
+
 def db_create_db(db_conn, db_name):
     cursor = db_conn.cursor()
     cursor.execute("CREATE DATABASE " + db_name)
@@ -72,11 +81,13 @@ def db_create_table(db_conn, db_name, table_name, structure):
 
 def db_select(db_conn, db_name, table_name, fields, where_params):
     cursor = db_conn.cursor()
-    cursor.execute("SELECT " + fields + " FROM " + db_name + "." + table_name + " WHERE " + where_params)
+    sql_command = "SELECT " + fields + " FROM " + db_name + "." + table_name + " WHERE " + where_params + ";"
+    cursor.execute(sql_command)
     records = cursor.fetchall()
     return records
 
 def db_insert():
+    # INSERT INTO ctl.hosts(name, mac_address) VALUES('test', '55:44:33:22:11:00');
     pass
 
 def db_update():

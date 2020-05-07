@@ -64,7 +64,10 @@ class Ctl(object):
 
     def manage_do(self, verb, object_type, object_data):
         if verb == 'get':
-            pass
+            if object_data == 'help':
+                self.help_do_get()
+            else:
+                self.do_get(object_type, object_data)
         elif verb == 'add':
             self.do_add(object_type, self.get_data_mode(object_data), object_data)
         elif verb == 'update':
@@ -82,6 +85,19 @@ class Ctl(object):
 
     ''' class action forwarding functions '''
 
+    def help_do_get(self):
+        print("SYNTAX:")
+        print("program get <object> <SQL LIKE QUERY>")
+        print("\n , meaning, the last parameter should be something like:")
+        print("    string")
+        print("    %string")
+        print("    string%")
+        print("    % - to get all entries")
+
+    def do_get(self, object_type, object_search_data):
+        search_data = {'name':object_search_data} 
+        self.send_get(search_data)
+
     def do_add(self, object_type, data_mode, data):
         data_objects = {}
         data_objects[object_type] = {}
@@ -98,7 +114,7 @@ class Ctl(object):
             data_objects[object_type][os.path.basename(data)] = parsed_yaml_file
         elif data_mode == 'string':
             data_objects[object_type] = yaml.safe_load(data)
-        self.send(data_objects)
+        self.send_post(data_objects)
 
     def get_sendable_json_list(self, data):
         json_data_list = []
@@ -113,7 +129,11 @@ class Ctl(object):
         print(json_data_list)
         return json_data_list
 
-    def send(self, data):
+    def send_get(self, search_data):
+        response = requests.get("http://" + API_HOST + ":" + API_PORT + "/host", params = search_data)
+        jprint(response.json())
+
+    def send_post(self, data):
         json_data_list = self.get_sendable_json_list(data)
         for json_data in json_data_list:
             response = requests.post("http://" + API_HOST + ":" + API_PORT + "/host", verify=False, json=json_data)
