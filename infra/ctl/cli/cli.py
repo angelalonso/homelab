@@ -40,7 +40,7 @@ class Ctl(object):
         self.use_verb('update', 'Update an object')
 
     def delete(self):
-        self.userverb('delete', 'Delete an object')
+        self.use_verb('delete', 'Delete an object')
 
     ''' class action forwarding functions '''
 
@@ -73,7 +73,10 @@ class Ctl(object):
         elif verb == 'update':
             pass
         elif verb == 'delete':
-            pass
+            if object_data == 'help':
+                self.help_do_get()
+            else:
+                self.do_delete(object_type, object_data)
 
     def get_data_mode(self, data):
         if os.path.isdir(data):  
@@ -107,7 +110,6 @@ class Ctl(object):
                     yaml_file = open(entry)
                     parsed_yaml_file = yaml.load(yaml_file, Loader=yaml.FullLoader)
                     data_objects[object_type][entry.name] = parsed_yaml_file
-            print(data_objects)
         elif data_mode == 'file':
             yaml_file = open(data)
             parsed_yaml_file = yaml.load(yaml_file, Loader=yaml.FullLoader)
@@ -115,6 +117,19 @@ class Ctl(object):
         elif data_mode == 'string':
             data_objects[object_type] = yaml.safe_load(data)
         self.send_post(data_objects)
+
+    def help_do_delete(self):
+        print("SYNTAX:")
+        print("program delete <object> <SQL LIKE QUERY>")
+        print("\n , meaning, the last parameter should be something like:")
+        print("    string")
+        print("    %string")
+        print("    string%")
+        print("    % - to delete all entries")
+
+    def do_delete(self, object_type, object_search_data):
+        search_data = {'name':object_search_data} 
+        self.send_delete(search_data)
 
     def get_sendable_json_list(self, data):
         json_data_list = []
@@ -126,7 +141,6 @@ class Ctl(object):
                     json_data[attribute] = value[object_name][attribute]
                 json_data_list.append(json_data)
 
-        print(json_data_list)
         return json_data_list
 
     def send_get(self, search_data):
@@ -138,6 +152,10 @@ class Ctl(object):
         for json_data in json_data_list:
             response = requests.post("http://" + API_HOST + ":" + API_PORT + "/host", verify=False, json=json_data)
             jprint(response.json())
+
+    def send_delete(self, search_data):
+        response = requests.delete("http://" + API_HOST + ":" + API_PORT + "/host", params = search_data)
+        jprint(response.json())
 
 
 ''' AUX FUNCTIONS '''
