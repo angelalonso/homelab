@@ -1,0 +1,6 @@
+hosts:
+  - name
+  - mac_address
+gateways:
+  - name
+  - mac_address
