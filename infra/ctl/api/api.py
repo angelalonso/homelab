@@ -17,14 +17,22 @@ def home():
             <p>/host</p>"
 
 # TODO add one version of this for each object (not just /host)
-@app.route('/host', methods=['GET', 'PUT', 'POST', 'DELETE'])
-def do_host():
+#@app.route('/host', methods=['GET', 'PUT', 'POST', 'DELETE'])
+#def do_host():
+@app.route('/<path:obj>', methods=['GET', 'PUT', 'POST', 'DELETE'])
+def all_routes(obj): # obj is defined by the path received and must be on the objects definition structure
     if request.method=='GET':
         if "name" in request.args:
             if STORAGE == 'local':
-                result = DATA_MAIN['hosts']
+                result = []
+                for entry in DATA_MAIN[obj]:
+                    print(entry)
+                    # TODO: avoid explicit use of "name" and so on
+                    if request.args['name'] in entry['name']:
+                        result.append(entry)
             elif STORAGE == 'mysql':
-                result = select_mysql(connectDb_mysql(), DB_NAME, 'hosts', 'name, mac_address', "name LIKE '" + request.args["name"] + "'")
+                # TODO: change this to host (NOT hosts) on the DB itself, avoid explicit use of "name"
+                result = select_mysql(connectDb_mysql(), DB_NAME, obj, 'name, mac_address', "name LIKE '" + request.args["name"] + "'")
         return jsonify(result)
     elif request.method=='PUT':
         host = {
@@ -39,22 +47,26 @@ def do_host():
         if STORAGE == 'local':
             json_data = json.loads(request.json)
             data_entry = {}
+            # TODO: avoid explicit use of "name" and so on
             data_entry['name'] = json_data['name']
             data_entry['mac_address'] = json_data['mac_address']
-            DATA_MAIN['host'].append(data_entry)
+            DATA_MAIN[obj].append(data_entry)
             result = DATA_MAIN
         elif STORAGE == 'mysql':
-            result = insert_mysql(connectDb_mysql(), DB_NAME, 'hosts', 'name, mac_address', "'" + request.json["name"] + "','" + request.json["mac_address"] + "'")
+            # TODO: change this to host (NOT hosts) on the DB itself, avoid explicit use of "name"
+            result = insert_mysql(connectDb_mysql(), DB_NAME, obj, 'name, mac_address', "'" + request.json["name"] + "','" + request.json["mac_address"] + "'")
         return jsonify(result)
     elif request.method=='DELETE':
         if "name" in request.args:
             if STORAGE == 'local':
-                for data_entry in DATA_MAIN['hosts']:
+                for data_entry in DATA_MAIN[obj]:
+                # TODO: avoid explicit use of "name" and so on
                     if data_entry['name'] == request.args['name']:
-                        DATA_MAIN['hosts'].remove(data_entry)
+                        DATA_MAIN['host'].remove(data_entry)
                 result = DATA_MAIN
             elif STORAGE == 'mysql':
-                result = delete_mysql(connectDb_mysql(), DB_NAME, 'hosts', "name LIKE '" + request.args["name"] + "'")
+                # TODO: change this to host (NOT hosts) on the DB itself, avoid explicit use of "name"
+                result = delete_mysql(connectDb_mysql(), DB_NAME, obj, "name LIKE '" + request.args["name"] + "'")
         return jsonify(result)
 
 ''' Local Storage functions '''
