@@ -1,0 +1,3 @@
+host:            # our API has an object called host
+  - name         # name and mac_address are the fields/attributes our host object has
+  - mac_address

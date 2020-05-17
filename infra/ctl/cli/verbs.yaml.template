@@ -1,0 +1,26 @@
+get:                  # get is a verb we want to use with our API
+  args:
+    arg_1:            # parameter we need to perform our call, one of the following:
+      - search_string # plain string we will use together with our get call. E.g.: server1
+      - key_value     # same as the string, but we indicate the attribute that should match the string
+  call: get           # call is the actual call type our API will accept for this verb
+add:                  # again, add is a verb, but in this case we see the difference between verb and call better
+  args:
+    arg_1:
+      - object_full   # this is a filename for the full definition of the object, in yaml
+  call: post          # post is the actual call we will send to the API to do the add verb
+update:
+  args:
+    arg_1:            # In this case we need arg_1 and arg_2. arg_1 indicates the object to update, see below for arg_2.
+      - search_string
+      - key_value
+    arg_2:            # arg_2 is the full definition or an attribute to update for the object arg_1 gets.
+      - object_full
+      - key_value
+  call: post
+delete:
+  args:
+    arg_1:
+      - search_string
+      - key_value
+  call: delete

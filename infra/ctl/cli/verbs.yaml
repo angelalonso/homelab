@@ -1,0 +1,26 @@
+get:
+  args:
+    arg_1:
+      - search_string
+      - key_value
+  call: get
+add:
+  args:
+    arg_1:
+      - object_full
+  call: post
+update:
+  args:
+    arg_1:
+      - search_string
+      - key_value
+    arg_2:
+      - object_full
+      - key_value
+  call: post
+delete:
+  args:
+    arg_1:
+      - search_string
+      - key_value
+  call: delete

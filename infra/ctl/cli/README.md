@@ -1,16 +1,16 @@
-# How to use this
+# Command Line Interface to APIs
 
-## Add an object
-### Using a file
-''' client.py add host filename '''  
-, where filename has to be proper yaml-formatted.  
-Note:  the filename will be taken as the name of the object  
+## What it does
+Send calls to an API of choice from command line  
+
+## How it works
+- Define your API endpoint at .env (see env.template)  
+- Define your API verbs at verbs.yaml (see verbs.yaml.template)  
+- Define your API objects at objects.yaml (see objects.yaml.template)  
+- Run the call as:  
+pipenv run python3 cli.py <verb> <object> <parameters>  
   
-### Using a folder
-''' client.py add host path '''  
-, where all files within path will be read and they all have to be proper yaml-formatted
-Remember:  the filename will be taken as the name of the object  
+E.g.:  
+```pipenv run python3 cli.py get host name=myhost```  
+```pipenv run python3 cli.py add host host_definition.yaml```  
 
-### Using a YAML string
-''' client.py add host "'hostname': {'mac_address': 'aa:bb:cc:dd:ee:ff'}" '''  
-, where all files within path will be read and they all have to be proper yaml-formatted

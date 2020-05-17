@@ -1,0 +1,13 @@
+get:
+  args:
+    arg_1:
+      - search_string
+      - key_value
+update:
+  args:
+    arg_1:
+      - search_string
+      - key_value
+    arg_2:
+      - object_full
+      - key_value

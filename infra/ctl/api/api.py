@@ -1,23 +1,14 @@
+import json
 import mysql.connector as mysql
-from flask import Flask, jsonify, request
 from dotenv import load_dotenv
+from flask import Flask, jsonify, request
 from os import getenv
 
 
-
-load_dotenv()
-API_HOST = getenv("API_HOST")
-API_PORT = getenv("API_PORT")
-DB_HOST = getenv("DB_HOST")
-DB_PORT = getenv("DB_PORT")
-DB_USER = getenv("DB_USER")
-DB_PASS = getenv("DB_PASS")
-DB_NAME = 'ctl'
+hosts = []
 
 app = Flask(__name__)
 app.config["debug"] = True
-
-hosts = []
 
 @app.route('/', methods=['GET'])
 def home():
@@ -28,7 +19,10 @@ def home():
 def do_host():
     if request.method=='GET':
         if "name" in request.args:
-            result = db_select(db_connect(), DB_NAME, 'hosts', 'name, mac_address', "name LIKE '" + request.args["name"] + "'")
+            if STORAGE == 'local':
+                result = DATA_MAIN['hosts']
+            elif STORAGE == 'mysql':
+                result = db_select(db_connect(), DB_NAME, 'hosts', 'name, mac_address', "name LIKE '" + request.args["name"] + "'")
         return jsonify(result)
     elif request.method=='PUT':
         host = {
@@ -40,14 +34,30 @@ def do_host():
                 entry['mac_address'] = host['mac_address']
         return jsonify({'host': hosts}), 201
     elif request.method=='POST':
-        print(request.json["name"])
-        print(request.json["mac_address"])
-        result = db_insert(db_connect(), DB_NAME, 'hosts', 'name, mac_address', "'" + request.json["name"] + "','" + request.json["mac_address"] + "'")
+        if STORAGE == 'local':
+            json_data = json.loads(request.json)
+            data_entry = {}
+            data_entry['name'] = json_data['name']
+            data_entry['mac_address'] = json_data['mac_address']
+            DATA_MAIN['hosts'].append(data_entry)
+            result = DATA_MAIN
+        elif STORAGE == 'mysql':
+            result = db_insert(db_connect(), DB_NAME, 'hosts', 'name, mac_address', "'" + request.json["name"] + "','" + request.json["mac_address"] + "'")
         return jsonify(result)
     elif request.method=='DELETE':
         if "name" in request.args:
-            result = db_delete(db_connect(), DB_NAME, 'hosts', "name LIKE '" + request.args["name"] + "'")
+            if STORAGE == 'local':
+                for data_entry in DATA_MAIN['hosts']:
+                    if data_entry['name'] == request.args['name']:
+                        DATA_MAIN['hosts'].remove(data_entry)
+                result = DATA_MAIN
+            elif STORAGE == 'mysql':
+                result = db_delete(db_connect(), DB_NAME, 'hosts', "name LIKE '" + request.args["name"] + "'")
         return jsonify(result)
+
+''' Local Storage functions '''
+
+''' MYSQL functions '''
 
 # https://dev.mysql.com/doc/connector-python/en/connector-python-example-connecting.html
 def db_connect():
@@ -99,6 +109,21 @@ def db_delete(db_conn, db_name, table_name, where_params):
     return str(result)
 
 
-if API_HOST is None:
-    API_HOST = "0.0.0.0"
-app.run(host=API_HOST, port=API_PORT)
+if __name__ == '__main__':
+    load_dotenv()
+    API_HOST = getenv("API_HOST")
+    API_PORT = getenv("API_PORT")
+    if API_HOST is None:
+        API_HOST = "0.0.0.0"
+    STORAGE = getenv("STORAGE")
+    if STORAGE == 'local':
+        DATA_MAIN = {}
+        DATA_MAIN['hosts'] = []
+    elif STORAGE == 'mysql':
+        DB_HOST = getenv("DB_HOST")
+        DB_PORT = getenv("DB_PORT")
+        DB_USER = getenv("DB_USER")
+        DB_PASS = getenv("DB_PASS")
+        DB_NAME = 'ctl'
+
+    app.run(host=API_HOST, port=API_PORT)

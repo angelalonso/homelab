@@ -1,6 +1,6 @@
-hosts:
+host:
   - name
   - mac_address
-gateways:
+gateway:
   - name
   - mac_address
