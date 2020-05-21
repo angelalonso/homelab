@@ -16,9 +16,6 @@ def home():
     return "<h1>Available paths</h1> \
             <p>/host</p>"
 
-# TODO add one version of this for each object (not just /host)
-#@app.route('/host', methods=['GET', 'PUT', 'POST', 'DELETE'])
-#def do_host():
 @app.route('/<path:obj>', methods=['GET', 'PUT', 'POST', 'DELETE'])
 def all_routes(obj): # obj is defined by the path received and must be on the objects definition structure
     if request.method=='GET':
@@ -26,14 +23,26 @@ def all_routes(obj): # obj is defined by the path received and must be on the ob
             if STORAGE == 'local':
                 result = []
                 for entry in DATA_MAIN[obj]:
-                    print(entry)
                     # TODO: avoid explicit use of "name" and so on
                     if request.args['name'] in entry['name']:
                         result.append(entry)
             elif STORAGE == 'mysql':
-                # TODO: change this to host (NOT hosts) on the DB itself, avoid explicit use of "name"
-                result = select_mysql(connectDb_mysql(), DB_NAME, obj, 'name, mac_address', "name LIKE '" + request.args["name"] + "'")
-        return jsonify(result)
+                # TODO: avoid explicit use of "name"
+                try:
+                    db_conn = connectDb_mysql()
+                    result = select_mysql(db_conn, DB_NAME, obj, 'name, mac_address', "name LIKE '" + request.args["name"] + "'")
+                except mysql.errors.ProgrammingError as e:
+                    if mysql.errorcode.ER_NO_SUCH_TABLE == e.errno:
+                        structure = buildSchemeFromObj_mysql(DB_NAME, obj)
+                        try:
+                            createTable_mysql(db_conn, DB_NAME, obj, structure)
+                            result = select_mysql(db_conn, DB_NAME, obj, 'name, mac_address', "name LIKE '" + request.args["name"] + "'")
+                        except mysql.errors.ProgrammingError as e:
+                            result = str(e)
+                            return jsonify(result), 503
+                    else:
+                        result = e
+        return jsonify(result), 201
     elif request.method=='PUT':
         host = {
             'name': request.json['name'],
@@ -54,8 +63,9 @@ def all_routes(obj): # obj is defined by the path received and must be on the ob
             result = DATA_MAIN
         elif STORAGE == 'mysql':
             # TODO: change this to host (NOT hosts) on the DB itself, avoid explicit use of "name"
-            result = insert_mysql(connectDb_mysql(), DB_NAME, obj, 'name, mac_address', "'" + request.json["name"] + "','" + request.json["mac_address"] + "'")
-        return jsonify(result)
+            json_data = json.loads(request.json)
+            result = insert_mysql(connectDb_mysql(), DB_NAME, obj, 'name, mac_address', "'" + json_data["name"] + "','" + json_data["mac_address"] + "'")
+        return jsonify(result), 201
     elif request.method=='DELETE':
         if "name" in request.args:
             if STORAGE == 'local':
@@ -67,7 +77,7 @@ def all_routes(obj): # obj is defined by the path received and must be on the ob
             elif STORAGE == 'mysql':
                 # TODO: change this to host (NOT hosts) on the DB itself, avoid explicit use of "name"
                 result = delete_mysql(connectDb_mysql(), DB_NAME, obj, "name LIKE '" + request.args["name"] + "'")
-        return jsonify(result)
+        return jsonify(result), 201
 
 ''' Local Storage functions '''
 
@@ -80,12 +90,21 @@ def createDb_local(obj_struct):
 
 ''' MYSQL functions '''
 
+def buildSchemeFromObj_mysql(database, table):
+    scheme = '('
+    for entry in obj_struct[table]:
+        scheme += '`' + entry + '` '
+        scheme += obj_struct[table][entry]['mysql_scheme'] + ', '
+    scheme = scheme[:-2] + ' )'
+    return scheme
+
 # https://dev.mysql.com/doc/connector-python/en/connector-python-example-connecting.html
 def connectDb_mysql():
     db_conn = mysql.connect(
         host = DB_HOST,
         user = DB_USER,
-        passwd = DB_PASS 
+        passwd = DB_PASS, 
+        database = DB_NAME
     )
     return db_conn
 
@@ -101,7 +120,7 @@ def createDb_mysql(db_conn, db_name):
 
 def createTable_mysql(db_conn, db_name, table_name, structure):
     cursor = db_conn.cursor()
-    cursor.execute("CREATE TABLE " + db_name + "." + table_name + " " + structure)
+    cursor.execute("CREATE TABLE " + table_name + " " + structure)
 
 def select_mysql(db_conn, db_name, table_name, fields, where_params):
     cursor = db_conn.cursor()
