@@ -97,7 +97,7 @@ def createObject(verb_struct, obj_struct, obj, params):
     return result_object
 
 
-def runApiCall(call_type, data_struct):
+def runApiCall(api_host, api_port, call_type, data_struct):
     '''
     Depending on the type of call,
     build the data to send from object named "data",
@@ -115,31 +115,32 @@ def runApiCall(call_type, data_struct):
             # requests.post(url, data=[('interests',
             # 'football'), ('interests', 'basketball')])
             response = requests.get("http://" +
-                                    API_HOST +
+                                    api_host +
                                     ":" +
-                                    API_PORT +
+                                    api_port +
                                     "/host",
                                     params=data)
         elif call_type == 'delete':
             response = requests.delete("http://" +
-                                       API_HOST +
+                                       api_host +
                                        ":" +
-                                       API_PORT +
+                                       api_port +
                                        "/host",
                                        params=data)
     elif call_type == 'post':
         # build data
         data = json.dumps(data_struct)
         response = requests.post("http://" +
-                                 API_HOST +
+                                 api_host +
                                  ":" +
-                                 API_PORT +
+                                 api_port +
                                  "/host",
                                  json=data)
-    jprint(response.json())
+
+    return response
 
 
-def do(verb_struct, obj_struct, verb, obj, params):
+def do(api_host, api_port, verb_struct, obj_struct, verb, obj, params):
     '''
     Build an object with the data received as parameters,
      then run the API call with that
@@ -147,7 +148,12 @@ def do(verb_struct, obj_struct, verb, obj, params):
     # Check arg_1, _2...
     object_to_send = createObject(verb_struct, obj_struct, obj, params)
     # get command
-    runApiCall(verb_struct[verb]['call'], object_to_send)
+    result = runApiCall(api_host,
+                        api_port,
+                        verb_struct[verb]['call'],
+                        object_to_send)
+
+    jprint(result.json())
 
 
 def jprint(obj):
@@ -184,4 +190,4 @@ if __name__ == '__main__':
 
     verb, obj, params = loadArgs(verb_struct, obj_struct, sys.argv[:])
 
-    do(verb_struct, obj_struct, verb, obj, params)
+    do(API_HOST, API_PORT, verb_struct, obj_struct, verb, obj, params)

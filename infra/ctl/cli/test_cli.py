@@ -1,9 +1,13 @@
 import cli
+import os
+from dotenv import load_dotenv
+from unittest.mock import patch
+import unittest
 
 TESTFOLDER = './testfiles'
 
 
-class TestAll:
+class TestAll(unittest.TestCase):
     @classmethod
     def setup_class(cls):
         pass
@@ -77,6 +81,18 @@ class TestAll:
                                 'host',
                                 param) == params_object
 
-    def test_runApiCall(self):
-        ''' TO BE DONE, using Mocks '''
-        pass
+    @patch('cli.requests.get')  # Mock 'requests' module 'get' method.
+    def test_runAPiCall(self, mock_get):
+        """Mocking using a decorator"""
+
+        load_dotenv()
+        API_HOST = os.getenv("API_HOST")
+        API_PORT = os.getenv("API_PORT")
+        # TODO: change 201 to only creating new resources
+        mock_get.return_value.status_code = 201
+        params_object = {'name': 'test1', 'mac_address': 'aa:bb:cc:dd:ee'}
+
+        response = cli.runApiCall(API_HOST, API_PORT, 'get', params_object)
+
+        # Assert that the request-response cycle completed successfully.
+        self.assertEqual(response.status_code, 201)
