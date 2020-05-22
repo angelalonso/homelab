@@ -11,14 +11,18 @@ hosts = []
 app = Flask(__name__)
 app.config["debug"] = True
 
+
 @app.route('/', methods=['GET'])
 def home():
     return "<h1>Available paths</h1> \
             <p>/host</p>"
 
+
 @app.route('/<path:obj>', methods=['GET', 'PUT', 'POST', 'DELETE'])
-def all_routes(obj): # obj is defined by the path received and must be on the objects definition structure
-    if request.method=='GET':
+# obj is defined by the path received
+#  and must be on the objects definition structure
+def all_routes(obj):
+    if request.method == 'GET':
         if "name" in request.args:
             if STORAGE == 'local':
                 result = []
@@ -30,20 +34,32 @@ def all_routes(obj): # obj is defined by the path received and must be on the ob
                 # TODO: avoid explicit use of "name"
                 try:
                     db_conn = connectDb_mysql()
-                    result = select_mysql(db_conn, DB_NAME, obj, 'name, mac_address', "name LIKE '" + request.args["name"] + "'")
+                    result = select_mysql(db_conn,
+                                          DB_NAME,
+                                          obj,
+                                          'name, mac_address',
+                                          "name LIKE '" +
+                                          request.args["name"] +
+                                          "'")
                 except mysql.errors.ProgrammingError as e:
                     if mysql.errorcode.ER_NO_SUCH_TABLE == e.errno:
                         structure = buildSchemeFromObj_mysql(DB_NAME, obj)
                         try:
                             createTable_mysql(db_conn, DB_NAME, obj, structure)
-                            result = select_mysql(db_conn, DB_NAME, obj, 'name, mac_address', "name LIKE '" + request.args["name"] + "'")
+                            result = select_mysql(db_conn,
+                                                  DB_NAME,
+                                                  obj,
+                                                  'name, mac_address',
+                                                  "name LIKE '" +
+                                                  request.args["name"] +
+                                                  "'")
                         except mysql.errors.ProgrammingError as e:
                             result = str(e)
                             return jsonify(result), 503
                     else:
                         result = e
         return jsonify(result), 201
-    elif request.method=='PUT':
+    elif request.method == 'PUT':
         host = {
             'name': request.json['name'],
             'mac_address': request.json['mac_address']
@@ -52,7 +68,7 @@ def all_routes(obj): # obj is defined by the path received and must be on the ob
             if entry['name'] == host['name']:
                 entry['mac_address'] = host['mac_address']
         return jsonify({'host': hosts}), 201
-    elif request.method=='POST':
+    elif request.method == 'POST':
         if STORAGE == 'local':
             json_data = json.loads(request.json)
             data_entry = {}
@@ -62,24 +78,39 @@ def all_routes(obj): # obj is defined by the path received and must be on the ob
             DATA_MAIN[obj].append(data_entry)
             result = DATA_MAIN
         elif STORAGE == 'mysql':
-            # TODO: change this to host (NOT hosts) on the DB itself, avoid explicit use of "name"
+            # TODO: change this to host (NOT hosts) on the DB itself,
+            #  avoid explicit use of "name"
             json_data = json.loads(request.json)
-            result = insert_mysql(connectDb_mysql(), DB_NAME, obj, 'name, mac_address', "'" + json_data["name"] + "','" + json_data["mac_address"] + "'")
+            result = insert_mysql(connectDb_mysql(),
+                                  DB_NAME,
+                                  obj,
+                                  'name, mac_address',
+                                  "'" + json_data["name"] +
+                                  "','" +
+                                  json_data["mac_address"] +
+                                  "'")
         return jsonify(result), 201
-    elif request.method=='DELETE':
+    elif request.method == 'DELETE':
         if "name" in request.args:
             if STORAGE == 'local':
                 for data_entry in DATA_MAIN[obj]:
-                # TODO: avoid explicit use of "name" and so on
+                    # TODO: avoid explicit use of "name" and so on
                     if data_entry['name'] == request.args['name']:
                         DATA_MAIN['host'].remove(data_entry)
                 result = DATA_MAIN
             elif STORAGE == 'mysql':
-                # TODO: change this to host (NOT hosts) on the DB itself, avoid explicit use of "name"
-                result = delete_mysql(connectDb_mysql(), DB_NAME, obj, "name LIKE '" + request.args["name"] + "'")
+                # TODO: change this to host (NOT hosts) on the DB itself,
+                #  avoid explicit use of "name"
+                result = delete_mysql(connectDb_mysql(),
+                                      DB_NAME, obj,
+                                      "name LIKE '" +
+                                      request.args["name"] +
+                                      "'")
         return jsonify(result), 201
 
+
 ''' Local Storage functions '''
+
 
 def createDb_local(obj_struct):
     data_struct = {}
@@ -90,6 +121,7 @@ def createDb_local(obj_struct):
 
 ''' MYSQL functions '''
 
+
 def buildSchemeFromObj_mysql(database, table):
     scheme = '('
     for entry in obj_struct[table]:
@@ -98,15 +130,17 @@ def buildSchemeFromObj_mysql(database, table):
     scheme = scheme[:-2] + ' )'
     return scheme
 
+
 # https://dev.mysql.com/doc/connector-python/en/connector-python-example-connecting.html
 def connectDb_mysql():
     db_conn = mysql.connect(
-        host = DB_HOST,
-        user = DB_USER,
-        passwd = DB_PASS, 
-        database = DB_NAME
+        host=DB_HOST,
+        user=DB_USER,
+        passwd=DB_PASS,
+        database=DB_NAME
     )
     return db_conn
+
 
 def showDbs_mysql(db_conn):
     cursor = db_conn.cursor()
@@ -114,41 +148,60 @@ def showDbs_mysql(db_conn):
     records = cursor.fetchall()
     return records
 
+
 def createDb_mysql(db_conn, db_name):
     cursor = db_conn.cursor()
     cursor.execute("CREATE DATABASE " + db_name)
+
 
 def createTable_mysql(db_conn, db_name, table_name, structure):
     cursor = db_conn.cursor()
     cursor.execute("CREATE TABLE " + table_name + " " + structure)
 
+
 def select_mysql(db_conn, db_name, table_name, fields, where_params):
     cursor = db_conn.cursor()
-    sql_command = "SELECT " + fields + " FROM " + db_name + "." + table_name + " WHERE " + where_params + ";"
+
+    sql_command = "SELECT " + fields +  # noqa E999
+    " FROM " + db_name + "." + table_name +
+    " WHERE " + where_params + ";"
     cursor.execute(sql_command)
     records = cursor.fetchall()
     return records
 
+
 def insert_mysql(db_conn, db_name, table_name, fields, values):
     cursor = db_conn.cursor()
-    sql_command = "INSERT INTO " + db_name + "." + table_name + "(" + fields + ") VALUES(" + values + ")"
+
+    sql_command = "INSERT INTO " +  # noqa E999
+    db_name + "." + table_name +
+    "(" + fields + ") VALUES(" + values + ")"
+
     cursor.execute(sql_command)
     db_conn.commit()
     result = cursor.rowcount
     return str(result)
+
 
 def update_mysql():
     pass
 
+
 def delete_mysql(db_conn, db_name, table_name, where_params):
     cursor = db_conn.cursor()
-    sql_command = "DELETE FROM " + db_name + "." + table_name + " WHERE " + where_params + ";"
+
+    sql_command = "DELETE FROM " +
+    db_name + "." + table_name +
+    " WHERE " + where_params + ";"
+
     cursor.execute(sql_command)
     db_conn.commit()
     result = cursor.rowcount
     return str(result)
 
+
 ''' AUX Functions '''
+
 
 def loadObjectStruct(objects_file):
     '''

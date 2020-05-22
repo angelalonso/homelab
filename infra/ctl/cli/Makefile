@@ -10,8 +10,6 @@ help:
 	@echo make run     - Run server
 	@echo make help    - this help
 
-init:
-	/home/aafmin/.local/bin/pipenv install
 
 sec:
 	@$(RUN_SEC)
@@ -20,5 +18,5 @@ test:
 	@$(RUN_TEST)
 
 
-.PHONY : init sec test help
+.PHONY : sec test help
 .DEFAULT_GOAL := run
