@@ -68,12 +68,16 @@ class TestAll(unittest.TestCase):
                                 obj_struct,
                                 'host',
                                 param) == params_object
-        # TODO: assert system exit 2
-        # param = 'mac_addre=aa:bb:cc:dd:ee'
-        # assert cli.checkParams(verb_struct,
-        # obj_struct,
-        # 'host',
-        # param) == params_object
+
+        # assert system exit 2
+        param = 'mac_addre=aa:bb:cc:dd:ee'
+        with self.assertRaises(SystemExit) as cm:
+            assert cli.createObject(verb_struct,
+                                    obj_struct,
+                                    'host',
+                                    param)
+        self.assertEqual(cm.exception.code, 2)
+
         params_object = {'name': 'test1', 'mac_address': 'aa:bb:cc:dd:ee'}
         param = TESTFOLDER + '/input_object.yaml'
         assert cli.createObject(verb_struct,
@@ -82,17 +86,43 @@ class TestAll(unittest.TestCase):
                                 param) == params_object
 
     @patch('cli.requests.get')  # Mock 'requests' module 'get' method.
-    def test_runAPiCall(self, mock_get):
+    def test_runAPiCall_get(self, mock_get):
         """Mocking using a decorator"""
 
         load_dotenv()
         API_HOST = os.getenv("API_HOST")
         API_PORT = os.getenv("API_PORT")
-        # TODO: change 201 to only creating new resources
-        mock_get.return_value.status_code = 201
+        mock_get.return_value.status_code = 200
         params_object = {'name': 'test1', 'mac_address': 'aa:bb:cc:dd:ee'}
 
         response = cli.runApiCall(API_HOST, API_PORT, 'get', params_object)
 
-        # Assert that the request-response cycle completed successfully.
+        self.assertEqual(response.status_code, 200)
+
+    @patch('cli.requests.post')  # Mock 'requests' module 'post' method.
+    def test_runAPiCall_post(self, mock_post):
+        """Mocking using a decorator"""
+
+        load_dotenv()
+        API_HOST = os.getenv("API_HOST")
+        API_PORT = os.getenv("API_PORT")
+        mock_post.return_value.status_code = 201
+        params_object = {'name': 'test1', 'mac_address': 'aa:bb:cc:dd:ee'}
+
+        response = cli.runApiCall(API_HOST, API_PORT, 'post', params_object)
+
+        self.assertEqual(response.status_code, 201)
+
+    @patch('cli.requests.delete')  # Mock 'requests' module 'delete' method.
+    def test_runAPiCall_delete(self, mock_delete):
+        """Mocking using a decorator"""
+
+        load_dotenv()
+        API_HOST = os.getenv("API_HOST")
+        API_PORT = os.getenv("API_PORT")
+        mock_delete.return_value.status_code = 201
+        params_object = {'name': 'test1', 'mac_address': 'aa:bb:cc:dd:ee'}
+
+        response = cli.runApiCall(API_HOST, API_PORT, 'delete', params_object)
+
         self.assertEqual(response.status_code, 201)

@@ -18,6 +18,8 @@ pycodestyle = "*"
 pytest-cov = "*"
 bandit = "*"
 pytest-flake8 = "*"
+mysql-connector = "*"
+flask = "*"
 
 [requires]
 python_version = "3.7"

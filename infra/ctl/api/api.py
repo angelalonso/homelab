@@ -58,7 +58,7 @@ def all_routes(obj):
                             return jsonify(result), 503
                     else:
                         result = e
-        return jsonify(result), 201
+        return jsonify(result), 200
     elif request.method == 'PUT':
         host = {
             'name': request.json['name'],
@@ -161,10 +161,8 @@ def createTable_mysql(db_conn, db_name, table_name, structure):
 
 def select_mysql(db_conn, db_name, table_name, fields, where_params):
     cursor = db_conn.cursor()
-
-    sql_command = "SELECT " + fields +  # noqa E999
-    " FROM " + db_name + "." + table_name +
-    " WHERE " + where_params + ";"
+    sql_command = "SELECT " + fields + " FROM " + db_name + "." + table_name
+    + " WHERE " + where_params + ";"
     cursor.execute(sql_command)
     records = cursor.fetchall()
     return records
@@ -172,11 +170,8 @@ def select_mysql(db_conn, db_name, table_name, fields, where_params):
 
 def insert_mysql(db_conn, db_name, table_name, fields, values):
     cursor = db_conn.cursor()
-
-    sql_command = "INSERT INTO " +  # noqa E999
-    db_name + "." + table_name +
-    "(" + fields + ") VALUES(" + values + ")"
-
+    sql_command = "INSERT INTO " + db_name + "." + table_name
+    + "(" + fields + ") VALUES(" + values + ")"
     cursor.execute(sql_command)
     db_conn.commit()
     result = cursor.rowcount
@@ -189,11 +184,8 @@ def update_mysql():
 
 def delete_mysql(db_conn, db_name, table_name, where_params):
     cursor = db_conn.cursor()
-
-    sql_command = "DELETE FROM " +
-    db_name + "." + table_name +
-    " WHERE " + where_params + ";"
-
+    sql_command = "DELETE FROM " + db_name + "." + table_name
+    + " WHERE " + where_params + ";"
     cursor.execute(sql_command)
     db_conn.commit()
     result = cursor.rowcount
