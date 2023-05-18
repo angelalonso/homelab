@@ -1,4 +1,0 @@
-production
-host_vars/*
-!host_vars/template
-.env*

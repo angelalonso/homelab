@@ -1,5 +1,0 @@
-host:
-  name:
-    mysql_scheme: "char(60) DEFAULT ''"
-  mac_address:
-    mysql_scheme: "char(17) DEFAULT '00:00:00:00:00:00'"

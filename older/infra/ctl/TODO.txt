@@ -1,7 +1,0 @@
-- Update Bind config from latest IP available, IF CHANGED
-- Build an API on top of it to check current configuration of dns server (/dns)
-- Build an API to check current state of hosts (/host)
-- Identify MySQL status
-- Build an API to check current state of DBs (/db)
-- Build an API to control volumes (/data)
-
