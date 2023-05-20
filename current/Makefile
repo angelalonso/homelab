@@ -13,7 +13,7 @@ runtest: # just run the TEST tasks
 
 .PHONY: runfast
 runfast: # just run the tasks that are not one-timers
-	@ansible-playbook ./playbooks/*.yml -e @variables.enc --ask-vault-pass --user labmin -i ./hosts --tags "do_always"
+	@ansible-playbook ./playbooks/*.yml -e @variables.enc --ask-vault-pass --user labmin -i ./hosts --tags "do_always" --skip-tags "test"
 
 .PHONY: run
 run: # run the PROD tasks
