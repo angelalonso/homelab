@@ -1,0 +1,47 @@
+- hosts: "*"
+  become: yes
+  tasks:
+
+    - name: apt upgrade
+      apt:
+        update_cache: yes
+        upgrade: yes
+      tags:
+        - prod
+        - do_always
+
+    - name: Install a list of packages
+      ansible.builtin.apt:
+        pkg:
+        - vim
+        - ufw
+      tags:
+        - prod
+        - do_once
+
+    - name: Creates scripts directory
+      file:
+        path: /home/{{ user }}/scripts
+        state: directory
+      tags:
+        - prod
+        - do_once
+
+    - name: Copy over script to blink LED
+      ansible.builtin.template:
+        src: ../files/led_blink.py
+        dest: /home/{{ user }}/scripts/led_blink.py
+      tags:
+        - prod
+        - do_once
+
+    - name: Template SSHD config
+      ansible.builtin.template:
+        src: ../templates/sshd_config
+        dest: /etc/ssh/sshd_config
+        owner: root
+        group: root
+        mode: '0644'
+      tags:
+        - prod
+        - do_once

@@ -4,7 +4,7 @@ Cluster with 4 Raspberry Pis v1 (32bit)
 
 # Goals
 
-1 Manager Serverthat doubles as:
+1 Manager Server that doubles as:
 - Data store
 - Music server
 - Frontend to services on the other 3 Servers

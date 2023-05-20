@@ -1,0 +1,2 @@
+[servers]
+  main01 ansible_port="{{ ssh_port }}"   # check /etc/hosts

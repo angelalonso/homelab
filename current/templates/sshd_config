@@ -1,0 +1,15 @@
+Include /etc/ssh/sshd_config.d/*.conf
+
+AcceptEnv LANG LC_*
+ChallengeResponseAuthentication no
+ClientAliveInterval 300 
+MaxAuthTries 3
+PasswordAuthentication no 
+PermitEmptyPasswords no 
+PermitRootLogin no 
+Port {{ ssh_port }}
+PrintMotd no
+Protocol 2 
+Subsystem       sftp    /usr/lib/openssh/sftp-server
+UsePAM yes
+X11Forwarding no 
