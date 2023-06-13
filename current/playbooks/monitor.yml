@@ -1,0 +1,97 @@
+- gather_facts: no
+  hosts: "*"
+  become: yes
+  tasks:
+
+    # APT #
+
+    - name: Apt upgrade
+      apt:
+        update_cache: yes
+        upgrade: yes
+      tags:
+        - prod
+        - do_always
+    - name: update and install prometheus
+      apt:
+        name: prometheus
+        state: latest
+        update_cache: yes
+        cache_valid_time: 3600
+      tags:
+        - prod
+        - do_once
+#    - name: prometheus args
+#      template:
+#        src: ../templates/prometheus.j2
+#        dest: /etc/default/prometheus
+#        mode: 0644
+#        owner: root
+#        group: root
+#      notify: restart_prometheus
+#      tags:
+#        - prod
+#        - do_always
+    - name: prometheus configuration file
+      vars:
+        prometheus_dir_configuration: "/etc/prometheus"
+        prometheus_retention_time: "365d"
+        prometheus_scrape_interval: "30s"
+        prometheus_node_exporter: true
+        prometheus_node_exporter_group: "all"
+        prometheus_env: "production"
+        prometheus_var_config:
+          global:
+            scrape_interval: "{{ prometheus_scrape_interval }}"
+            evaluation_interval: 5s
+            external_labels:
+              env: '{{ prometheus_env }}'
+          scrape_configs:
+            - job_name: prometheus
+              scrape_interval: 5m
+              static_configs:
+                - targets: ['{{ inventory_hostname }}:9090']
+      template:
+        src: ../templates/prometheus.yml.j2
+        dest: "{{ prometheus_dir_configuration }}/prometheus.yml"
+        mode: 0755
+        owner: prometheus
+        group: prometheus
+      notify: reload_prometheus
+      tags:
+        - prod
+        - do_always
+
+    - name: start prometheus
+      systemd:
+        name: prometheus
+        state: started
+        enabled: yes
+      tags:
+        - prod
+        - do_always
+
+    - name: reload_prometheus
+      uri:
+        url: http://localhost:9090/-/reload
+        method: POST
+        status_code: 200
+
+    - name: Allow prometheus port
+      community.general.ufw:
+        rule: allow
+        port: "9090"
+        proto: tcp
+      tags:
+        - prod
+        - do_always
+
+    - name: Allow SSH port
+      community.general.ufw:
+        rule: allow
+        port: "{{ ssh_port }}"
+        proto: tcp
+      tags:
+        - prod
+        - do_once
+

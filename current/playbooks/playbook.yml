@@ -1,6 +1,9 @@
-- hosts: "*"
+- gather_facts: no
+  hosts: "*"
   become: yes
   tasks:
+
+    # APT #
 
     - name: Apt upgrade
       apt:
@@ -10,14 +13,36 @@
         - prod
         - do_always
 
-    - name: Install a list of packages
+    - name: Remove a list of packages
       ansible.builtin.apt:
         pkg:
-        - vim
-        - ufw
+        - python-configparser
+        state: absent
       tags:
         - prod
         - do_once
+
+    - name: Install a list of packages
+      ansible.builtin.apt:
+        pkg:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - libffi-dev 
+        - libssl-dev
+        - python3 
+        - python3-pip 
+        - python3-setuptools
+        - rustc
+        - software-properties-common
+        - ufw
+        - vim
+        - virtualenv
+      tags:
+        - prod
+        - do_once
+
+    # SCRIPTS AND FILES #
 
     - name: Creates scripts directory
       file:
@@ -35,13 +60,3 @@
         - prod
         - do_once
 
-    - name: Template SSHD config
-      ansible.builtin.template:
-        src: ../templates/sshd_config
-        dest: /etc/ssh/sshd_config
-        owner: root
-        group: root
-        mode: '0644'
-      tags:
-        - prod
-        - do_once
