@@ -42,12 +42,12 @@
         - prod
         - do_once
 
-    - name: Deny Ports, prometheus
-      community.general.ufw:
-        rule: deny
-        port: 9090
-        proto: tcp
-      tags:
-        - prod
-        - do_once
+          #    - name: Deny Ports, prometheus
+          #      community.general.ufw:
+          #        rule: deny
+          #        port: 9090
+          #        proto: tcp
+          #      tags:
+          #        - prod
+          #        - do_once
 
